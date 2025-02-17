@@ -1,4 +1,3 @@
-'use client'
 import { DataGrid, GridColDef, GridColumnGroupingModel } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 

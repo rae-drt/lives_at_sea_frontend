@@ -1,10 +1,10 @@
 import './App.css';
-import ServiceTable from './servicetable.js';
+import ServiceRecord from './servicerecord.js';
 
 function App() {
   return (
     <div className="App">
-      <ServiceTable/><ServiceTable/>
+      <ServiceRecord/>
     </div>
   );
 }
