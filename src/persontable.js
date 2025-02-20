@@ -2,32 +2,7 @@ import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-//Begin dummy data
-function createData(
-  forename: string[],
-  surname: string,
-  number: number,
-  birthDate: Date,
-  birthPlace: string,
-  birthCounty: string,
-  occupation: string,
-  dischargeDate: Date,
-  dischargeReason: string,
-) {
-  return { forename, surname, number, birthDate, birthPlace, birthCounty, occupation, dischargeDate, dischargeReason }
-}
-
-const data = createData(
-  'Richard John', 'Bishop',
-  309728,
-  new Date(1884, 3, 20),
-  'Walworth', 'London',
-  'Porter',
-  new Date(1928, 2, 19), 'Pensioned',
-)
-//End dummy data
-
-export default function PersonTable() {
+export default function PersonTable({data}) {
   return (
     <Grid container columns={7}>
       <Grid size={1} container alignItems='center'><Typography>Forename, surname</Typography></Grid>
