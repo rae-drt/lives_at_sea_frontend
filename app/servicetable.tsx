@@ -2,95 +2,6 @@
 import { DataGrid, GridColDef, GridColumnGroupingModel } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
-//Begin dummy data
-function createData(
-  ship: string,
-  rating: string,
-  fromDate: Date,
-  toDate: Date,
-) {
-  return { ...{id: createData.id++}, ship, rating, fromDate, toDate }
-}
-createData.id = 1
-//NB This style of Date constructor takes Year, Month, Day, with months (only) counting from 0
-const rows = [
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-];
-//End dummy data
-
-
 const columnGroupingModel: GridColumnGroupingModel = [
   {
     groupId: 'fromDate',
@@ -171,11 +82,11 @@ const columns: GridColDef[] = [
 ].concat(dateColumns('from')).concat(dateColumns('to'))
 console.log(columns)
 
-export default function ServiceTable() {
+export default function ServiceTable({data}) {
   return (
     <Box>
       <DataGrid
-        rows={rows}
+        rows={data}
         columns={columns}
         initialState={{
           pagination: {
