@@ -14,7 +14,6 @@ const columnGroupingModel: GridColumnGroupingModel = [
 ]
 
 function daysInMonth(month: number, year: number) { //1-indexed month i.e. January is 1. Needs the year because of leap years.
-  console.log(month, year)
   //date takes 0-indexed month, so we've effectively already moved to the next month (e.g. Feb becomes March)
   //and then day 0 of a month is the final day of the previous month
   return new Date(year, month, 0).getDate()
@@ -79,7 +78,6 @@ const columns: GridColDef[] = [
     editable: true,
   },
 ].concat(dateColumns('from')).concat(dateColumns('to'))
-console.log(columns)
 
 export default function ServiceTable({data}) {
   return (
