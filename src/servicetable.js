@@ -1,5 +1,9 @@
 import { DataGrid, GridColDef, GridColumnGroupingModel } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Checkbox from '@mui/material/Checkbox';
+import Typography from '@mui/material/Typography';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 const columnGroupingModel: GridColumnGroupingModel = [
   {
@@ -79,9 +83,19 @@ const columns: GridColDef[] = [
   },
 ].concat(dateColumns('from')).concat(dateColumns('to'))
 
-export default function ServiceTable({data}) {
+export function TranscriptionInfo({transcriber, complete, flipComplete}) {
+  return (
+    <Stack direction='row' spacing={4} alignItems='center'>
+      <Typography>Transcriber: {transcriber}</Typography>
+      <FormControlLabel control={<Checkbox checked={complete} onChange={flipComplete}/>} label='Complete' labelPlacement='start'/>
+    </Stack>
+  );
+}
+
+export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
   return (
     <Box>
+      <TranscriptionInfo transcriber={transcriptionInfo.transcriber} complete={transcriptionInfo.complete} flipComplete={flipComplete}/>
       <DataGrid
         rows={data}
         columns={columns}

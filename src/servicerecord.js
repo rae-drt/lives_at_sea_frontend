@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import PersonTable from './persontable';
 import ServiceTable from './servicetable';
@@ -114,10 +115,17 @@ const serviceTableData = [
 //End dummy data
 
 export default function ServiceRecord() {
+  //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
+  //      But this will do for now
+  const [transcription1, setTranscription1] = useState({transcriber: 'Fred Bloggs', complete: true});
+  const [transcription2, setTranscription2] = useState({transcriber: 'James Hedgehog', complete: false});
   return (
     <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
       <Stack direction='row' width={0.75}><PersonTable data={personTableData}/></Stack>
-      <Stack direction='row' width={1.00} sx={{justifyContent: 'space-evenly'}}><ServiceTable data={serviceTableData}/><ServiceTable data={serviceTableData}/></Stack>
+      <Stack direction='row' width={1.00} sx={{justifyContent: 'space-evenly'}}>
+        <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceTableData}/>
+        <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceTableData}/>
+      </Stack>
     </Stack>
   );
 }
