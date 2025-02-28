@@ -122,11 +122,16 @@ export default function ServiceRecord() {
   const [transcription1, setTranscription1] = useState({transcriber: 'Fred Bloggs', complete: true});
   const [transcription2, setTranscription2] = useState({transcriber: 'James Hedgehog', complete: false});
   return (
-    <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
-      <Stack direction='row' width={0.75}><PersonTable data={personTableData}/></Stack>
-      <Stack direction='row' width={1.00} sx={{justifyContent: 'space-around'}}>
-        <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceTableData}/>
-        <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceTableData}/>
+    <Stack direction='row' spacing={2}>
+      <Stack height='100vh' width={0.4} sx = {{overflow: 'scroll', position: 'sticky', top: '0px'}}>
+        <img width='125%' src={process.env.PUBLIC_URL + '/adm/188/506/309728.png'}/>
+      </Stack>
+      <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
+        <Stack direction='row' width={0.9}><PersonTable data={personTableData}/></Stack>
+        <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
+          <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceTableData}/>
+          <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceTableData}/>
+        </Stack>
       </Stack>
     </Stack>
   );
