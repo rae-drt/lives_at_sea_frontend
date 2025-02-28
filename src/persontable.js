@@ -22,32 +22,32 @@ export default function PersonTable({data}) {
           <Card>
             <CardContent>
               <Stack direction='row' spacing={2}>
-                <Grid container columns={7} alignItems='center' justifyContent='flex-start'>
-                  <Grid size={1} container direction='row'><Typography>Forename, surname</Typography></Grid>
+                <Grid container columns={8} alignItems='center' justifyContent='flex-start'>
+                  <Grid size={2} container direction='row'><Typography>Forename, surname</Typography></Grid>
                   <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.forename}/></Grid>
                   <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.surname}/></Grid>
                   <Grid size={0}/>{ /*!-- Empty element to align row*/ }
 
-                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Official number</Typography></Grid>
+                  <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Official number</Typography></Grid>
                   <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.number}/></Grid>
                   <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
-                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Born</Typography></Grid>
+                  <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Born</Typography></Grid>
                   <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.birthDate.getDate()}/></Grid>
                   <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.birthDate.getMonth() + 1}/></Grid>
                   <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.birthDate.getFullYear()}/></Grid>
                   <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
-                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Birth place, county</Typography></Grid>
+                  <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Birth place, county</Typography></Grid>
                   <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.birthPlace}/></Grid>
                   <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.birthCounty}/></Grid>
                   <Grid size={0}/>{ /*!-- Empty element to align row*/ }
 
-                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Occupation</Typography></Grid>
+                  <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Occupation</Typography></Grid>
                   <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.occupation}/></Grid>
                   <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
-                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Discharge date, reason</Typography></Grid>
+                  <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Discharge date, reason</Typography></Grid>
                   <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.dischargeDate.getDate()}/></Grid>
                   <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.dischargeDate.getMonth() + 1}/></Grid>
                   <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.dischargeDate.getFullYear()}/></Grid>
