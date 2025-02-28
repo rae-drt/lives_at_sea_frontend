@@ -14,8 +14,9 @@ function createPersonTableData(
   occupation: string,
   dischargeDate: Date,
   dischargeReason: string,
+  catalogue: string,
 ) {
-  return { forename, surname, number, birthDate, birthPlace, birthCounty, occupation, dischargeDate, dischargeReason }
+  return { forename, surname, number, birthDate, birthPlace, birthCounty, occupation, dischargeDate, dischargeReason, catalogue }
 }
 
 const personTableData = createPersonTableData(
@@ -25,6 +26,7 @@ const personTableData = createPersonTableData(
   'Walworth', 'London',
   'Porter',
   new Date(1928, 2, 19), 'Pensioned',
+  '188/506/309728',
 )
 
 function createServiceTableData(
