@@ -1,4 +1,6 @@
 import { DataGrid, GridColDef, GridColumnGroupingModel } from '@mui/x-data-grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Checkbox from '@mui/material/Checkbox';
@@ -94,23 +96,27 @@ export function TranscriptionInfo({transcriber, complete, flipComplete}) {
 
 export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
   return (
-    <Box>
-      <TranscriptionInfo transcriber={transcriptionInfo.transcriber} complete={transcriptionInfo.complete} flipComplete={flipComplete}/>
-      <DataGrid
-        rows={data}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 20,
-            },
-          },
-        }}
-        pageSizeOptions={[20]}
-        disableColumnSorting
-        disableColumnMenu
-        columnGroupingModel={columnGroupingModel}
-      />
-    </Box>
+    <Card>
+      <CardContent>
+        <Box>
+          <TranscriptionInfo transcriber={transcriptionInfo.transcriber} complete={transcriptionInfo.complete} flipComplete={flipComplete}/>
+          <DataGrid
+            rows={data}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 20,
+                },
+              },
+            }}
+            pageSizeOptions={[20]}
+            disableColumnSorting
+            disableColumnMenu
+            columnGroupingModel={columnGroupingModel}
+          />
+        </Box>
+      </CardContent>
+    </Card>
   );
 }
