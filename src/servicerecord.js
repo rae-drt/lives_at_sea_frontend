@@ -122,7 +122,7 @@ export default function ServiceRecord() {
   return (
     <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
       <Stack direction='row' width={0.75}><PersonTable data={personTableData}/></Stack>
-      <Stack direction='row' width={1.00} sx={{justifyContent: 'space-evenly'}}>
+      <Stack direction='row' width={1.00} sx={{justifyContent: 'space-around'}}>
         <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceTableData}/>
         <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceTableData}/>
       </Stack>
