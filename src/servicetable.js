@@ -139,7 +139,9 @@ export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
             getRowHeight={()=>'auto'}
             columnHeaderHeight={28}
             sx={{
-              '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px' },
+              '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
+              '& .MuiDataGrid-columnSeparator': { display: 'none' },
+              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
             }}
           />
         </Box>
