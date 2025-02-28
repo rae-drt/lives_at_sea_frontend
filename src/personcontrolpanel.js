@@ -31,8 +31,9 @@ export function XCheck() {
 export default function PersonControlPanel() {
   return(
     <Stack
+      spacing={3}
       sx={{
-        justifyContent: "space-between",
+        justifyContent: "space-evenly",
         alignItems: "flex-end",
       }}>
       <XCheck/>

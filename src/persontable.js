@@ -12,59 +12,54 @@ import PersonControlPanel from './personcontrolpanel';
 
 export default function PersonTable({data}) {
   return (
-    <Stack alignItems='flex-start'>
-      <Typography variant='h6'>Service record, ADM {data.catalogue}</Typography>
-      <Stack direction='row' spacing={10} justifyContent='space-between'>
-        <Card>
-          <CardContent>
-            <Stack direction='row' spacing={2}>
-              <Grid container columns={7}>
-                <Grid size={1} container alignItems='center'><Typography>Forename, surname</Typography></Grid>
-                <Grid size={3}><TextField fullWidth defaultValue= {data.forename}/></Grid>
-                <Grid size={3}><TextField fullWidth defaultValue= {data.surname}/></Grid>
-                <Grid size={0}/>{ /*!-- Empty element to align row*/ }
+    <Stack direction='row' alignItems='flex-start' justifyContent='space-between' spacing={5}>
+      <Grid container alignItems='flex-end' columns={7}>
+        <Grid container size={5} justifyContent='flex-start'><Typography variant='h6'>Service record, ADM {data.catalogue}</Typography></Grid>
+        <Grid size={1}><FormControlLabel control={<Checkbox checked={false} onChange={(e)=>{console.log(e)}}/>} label='Error?' labelPlacement='start'/></Grid>
+        <Grid container size={1} justifyContent='flex-end'><Button variant='outlined' onClick={()=>{alert('clicked')}}>Enter</Button></Grid>
 
-                <Grid size={1} container alignItems='center'><Typography>Official number</Typography></Grid>
-                <Grid size={3}><TextField fullWidth defaultValue= {data.number}/></Grid>
-                <Grid size={3}/>{ /*!-- Empty element to align row*/ }
+        <Grid size={7}>
+          <Card>
+            <CardContent>
+              <Stack direction='row' spacing={2}>
+                <Grid container columns={7} alignItems='center' justifyContent='flex-start'>
+                  <Grid size={1} container direction='row'><Typography>Forename, surname</Typography></Grid>
+                  <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.forename}/></Grid>
+                  <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.surname}/></Grid>
+                  <Grid size={0}/>{ /*!-- Empty element to align row*/ }
 
-                <Grid size={1} container alignItems='center'><Typography>Born</Typography></Grid>
-                <Grid size={1}><TextField fullWidth defaultValue= {data.birthDate.getDate()}/></Grid>
-                <Grid size={1}><TextField fullWidth defaultValue= {data.birthDate.getMonth() + 1}/></Grid>
-                <Grid size={1}><TextField fullWidth defaultValue= {data.birthDate.getFullYear()}/></Grid>
-                <Grid size={3}/>{ /*!-- Empty element to align row*/ }
+                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Official number</Typography></Grid>
+                  <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.number}/></Grid>
+                  <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
-                <Grid size={1} container alignItems='center'><Typography>Birth place, county</Typography></Grid>
-                <Grid size={3}><TextField fullWidth defaultValue= {data.birthPlace}/></Grid>
-                <Grid size={3}><TextField fullWidth defaultValue= {data.birthCounty}/></Grid>
-                <Grid size={0}/>{ /*!-- Empty element to align row*/ }
+                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Born</Typography></Grid>
+                  <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.birthDate.getDate()}/></Grid>
+                  <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.birthDate.getMonth() + 1}/></Grid>
+                  <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.birthDate.getFullYear()}/></Grid>
+                  <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
-                <Grid size={1} container alignItems='center'><Typography>Occupation</Typography></Grid>
-                <Grid size={3}><TextField fullWidth defaultValue= {data.occupation}/></Grid>
-                <Grid size={3}/>{ /*!-- Empty element to align row*/ }
+                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Birth place, county</Typography></Grid>
+                  <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.birthPlace}/></Grid>
+                  <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.birthCounty}/></Grid>
+                  <Grid size={0}/>{ /*!-- Empty element to align row*/ }
 
-                <Grid size={1} container alignItems='center'><Typography>Discharge date, reason</Typography></Grid>
-                <Grid size={1}><TextField fullWidth defaultValue= {data.dischargeDate.getDate()}/></Grid>
-                <Grid size={1}><TextField fullWidth defaultValue= {data.dischargeDate.getMonth() + 1}/></Grid>
-                <Grid size={1}><TextField fullWidth defaultValue= {data.dischargeDate.getFullYear()}/></Grid>
-                <Grid size={3}><TextField fullWidth defaultValue= {data.dischargeReason}/></Grid>
-                <Grid size={0}/>{ /*!-- Empty element to align row*/ }
-              </Grid>
-              <Stack
-                sx={{
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}>
-                <FormControlLabel control={<Checkbox checked={false} onChange={(e)=>{console.log(e)}}/>} label='Error?' labelPlacement='start'/>
-                <Button variant='outlined' onClick={()=>{alert('clicked')}}>Enter</Button>
+                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Occupation</Typography></Grid>
+                  <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.occupation}/></Grid>
+                  <Grid size={3}/>{ /*!-- Empty element to align row*/ }
+
+                  <Grid size={1} container direction='row' alignItems='flex-start'><Typography>Discharge date, reason</Typography></Grid>
+                  <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.dischargeDate.getDate()}/></Grid>
+                  <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.dischargeDate.getMonth() + 1}/></Grid>
+                  <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.dischargeDate.getFullYear()}/></Grid>
+                  <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.dischargeReason}/></Grid>
+                  <Grid size={0}/>{ /*!-- Empty element to align row*/ }
+                </Grid>
               </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-        <Stack direction='row'>
-          <PersonControlPanel/>
-        </Stack>
-      </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+      <PersonControlPanel/>
     </Stack>
   );
 }
