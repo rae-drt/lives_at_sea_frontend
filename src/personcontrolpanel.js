@@ -28,8 +28,9 @@ export function RecordNavigator({nameId, onChangeNameId}) {
       fetchData();
     }, [id, onChange]);
     */
+    const loading = useContext(LoadingContext);
     return(
-      <IconButton onClick={()=>onChange(id - 1)} ><WestIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>onChange(id - 1)} ><WestIcon color='primary'/></IconButton>
     );
   }
   function RecordNavigatorForward({id, onChange}) {
@@ -46,8 +47,9 @@ export function RecordNavigator({nameId, onChangeNameId}) {
       fetchData();
     }, [id, onChange]);
       */
+    const loading = useContext(LoadingContext);
     return(
-      <IconButton onClick={()=>onChange(id + 1)}><EastIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>onChange(id + 1)}><EastIcon color='primary'/></IconButton>
     );
   }
   return (
