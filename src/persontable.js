@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid2';
@@ -25,8 +26,30 @@ export function PersonTableField({data, onChange, field}) {
   );
 }
 
-export default function PersonTable({data, onChange}) {
-  if(typeof data !== 'undefined') {
+export default function PersonTable({id, onChange}) {
+  const [data, setData] = useState();
+  const [fetching, setFetching] = useState(true);
+  useEffect(() => {
+    console.warn('Triggered personTableData effect (nameID === ' + id + ')');
+    const fetchData = async() => {
+      const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + id));
+      if(!response.ok) {
+        throw new Error('Bad response: ' + response.status);
+      }
+      const data = await(response.json());
+      console.log('Effect: ', data);
+      setData(data);
+      setFetching(false);
+      //setPersonTableData(personTableData); //For when I have no network
+    }
+    fetchData();
+    console.warn('Completed personTableData effect (nameID === ' + id + ')');
+  }, [id]);
+  console.log('Render: ', data);
+  if(fetching) {
+    return <Typography>Fetching...</Typography>
+  }
+  else {
     return (
       <Stack direction='row' alignItems='flex-start' justifyContent='space-between' spacing={5}>
         <Grid container alignItems='flex-end' columns={7}>
@@ -40,34 +63,34 @@ export default function PersonTable({data, onChange}) {
                 <Stack direction='row' spacing={2}>
                   <Grid container columns={8} alignItems='center' justifyContent='flex-start'>
                     <Grid size={2} container direction='row'><Typography>Forename, surname</Typography></Grid>
-                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='forename'/></Grid>
-                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='surname'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={setData} field='forename'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={setData} field='surname'/></Grid>
                     <Grid size={0}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Official number</Typography></Grid>
-                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='officialnumber'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={setData} field='officialnumber'/></Grid>
                     <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Born</Typography></Grid>
-                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='birthday'/></Grid>
-                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='birthmonth'/></Grid>
-                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='birthyear'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={setData} field='birthday'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={setData} field='birthmonth'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={setData} field='birthyear'/></Grid>
                     <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Birth place, county</Typography></Grid>
-                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='birthplace'/></Grid>
-                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='birthcounty'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={setData} field='birthplace'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={setData} field='birthcounty'/></Grid>
                     <Grid size={0}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Occupation</Typography></Grid>
-                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='occupation'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={setData} field='occupation'/></Grid>
                     <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Discharge date, reason</Typography></Grid>
-                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='dischargeday'/></Grid>
-                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='dischargemonth'/></Grid>
-                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='dischargeyear'/></Grid>
-                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='dischargereason'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={setData} field='dischargeday'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={setData} field='dischargemonth'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={setData} field='dischargeyear'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={setData} field='dischargereason'/></Grid>
                     <Grid size={0}/>{ /*!-- Empty element to align row*/ }
                   </Grid>
                 </Stack>
@@ -78,8 +101,5 @@ export default function PersonTable({data, onChange}) {
         <PersonControlPanel data={data} onChange={onChange}/>
       </Stack>
     );
-  }
-  else {
-    return(<Typography>Fetching...</Typography>);
   }
 }
