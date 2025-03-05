@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Stack from '@mui/material/Stack';
 import PersonTable from './persontable';
 import ServiceTable from './servicetable';
@@ -6,31 +6,6 @@ import ServiceTable from './servicetable';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 //Begin dummy data
-function createPersonTableData(
-  forename: string[],
-  surname: string,
-  number: number,
-  birthDate: Date,
-  birthPlace: string,
-  birthCounty: string,
-  occupation: string,
-  dischargeDate: Date,
-  dischargeReason: string,
-  catalogue: string,
-) {
-  return { forename, surname, number, birthDate, birthPlace, birthCounty, occupation, dischargeDate, dischargeReason, catalogue }
-}
-
-const personTableData = createPersonTableData(
-  'Richard John', 'Bishop',
-  309728,
-  new Date(1884, 3, 20),
-  'Walworth', 'London',
-  'Porter',
-  new Date(1928, 2, 19), 'Pensioned',
-  '188/506/309728',
-)
-
 function createServiceTableData(
   ship: string,
   rating: string,
@@ -121,8 +96,21 @@ const serviceTableData = [
 export default function ServiceRecord() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
+  const [nameId, setNameId] = useState(100000);
+  const [personTableData, setPersonTableData] = useState();
   const [transcription1, setTranscription1] = useState({transcriber: 'Fred Bloggs', complete: true});
   const [transcription2, setTranscription2] = useState({transcriber: 'James Hedgehog', complete: false});
+  useEffect(() => {
+    const fetchData = async() => {
+      const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
+      if(!response.ok) {
+        throw new Error('Bad response: ' + response.status);
+      }
+      const data = await(response.json());
+      setPersonTableData(data);
+    }
+    fetchData();
+  }, [nameId]);
 
   const theme = createTheme({
     typography: {
