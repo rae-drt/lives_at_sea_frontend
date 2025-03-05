@@ -15,7 +15,6 @@ export function RecordNavigator({nameId, onChangeNameId}) {
   function RecordNavigatorBack({id, onChange}) {
     /*
     useEffect(() => {
-      console.warn('Triggered nameId backward effect (nameId === ' + id + ')');
       const fetchData = async() => {
         const response = await(fetch(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=1&startafter=' + (id - 1)));
         if(!response.ok) {
@@ -23,10 +22,8 @@ export function RecordNavigator({nameId, onChangeNameId}) {
         }
         const data = await(response.json());
         onChange(data.namelist[0]);
-        console.log('New nameId: ' + data.namelist[0]);
       }
       fetchData();
-      console.warn('Completed nameId effect (nameId === ' + id + ')');
     }, [id, onChange]);
     */
     return(
@@ -36,7 +33,6 @@ export function RecordNavigator({nameId, onChangeNameId}) {
   function RecordNavigatorForward({id, onChange}) {
     /*
     useEffect(() => {
-      console.warn('Triggered nameId forward effect (nameId === ' + id + ')');
       const fetchData = async() => {
         const response = await(fetch(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=1&startafter=' + (id - 1)));
         if(!response.ok) {
@@ -44,10 +40,8 @@ export function RecordNavigator({nameId, onChangeNameId}) {
         }
         const data = await(response.json());
         onChange(data.namelist[0]);
-        console.log('New nameId: ' + data.namelist[0]);
       }
       fetchData();
-      console.warn('Completed nameId effect (nameId === ' + id + ')');
     }, [id, onChange]);
       */
     return(
