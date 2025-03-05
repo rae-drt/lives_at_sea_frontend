@@ -10,6 +10,21 @@ import Button from '@mui/material/Button';
 
 import PersonControlPanel from './personcontrolpanel';
 
+export function PersonTableField({data, onChange, field}) {
+  return (
+    <TextField
+      size='small'
+      fullWidth
+      value={data[field]}
+      onChange={(e)=>{
+        const newData = {...data};
+        newData[field] = e.target.value;
+        onChange(newData);
+      }}
+    />
+  );
+}
+
 export default function PersonTable({data, onChange}) {
   if(typeof data !== 'undefined') {
     return (
@@ -25,34 +40,34 @@ export default function PersonTable({data, onChange}) {
                 <Stack direction='row' spacing={2}>
                   <Grid container columns={8} alignItems='center' justifyContent='flex-start'>
                     <Grid size={2} container direction='row'><Typography>Forename, surname</Typography></Grid>
-                    <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.forename} onChange={(e)=>{onChange({...data, forename: e.target.value});}}/></Grid>
-                    <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.surname} onChange={(e)=>{onChange({...data, surname: e.target.value});}}/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='forename'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='surname'/></Grid>
                     <Grid size={0}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Official number</Typography></Grid>
-                    <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.officialnumber} onChange={(e)=>{onChange({...data, officialnumber: e.target.value});}}/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='officialnumber'/></Grid>
                     <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Born</Typography></Grid>
-                    <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.birthday} onChange={(e)=>{onChange({...data, birthday: e.target.value});}}/></Grid>
-                    <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.birthmonth} onChange={(e)=>{onChange({...data, birthmonth: e.target.value});}}/></Grid>
-                    <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.birthyear} onChange={(e)=>{onChange({...data, birthyear: e.target.value});}}/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='birthday'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='birthmonth'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='birthyear'/></Grid>
                     <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Birth place, county</Typography></Grid>
-                    <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.birthplace} onChange={(e)=>{onChange({...data, birthplace: e.target.value});}}/></Grid>
-                    <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.birthcounty} onChange={(e)=>{onChange({...data, birthcounty: e.target.value});}}/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='birthplace'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='birthcounty'/></Grid>
                     <Grid size={0}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Occupation</Typography></Grid>
-                    <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.occupation} onChange={(e)=>{onChange({...data, occupation: e.target.value});}}/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='occupation'/></Grid>
                     <Grid size={3}/>{ /*!-- Empty element to align row*/ }
 
                     <Grid size={2} container direction='row' alignItems='flex-start'><Typography>Discharge date, reason</Typography></Grid>
-                    <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.dischargeday} onChange={(e)=>{onChange({...data, dischargeday: e.target.value});}}/></Grid>
-                    <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.dischargemonth} onChange={(e)=>{onChange({...data, dischargemonth: e.target.value});}}/></Grid>
-                    <Grid size={1}><TextField size='small' fullWidth defaultValue= {data.dischargeyear} onChange={(e)=>{onChange({...data, dischargeyear: e.target.value});}}/></Grid>
-                    <Grid size={3}><TextField size='small' fullWidth defaultValue= {data.dischargereason} onChange={(e)=>{onChange({...data, dischargereason: e.target.value});}}/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='dischargeday'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='dischargemonth'/></Grid>
+                    <Grid size={1}><PersonTableField data={data} onChange={onChange} field='dischargeyear'/></Grid>
+                    <Grid size={3}><PersonTableField data={data} onChange={onChange} field='dischargereason'/></Grid>
                     <Grid size={0}/>{ /*!-- Empty element to align row*/ }
                   </Grid>
                 </Stack>
