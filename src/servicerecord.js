@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import PersonTable from './persontable';
 import ServiceTable from './servicetable';
 import PersonControlPanel from './personcontrolpanel';
@@ -43,23 +44,30 @@ export default function ServiceRecord() {
     }
   });
 
-  return (
-    <Stack direction='row' spacing={2}>
-      <Stack height='100vh' width={0.4} sx = {{overflow: 'scroll', position: 'sticky', top: '0px'}}>
-        <img width='125%' src={process.env.PUBLIC_URL + '/adm/188/506/309728.png'} alt='Microfilm of record 309728 from ADM 188/506'/>
-      </Stack>
-      <ThemeProvider theme={theme}>
-        <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
-          <Stack direction='row' width={0.9}>
-            <PersonTable data={personTableData} onChange={setPersonTableData}/>
-            <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId}/>
-          </Stack>
-          <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-            <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceRecords[1]}/>
-            <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceRecords[2]}/>
-          </Stack>
+  if((typeof personTableData !== 'undefined') &&
+     (typeof serviceRecords  !== 'undefined') &&
+     (typeof nameId          !== 'undefined')) {
+    return (
+      <Stack direction='row' spacing={2}>
+        <Stack height='100vh' width={0.4} sx = {{overflow: 'scroll', position: 'sticky', top: '0px'}}>
+          <img width='125%' src={process.env.PUBLIC_URL + '/adm/188/506/309728.png'} alt='Microfilm of record 309728 from ADM 188/506'/>
         </Stack>
-      </ThemeProvider>
-    </Stack>
-  );
+        <ThemeProvider theme={theme}>
+          <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
+            <Stack direction='row' width={0.9}>
+              <PersonTable data={personTableData} onChange={setPersonTableData}/>
+              <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId}/>
+            </Stack>
+            <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
+              <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceRecords[1]}/>
+              <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceRecords[2]}/>
+            </Stack>
+          </Stack>
+        </ThemeProvider>
+      </Stack>
+    );
+  }
+  else {
+    return(<Typography>Fetching...</Typography>);
+  }
 }
