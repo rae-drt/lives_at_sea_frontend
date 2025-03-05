@@ -27,6 +27,7 @@ export default function ServiceRecord() {
       }
       const data = await(response.json());
       setPersonTableData(data);
+      ///*For when there is no network*/ setPersonTableData({"nameid": 0, "series": 188, "piece": 0, "forename": "", "surname": "", "officialnumber": "", "birthday": 0, "birthmonth": 0, "birthyear": 0, "birthplace": "", "birthcounty": "", "occupation": "", "dischargeday": 0, "dischargemonth": 0, "dischargeyear": 0, "dischargereason": "", "tr1id": 0, "complete1": false, "tr2id": 0, "complete2": false, "reconciled": false, "notWW1": false, "error": false});
       setFetchingPersonTableData(false);
     }
     fetchData();
@@ -40,6 +41,7 @@ export default function ServiceRecord() {
       }
       const data = await(response.json());
       setServiceRecords(data);
+      // /*For when there is no network*/ setServiceRecords({});
       setFetchingServices(false);
     }
     fetchData();
