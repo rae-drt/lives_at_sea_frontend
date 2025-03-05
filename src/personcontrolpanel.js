@@ -28,7 +28,7 @@ export function XCheck() {
   );
 }
 
-export default function PersonControlPanel() {
+export default function PersonControlPanel({data, onChange}) {
   return(
     <Stack
       spacing={3}
@@ -39,7 +39,7 @@ export default function PersonControlPanel() {
       <XCheck/>
       <RecordNavigator/>
       <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
-      <FormControlLabel control={<Checkbox checked={false} onChange={(e)=>{console.log(e)}}/>} label='Not WW1' labelPlacement='start'/>
+      <FormControlLabel control={<Checkbox checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
       <Button variant='contained'>EXTRAS</Button>
     </Stack>
   );

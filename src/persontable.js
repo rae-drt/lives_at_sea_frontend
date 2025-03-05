@@ -75,7 +75,7 @@ export default function PersonTable({data, onChange}) {
             </Card>
           </Grid>
         </Grid>
-        <PersonControlPanel/>
+        <PersonControlPanel data={data} onChange={onChange}/>
       </Stack>
     );
   }
