@@ -1,3 +1,6 @@
+import { useContext } from 'react';
+import { LoadingContext } from './loadingcontext';
+
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid2';
@@ -9,8 +12,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Button from '@mui/material/Button';
 
 export function PersonTableField({data, onChange, field}) {
+  const loading = useContext(LoadingContext);
   return (
     <TextField
+      disabled={loading}
       size='small'
       fullWidth
       value={data[field]}

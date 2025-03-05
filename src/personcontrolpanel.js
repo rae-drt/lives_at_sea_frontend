@@ -1,4 +1,5 @@
-import {useEffect} from 'react';
+import {useEffect, useContext } from 'react';
+import { LoadingContext } from './loadingcontext';
 
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -58,15 +59,17 @@ export function RecordNavigator({nameId, onChangeNameId}) {
 }
 
 export function XCheck() {
+  const loading = useContext(LoadingContext);
   return (
     <Stack direction='row' alignItems='center'>
       <SadIcon sx = {{color: 'red'}}/>
-      <FormControlLabel control={<Checkbox disabled checked={false} onChange={(e)=>{console.log(e)}}/>} label='Xcheck' labelPlacement='start'/>
+      <FormControlLabel control={<Checkbox disabled={loading || true} checked={false} onChange={(e)=>{console.log(e)}}/>} label='Xcheck' labelPlacement='start'/>
     </Stack>
   );
 }
 
 export default function PersonControlPanel({data, onChange, nameId, onChangeNameId}) {
+  const loading = useContext(LoadingContext);
   return(
     <Stack
       spacing={3}
@@ -77,7 +80,7 @@ export default function PersonControlPanel({data, onChange, nameId, onChangeName
       <XCheck/>
       <RecordNavigator nameId={nameId} onChangeNameId={onChangeNameId}/>
       <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
-      <FormControlLabel control={<Checkbox checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
+      <FormControlLabel control={<Checkbox disabled={loading} checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
       <Button variant='contained'>EXTRAS</Button>
     </Stack>
   );

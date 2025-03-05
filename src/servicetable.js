@@ -1,3 +1,6 @@
+import { useContext } from 'react';
+import { LoadingContext } from './loadingcontext';
+
 import { DataGrid, GridColDef, GridColumnGroupingModel } from '@mui/x-data-grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -80,6 +83,8 @@ export function TranscriptionInfo({transcriber, complete, flipComplete}) {
 }
 
 export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
+  const loading = useContext(LoadingContext);
+
   const apiRef = useGridApiRef();
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -99,6 +104,7 @@ export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
         <Box>
           <TranscriptionInfo transcriber={transcriptionInfo.transcriber} complete={transcriptionInfo.complete} flipComplete={flipComplete}/>
           <DataGrid
+            loading={loading}
             apiRef={apiRef}
             rows={data}
             columns={columns}
