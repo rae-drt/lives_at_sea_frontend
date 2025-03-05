@@ -73,18 +73,23 @@ export function XCheck() {
 }
 
 export default function PersonControlPanel({data, onChange, nameId, onChangeNameId}) {
-  return(
-    <Stack
-      spacing={3}
-      sx={{
-        justifyContent: "space-evenly",
-        alignItems: "flex-end",
-      }}>
-      <XCheck/>
-      <RecordNavigator nameId={nameId} onChangeNameId={onChangeNameId}/>
-      <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
-      <FormControlLabel control={<Checkbox checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
-      <Button variant='contained'>EXTRAS</Button>
-    </Stack>
-  );
+  if(typeof data !== 'undefined') {
+    return(
+      <Stack
+        spacing={3}
+        sx={{
+          justifyContent: "space-evenly",
+          alignItems: "flex-end",
+        }}>
+        <XCheck/>
+        <RecordNavigator nameId={nameId} onChangeNameId={onChangeNameId}/>
+        <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
+        <FormControlLabel control={<Checkbox checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
+        <Button variant='contained'>EXTRAS</Button>
+      </Stack>
+    );
+  }
+  else {
+    return(<Typography>Fetching...</Typography>);
+  }
 }

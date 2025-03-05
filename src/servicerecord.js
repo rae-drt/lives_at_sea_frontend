@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Stack from '@mui/material/Stack';
 import PersonTable from './persontable';
 import ServiceTable from './servicetable';
+import PersonControlPanel from './personcontrolpanel';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -49,7 +50,10 @@ export default function ServiceRecord() {
       </Stack>
       <ThemeProvider theme={theme}>
         <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
-          <Stack direction='row' width={0.9}><PersonTable data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId}/></Stack>
+          <Stack direction='row' width={0.9}>
+            <PersonTable data={personTableData} onChange={setPersonTableData}/>
+            <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId}/>
+          </Stack>
           <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
             <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceRecords[1]}/>
             <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceRecords[2]}/>
