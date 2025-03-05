@@ -10,10 +10,6 @@ import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { useEffect } from 'react';
-import { useGridApiRef } from "@mui/x-data-grid";
-import ReactDOM from 'react-dom';
-
 const columnGroupingModel: GridColumnGroupingModel = [
   {
     groupId: 'fromDate',
@@ -29,7 +25,8 @@ const columnGroupingModel: GridColumnGroupingModel = [
 const columns: GridColDef[] = [
   {
     field: 'row',
-    headerName: 'Row'
+    headerName: 'Row',
+    width: 50,
   },
   {
     field: 'ship',
@@ -39,36 +36,47 @@ const columns: GridColDef[] = [
   {
     field: 'rating',
     headerName: 'Rating',
+    width: 75,
     editable: true,
   },
   {
     field: 'fromday',
     headerName: 'D',
+    width: 40,
+    minWidth: 40,
     editable: true,
   },
   {
     field: 'frommonth',
     headerName: 'M',
+    width: 30,
+    minWidth: 40,
     editable: true,
   },
   {
     field: 'fromyear',
     headerName: 'Y',
+    width: 50,
     editable: true,
   },
   {
     field: 'today',
     headerName: 'D',
+    width: 40,
+    minWidth: 40,
     editable: true,
   },
   {
     field: 'tomonth',
     headerName: 'M',
+    width: 40,
+    minWidth: 40,
     editable: true,
   },
   {
     field: 'toyear',
     headerName: 'Y',
+    width: 50,
     editable: true,
   },
 ];
@@ -85,19 +93,6 @@ export function TranscriptionInfo({transcriber, complete, flipComplete}) {
 export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
   const loading = useContext(LoadingContext);
 
-  const apiRef = useGridApiRef();
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      ReactDOM.flushSync(() => {
-        //apiRef.current.updateRows(data); This is in the example here https://github.com/mui/mui-x/issues/10578 (number 3, the preferred option) but is not usable in free version of DataGrid
-        apiRef.current.autosizeColumns({ includeHeaders:false });
-      });
-    }, 1000);
-    return () => {
-      clearInterval(timeoutId);
-    };
-  }, [data, apiRef]);
-
   return (
     <Card>
       <CardContent>
@@ -105,7 +100,6 @@ export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
           <TranscriptionInfo transcriber={transcriptionInfo.transcriber} complete={transcriptionInfo.complete} flipComplete={flipComplete}/>
           <DataGrid
             loading={loading}
-            apiRef={apiRef}
             density='compact'
             rows={data}
             columns={columns}
@@ -121,12 +115,7 @@ export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
             disableColumnSorting
             disableColumnMenu
             columnGroupingModel={columnGroupingModel}
-            autosizeOnMount
-            autosizeOptions={{
-              includeHeaders: false,
-            }}
             getRowHeight={()=>'auto'}
-            columnHeaderHeight={28}
             sx={{
               '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
               '& .MuiDataGrid-columnSeparator': { display: 'none' },
