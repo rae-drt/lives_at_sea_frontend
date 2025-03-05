@@ -25,7 +25,7 @@ export function PersonTableField({data, onChange, field}) {
   );
 }
 
-export default function PersonTable({data, onChange}) {
+export default function PersonTable({data, onChange, nameId, onChangeNameId}) {
   if(typeof data !== 'undefined') {
     return (
       <Stack direction='row' alignItems='flex-start' justifyContent='space-between' spacing={5}>
@@ -75,7 +75,7 @@ export default function PersonTable({data, onChange}) {
             </Card>
           </Grid>
         </Grid>
-        <PersonControlPanel data={data} onChange={onChange}/>
+        <PersonControlPanel data={data} onChange={onChange} nameId={nameId} onChangeNameId={onChangeNameId}/>
       </Stack>
     );
   }
