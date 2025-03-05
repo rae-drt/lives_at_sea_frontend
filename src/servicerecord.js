@@ -125,7 +125,7 @@ export default function ServiceRecord() {
       </Stack>
       <ThemeProvider theme={theme}>
         <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
-          <Stack direction='row' width={0.9}><PersonTable data={personTableData}/></Stack>
+          <Stack direction='row' width={0.9}><PersonTable data={personTableData} onChange={setPersonTableData}/></Stack>
           <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
             <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceTableData}/>
             <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceTableData}/>
