@@ -106,6 +106,7 @@ export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
           <DataGrid
             loading={loading}
             apiRef={apiRef}
+            density='compact'
             rows={data}
             columns={columns}
             getRowId = {(row) => {return row.row;}}
