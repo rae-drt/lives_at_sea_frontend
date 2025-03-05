@@ -8,6 +8,8 @@ import { LoadingContext } from './loadingcontext';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
+const _ = require('lodash');
+
 export default function ServiceRecord() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
@@ -68,7 +70,7 @@ export default function ServiceRecord() {
             <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
               <Stack direction='row' width={0.9}>
                 <PersonTable data={personTableData} onChange={setPersonTableData}/>
-                <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId}/>
+                <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId} serviceEquality={_.isEqual(serviceRecords[1], serviceRecords[2])}/>
               </Stack>
               <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
                 <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceRecords[1]}/>

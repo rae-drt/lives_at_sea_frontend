@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
+import HappyIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import SadIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import WestIcon from '@mui/icons-material/ArrowBack'
 import EastIcon from '@mui/icons-material/ArrowForward';
@@ -58,17 +59,17 @@ export function RecordNavigator({nameId, onChangeNameId}) {
   );
 }
 
-export function XCheck() {
+export function XCheck({equal}) {
   const loading = useContext(LoadingContext);
   return (
     <Stack direction='row' alignItems='center'>
-      <SadIcon sx = {{color: 'red'}}/>
-      <FormControlLabel control={<Checkbox disabled={loading || true} checked={false} onChange={(e)=>{console.log(e)}}/>} label='Xcheck' labelPlacement='start'/>
+      {equal ? <HappyIcon sx = {{color: 'green'}}/> : <SadIcon sx = {{color: 'red'}}/>}
+      <FormControlLabel control={<Checkbox disabled={loading || (!equal)} checked={false} onChange={(e)=>{console.log(e)}}/>} label='Xcheck' labelPlacement='start'/>
     </Stack>
   );
 }
 
-export default function PersonControlPanel({data, onChange, nameId, onChangeNameId}) {
+export default function PersonControlPanel({data, onChange, nameId, onChangeNameId, serviceEquality}) {
   const loading = useContext(LoadingContext);
   return(
     <Stack
@@ -77,7 +78,7 @@ export default function PersonControlPanel({data, onChange, nameId, onChangeName
         justifyContent: "space-evenly",
         alignItems: "flex-end",
       }}>
-      <XCheck/>
+      <XCheck equal={serviceEquality}/>
       <RecordNavigator nameId={nameId} onChangeNameId={onChangeNameId}/>
       <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
       <FormControlLabel control={<Checkbox disabled={loading} checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
