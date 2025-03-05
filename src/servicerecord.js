@@ -5,99 +5,12 @@ import ServiceTable from './servicetable';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-//Begin dummy data
-function createServiceTableData(
-  ship: string,
-  rating: string,
-  fromDate: Date,
-  toDate: Date,
-) {
-  return { ...{id: createServiceTableData.id++}, ship, rating, fromDate, toDate }
-}
-createServiceTableData.id = 1
-//NB This style of Date constructor takes Year, Month, Day, with months (only) counting from 0
-const serviceTableData = [
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-  createServiceTableData('Cressy',  'Sto 2C', new Date(1907, 10, 17), new Date(1907,  0, 29)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1907,  0, 30), new Date(1907,  1, 12)),
-  createServiceTableData('Nelson',  'Sto 2C', new Date(1906,  1, 20), new Date(1906,  5,  8)),
-  createServiceTableData('Latona',  'Sto 2C', new Date(1906,  5,  9), new Date(1906,  9,  1)),
-  createServiceTableData('Victory', 'Sto 2C', new Date(1906,  9,  2), new Date(1906, 10, 16)),
-];
-//End dummy data
-
 export default function ServiceRecord() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
   const [nameId, setNameId] = useState(100000);
   const [personTableData, setPersonTableData] = useState();
+  const [serviceRecords, setServiceRecords] = useState([]);
   const [transcription1, setTranscription1] = useState({transcriber: 'Fred Bloggs', complete: true});
   const [transcription2, setTranscription2] = useState({transcriber: 'James Hedgehog', complete: false});
   useEffect(() => {
@@ -108,6 +21,17 @@ export default function ServiceRecord() {
       }
       const data = await(response.json());
       setPersonTableData(data);
+    }
+    fetchData();
+  }, [nameId]);
+  useEffect(() => {
+    const fetchData = async() => {
+      const response = await(fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId));
+      if(!response.ok) {
+        throw new Error('Bad response: ' + response.status);
+      }
+      const data = await(response.json());
+      setServiceRecords(data);
     }
     fetchData();
   }, [nameId]);
@@ -127,8 +51,8 @@ export default function ServiceRecord() {
         <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
           <Stack direction='row' width={0.9}><PersonTable data={personTableData} onChange={setPersonTableData}/></Stack>
           <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-            <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceTableData}/>
-            <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceTableData}/>
+            <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceRecords[1]}/>
+            <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceRecords[2]}/>
           </Stack>
         </Stack>
       </ThemeProvider>
