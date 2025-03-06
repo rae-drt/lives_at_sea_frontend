@@ -13,7 +13,7 @@ const _ = require('lodash');
 export default function ServiceRecord() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
-  const [nameId, setNameId] = useState(100000);
+  const [nameId, setNameId] = useState(40001); //lowest nameid as default
   const [personTableData, setPersonTableData] = useState();
   const [serviceRecords, setServiceRecords] = useState([]);
   const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
