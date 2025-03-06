@@ -16,8 +16,6 @@ export default function ServiceRecord() {
   const [nameId, setNameId] = useState(100000);
   const [personTableData, setPersonTableData] = useState();
   const [serviceRecords, setServiceRecords] = useState([]);
-  const [transcription1, setTranscription1] = useState({transcriber: 'Fred Bloggs', complete: true});
-  const [transcription2, setTranscription2] = useState({transcriber: 'James Hedgehog', complete: false});
   const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
   const [fetchingServices, setFetchingServices] = useState(true);
   useEffect(() => {
@@ -73,8 +71,8 @@ export default function ServiceRecord() {
                 <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId} serviceEquality={_.isEqual(serviceRecords[1], serviceRecords[2])}/>
               </Stack>
               <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceRecords[1]} onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}/>
-                <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceRecords[2]} onChange={(d)=>{setServiceRecords({1: structuredClone(serviceRecords[1]), 2: d});}}/>
+                <ServiceTable transcriber={personTableData.tr1id} complete={personTableData.complete1} flipComplete={()=>{setPersonTableData({...personTableData, complete: !personTableData.complete})}} data={serviceRecords[1]} onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}/>
+                <ServiceTable transcriber={personTableData.tr2id} complete={personTableData.complete2} flipComplete={()=>{setPersonTableData({...personTableData, complete: !personTableData.complete})}} data={serviceRecords[2]} onChange={(d)=>{setServiceRecords({1: structuredClone(serviceRecords[1]), 2: d});}}/>
               </Stack>
             </Stack>
           </ThemeProvider>

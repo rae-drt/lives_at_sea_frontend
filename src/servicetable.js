@@ -90,14 +90,14 @@ export function TranscriptionInfo({transcriber, complete, flipComplete}) {
   );
 }
 
-export default function ServiceTable({transcriptionInfo, flipComplete, data, onChange}) {
+export default function ServiceTable({transcriber, complete, flipComplete, data, onChange}) {
   const loading = useContext(LoadingContext);
 
   return (
     <Card>
       <CardContent>
         <Box>
-          <TranscriptionInfo transcriber={transcriptionInfo.transcriber} complete={transcriptionInfo.complete} flipComplete={flipComplete}/>
+          <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete}/>
           <DataGrid
             loading={loading}
             density='compact'
