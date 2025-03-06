@@ -73,8 +73,8 @@ export default function ServiceRecord() {
                 <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId} serviceEquality={_.isEqual(serviceRecords[1], serviceRecords[2])}/>
               </Stack>
               <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceRecords[1]}/>
-                <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceRecords[2]}/>
+                <ServiceTable transcriptionInfo={transcription1} flipComplete={()=>{setTranscription1({...transcription1, complete: !transcription1.complete})}} data={serviceRecords[1]} onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}/>
+                <ServiceTable transcriptionInfo={transcription2} flipComplete={()=>{setTranscription2({...transcription2, complete: !transcription2.complete})}} data={serviceRecords[2]} onChange={(d)=>{setServiceRecords({1: structuredClone(serviceRecords[1]), 2: d});}}/>
               </Stack>
             </Stack>
           </ThemeProvider>

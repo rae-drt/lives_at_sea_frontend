@@ -90,7 +90,7 @@ export function TranscriptionInfo({transcriber, complete, flipComplete}) {
   );
 }
 
-export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
+export default function ServiceTable({transcriptionInfo, flipComplete, data, onChange}) {
   const loading = useContext(LoadingContext);
 
   return (
@@ -110,6 +110,12 @@ export default function ServiceTable({transcriptionInfo, flipComplete, data}) {
                   pageSize: 20,
                 },
               },
+            }}
+            onCellEditStop = {(cellParams, e) => {
+              if('target' in e) { //if we click out without changing anything, e does not have a target (maybe not even an event, but this works) TODO is there an accepted way to handle this?
+              const newData = structuredClone(data);
+              newData[cellParams.id - 1][cellParams.field] = e.target.value;
+              onChange(newData);}
             }}
             pageSizeOptions={[20]}
             disableColumnSorting
