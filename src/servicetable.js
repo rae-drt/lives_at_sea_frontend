@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
 
-import { DataGrid, GridColDef, GridColumnGroupingModel } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColumnGroupingModel, gridClasses } from '@mui/x-data-grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
@@ -90,15 +90,29 @@ export function TranscriptionInfo({transcriber, complete, flipComplete}) {
   );
 }
 
-export default function ServiceTable({transcriber, complete, flipComplete, data, onChange}) {
+export default function ServiceTable({transcriber, complete, flipComplete, data, onChange, difference}) {
   const loading = useContext(LoadingContext);
 
   return (
     <Card>
       <CardContent>
-        <Box>
+        <Box
+          sx={{
+            [`.${gridClasses.cell}.differs`]: {
+              backgroundColor: '#ff943975',
+              color: '#1a3e72',
+            },
+          }}
+        >
           <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete}/>
           <DataGrid
+            getCellClassName={(p) => {
+              if(difference.length > 0) {
+                if(p.field in difference[p.id - 1]) {
+                  return 'differs';
+                }
+              }
+            }}
             loading={loading}
             density='compact'
             rows={data}

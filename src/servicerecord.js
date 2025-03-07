@@ -58,6 +58,26 @@ export default function ServiceRecord() {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
   else {
+    //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
+    const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords[1], serviceRecords[2]);
+    const differenceMap = sameServices ?
+      [] : //empty array if the services are identical. If there is any difference, the array will be the same length as the services
+           //TODO: I don't know what happens if there is a different number of service records, should look into that.
+      _.reduce(serviceRecords[1], (outerResult, outerValue, outerKey) => {
+        outerResult.push(
+          _.reduce(outerValue, (innerResult, innerValue, innerKey) => {
+            if(!_.isEqual(innerValue, serviceRecords[2][outerKey][innerKey])) {
+              innerResult[innerKey] = '';
+            }
+            return innerResult;
+          },
+          {} /*This will be passed/returned as innerResult, accumulating*/)
+        );
+        return outerResult;
+      },
+      [] /*This will be passed/returned as outerResult, accumulating*/
+    );
+
     return (
       <LoadingContext value={fetchingPersonTableData || fetchingServices}>
         <Stack direction='row' spacing={2}>
@@ -78,7 +98,7 @@ export default function ServiceRecord() {
                     personTableData.tr2id > 0 &&
                     personTableData.complete1 &&
                     personTableData.complete2 &&
-                    _.isEqual(serviceRecords[1], serviceRecords[2])
+                    sameServices
                   }
                 />
               </Stack>
@@ -89,12 +109,14 @@ export default function ServiceRecord() {
                   flipComplete={()=>{ setPersonTableData({...personTableData, complete1: !personTableData.complete1})}}
                   data={serviceRecords[1]}
                   onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}
+                  difference={differenceMap}
                 />
                 <ServiceTable
                   transcriber={personTableData.tr2id}
                   complete={personTableData.complete2}
                   flipComplete={()=>{setPersonTableData({...personTableData, complete2: !personTableData.complete2})}}
                   data={serviceRecords[2]} onChange={(d)=>{setServiceRecords({1: structuredClone(serviceRecords[1]), 2: d});}}
+                  difference={differenceMap}
                 />
               </Stack>
             </Stack>
