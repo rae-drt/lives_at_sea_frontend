@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
 import PersonTable from './persontable';
 import ServiceTable from './servicetable';
 import PersonControlPanel from './personcontrolpanel';
 import { LoadingContext } from './loadingcontext';
+import { useWindowedFetcher} from './windowedfetcher.ts';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -18,6 +19,8 @@ export default function ServiceRecord() {
   const [serviceRecords, setServiceRecords] = useState([]);
   const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
   const [fetchingServices, setFetchingServices] = useState(true);
+  const [idsPtr, setIdsPtr] = useState(0);
+  const [idsPtrOffset, setIdsPtrOffset] = useState(0);
   useEffect(() => {
     const fetchData = async() => {
       setFetchingPersonTableData(true);
@@ -46,6 +49,31 @@ export default function ServiceRecord() {
     }
     fetchData();
   }, [nameId]);
+  const windowedFetcher = useWindowedFetcher((from, size) => {
+    const fetchData = async() => {
+console.error(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=' + size + '&startafter=' + from);
+      const response = await(fetch(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=' + size + '&startafter=' + from));
+      if(!response.ok) {
+        throw new Error('Bad response: ' + response.status);
+      }
+      const data = await(response.json());
+      return { results: data.namelist, count: 999 }; //TODO: Need an API call to get the actual count (count should be total number of available records)
+    };
+    return fetchData;
+  });
+  const initWindowedFetcher = useCallback(() => {
+    if(windowedFetcher.initialized) {
+      console.log('Skipping effect init');
+    }
+    else {
+      console.error('fetchingEffect');
+      const fetchData = async() => {
+        await windowedFetcher.fetchInitial();
+      }
+      fetchData();
+    }
+  }, [windowedFetcher]);
+  useEffect(initWindowedFetcher, [initWindowedFetcher]);
 
   const theme = createTheme({
     typography: {
@@ -68,7 +96,11 @@ export default function ServiceRecord() {
             <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
               <Stack direction='row' width={0.9}>
                 <PersonTable data={personTableData} onChange={setPersonTableData}/>
-                <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId} serviceEquality={_.isEqual(serviceRecords[1], serviceRecords[2])}/>
+                <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={
+                  (x = 1)=>{
+                    setNameId(windowedFetcher.getNextRecord(x));
+                  }
+                } serviceEquality={_.isEqual(serviceRecords[1], serviceRecords[2])}/>
               </Stack>
               <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
                 <ServiceTable transcriber={personTableData.tr1id} complete={personTableData.complete1} flipComplete={()=>{setPersonTableData({...personTableData, complete: !personTableData.complete})}} data={serviceRecords[1]} onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}/>

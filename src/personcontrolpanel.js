@@ -15,41 +15,15 @@ import EastIcon from '@mui/icons-material/ArrowForward';
 
 export function RecordNavigator({nameId, onChangeNameId}) {
   function RecordNavigatorBack({id, onChange}) {
-    /*
-    useEffect(() => {
-      const fetchData = async() => {
-        const response = await(fetch(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=1&startafter=' + (id - 1)));
-        if(!response.ok) {
-          throw new Error('Bad response: ' + response.status);
-        }
-        const data = await(response.json());
-        onChange(data.namelist[0]);
-      }
-      fetchData();
-    }, [id, onChange]);
-    */
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>onChange(id - 1)} ><WestIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>onChange(-1)} ><WestIcon color='primary'/></IconButton>
     );
   }
   function RecordNavigatorForward({id, onChange}) {
-    /*
-    useEffect(() => {
-      const fetchData = async() => {
-        const response = await(fetch(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=1&startafter=' + (id - 1)));
-        if(!response.ok) {
-          throw new Error('Bad response: ' + response.status);
-        }
-        const data = await(response.json());
-        onChange(data.namelist[0]);
-      }
-      fetchData();
-    }, [id, onChange]);
-      */
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>onChange(id + 1)}><EastIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>onChange(1)}><EastIcon color='primary'/></IconButton>
     );
   }
   return (
