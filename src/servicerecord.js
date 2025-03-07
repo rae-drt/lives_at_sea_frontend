@@ -62,21 +62,21 @@ export default function ServiceRecord() {
     const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords[1], serviceRecords[2]);
     const differenceMap = sameServices ?
       [] : //empty array if the services are identical. If there is any difference, the array will be the same length as the shorter services table.
-      _.reduce(serviceRecords[1], (outerResult, outerValue, outerKey) => {
-        if(outerKey in serviceRecords[2]) { //check for this in case one table is longer than the other. will work out regardless of which is longer, as either way we get an array of less rows than the longer table.
-          outerResult.push(
-            _.reduce(outerValue, (innerResult, innerValue, innerKey) => {
-              if(!_.isEqual(innerValue, serviceRecords[2][outerKey][innerKey])) {
-                innerResult[innerKey] = '';
+      _.reduce(serviceRecords[1], (rowDifference, rowContent, rowIndex) => {
+        if(rowIndex in serviceRecords[2]) { //check for this in case one table is longer than the other. will work out regardless of which is longer, as either way we get an array of less rows than the longer table.
+          rowDifference.push(
+            _.reduce(rowContent, (cellDifference, cellContent, cellKey) => {
+              if(!_.isEqual(cellContent, serviceRecords[2][rowIndex][cellKey])) {
+                cellDifference[cellKey] = '';
               }
-              return innerResult;
+              return cellDifference;
             },
-            {} /*This will be passed/returned as innerResult, accumulating*/)
+            {} /*This will be passed/returned as cellDifference, accumulating*/)
           );
         }
-        return outerResult;
+        return rowDifference;
       },
-      [] /*This will be passed/returned as outerResult, accumulating*/
+      [] /*This will be passed/returned as rowDifference, accumulating*/
     );
 
     return (
