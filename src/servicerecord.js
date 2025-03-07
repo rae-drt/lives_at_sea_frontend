@@ -68,11 +68,34 @@ export default function ServiceRecord() {
             <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
               <Stack direction='row' width={0.9}>
                 <PersonTable data={personTableData} onChange={setPersonTableData}/>
-                <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId} xCheckReady={ personTableData.tr1id > 0 && personTableData.tr2id > 0 && personTableData.complete1 && personTableData.complete2 && _.isEqual(serviceRecords[1], serviceRecords[2])}/>
+                <PersonControlPanel
+                  data={personTableData}
+                  onChange={setPersonTableData}
+                  nameId={nameId}
+                  onChangeNameId={setNameId}
+                  xCheckReady={
+                    personTableData.tr1id > 0 &&
+                    personTableData.tr2id > 0 &&
+                    personTableData.complete1 &&
+                    personTableData.complete2 &&
+                    _.isEqual(serviceRecords[1], serviceRecords[2])
+                  }
+                />
               </Stack>
               <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                <ServiceTable transcriber={personTableData.tr1id} complete={personTableData.complete1} flipComplete={()=>{setPersonTableData({...personTableData, complete1: !personTableData.complete1})}} data={serviceRecords[1]} onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}/>
-                <ServiceTable transcriber={personTableData.tr2id} complete={personTableData.complete2} flipComplete={()=>{setPersonTableData({...personTableData, complete2: !personTableData.complete2})}} data={serviceRecords[2]} onChange={(d)=>{setServiceRecords({1: structuredClone(serviceRecords[1]), 2: d});}}/>
+                <ServiceTable
+                  transcriber={personTableData.tr1id}
+                  complete={personTableData.complete1}
+                  flipComplete={()=>{ setPersonTableData({...personTableData, complete1: !personTableData.complete1})}}
+                  data={serviceRecords[1]}
+                  onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}
+                />
+                <ServiceTable
+                  transcriber={personTableData.tr2id}
+                  complete={personTableData.complete2}
+                  flipComplete={()=>{setPersonTableData({...personTableData, complete2: !personTableData.complete2})}}
+                  data={serviceRecords[2]} onChange={(d)=>{setServiceRecords({1: structuredClone(serviceRecords[1]), 2: d});}}
+                />
               </Stack>
             </Stack>
           </ThemeProvider>
