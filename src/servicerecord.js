@@ -19,8 +19,6 @@ export default function ServiceRecord() {
   const [serviceRecords, setServiceRecords] = useState([]);
   const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
   const [fetchingServices, setFetchingServices] = useState(true);
-  const [idsPtr, setIdsPtr] = useState(0);
-  const [idsPtrOffset, setIdsPtrOffset] = useState(0);
   useEffect(() => {
     const fetchData = async() => {
       setFetchingPersonTableData(true);
@@ -51,22 +49,17 @@ export default function ServiceRecord() {
   }, [nameId]);
   const windowedFetcher = useWindowedFetcher((from, size) => {
     const fetchData = async() => {
-console.error(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=' + size + '&startafter=' + from);
       const response = await(fetch(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=' + size + '&startafter=' + from));
       if(!response.ok) {
         throw new Error('Bad response: ' + response.status);
       }
       const data = await(response.json());
-      return { results: data.namelist, count: 999 }; //TODO: Need an API call to get the actual count (count should be total number of available records)
+      return data.namelist;
     };
     return fetchData;
   });
   const initWindowedFetcher = useCallback(() => {
-    if(windowedFetcher.initialized) {
-      console.log('Skipping effect init');
-    }
-    else {
-      console.error('fetchingEffect');
+    if(!windowedFetcher.initialized) {
       const fetchData = async() => {
         await windowedFetcher.fetchInitial();
       }

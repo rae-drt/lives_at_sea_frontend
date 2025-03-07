@@ -24,40 +24,34 @@ export const useWindowedFetcher = <Fn extends Fetcher>(
   const [errored, setErrored] = useState(false);
   const [loadingInitial, setLoadingInitial] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [cursorPos, setCursorPos] = useState(0);
+  const [pos, setPos] = useState(0);
 
   const fetchData = useCallback(
-    (initial: boolean,
-     fetcher: Fn) =>
-      async (...args: any[]) => {
-        const from = initial ? 0 : ids[ids.length - 1]
-        try {
-console.log(from, horizon);
-          const size = initial ? 1 + (horizon * 2) : horizon;
-  console.log(size);
-          const response = await fetcher(from, size)(...args);
-console.log('response', response);
-          const newIds = response.results;
-          if(initial || newIds.length === 0) {
-            setIds(newIds);
-          }
-          else {
-            setIds([...ids.slice(ids.length - horizon - 1), ...newIds]);
-          }
-          setLoaded(true);
-          setInitialized(true);
-          return response;
-        } catch (err) {
-          setErrored(true);
+    (initial: boolean, fetcher: Fn) => async (...args: any[]) => {
+      const from = initial ? 0 : ids[ids.length - 1]
+      try {
+        const size = initial ? 1 + (horizon * 2) : horizon;
+        const newIds = await fetcher(from, size)(...args);
+        if(initial || newIds.length === 0) {
+          setIds(newIds);
         }
-      },
-    [ids, horizon]
+        else {
+          setIds([...ids.slice(horizon - pos), ...newIds]);
+        }
+        setLoaded(true);
+        setInitialized(true);
+        return Math.floor((horizon - pos + newIds.length) / 2);
+      } catch (err) {
+        setErrored(true);
+        return [];
+      }
+    },
+    [ids, horizon, pos]
   );
 
   const fetchInitial = useCallback(
     async (...args: any[]) => {
       if (!loadingInitial) {
-console.warn('fetchInitial');
         setLoaded(false);
         setLoadingInitial(true);
         setInitialized(false);
@@ -101,21 +95,21 @@ console.warn('fetchInitial');
 
   const getNextRecord = useCallback(
     (step = 1) => { //TODO: handle a step that goes outside of the window (by recentering the window on the result of the step??)
-      console.log(cursorPos, ids);
-      const next = ids[cursorPos + step];
-      console.log(next);
-      if(cursorPos + step === ids.length - refreshBuffer) {
-        fetchNextPage().then(setCursorPos(horizon - refreshBuffer + 1));
+console.log(pos, ids);
+      const next = ids[pos + step];
+      if(step > 0 && (pos + step >= ids.length - refreshBuffer)) {
+        fetchNextPage().then((x)=>{if(x.length) setPos(horizon - refreshBuffer + 1)});
       }
-      //else if(cursorPos + step - refreshBuffer < 0) {
-      //  fetchPreviousPage().then(setCursorPos(horizon + refreshBuffer));
-     // }
+      else if(step < 0 && (pos + step <= refreshBuffer)) {
+console.warn('fetchPreviousPage API not implemented');
+        fetchPreviousPage().then((x)=>{setPos(horizon + refreshBuffer)});
+      }
       else {
-        setCursorPos(cursorPos + step);
+        setPos(pos + step);
       }
       return next;
     },
-    [ids, cursorPos, horizon, fetchNextPage, refreshBuffer]
+    [ids, pos, horizon, fetchNextPage, fetchPreviousPage, refreshBuffer]
   );
 
   return {
