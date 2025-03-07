@@ -61,17 +61,17 @@ export function RecordNavigator({nameId, onChangeNameId}) {
   );
 }
 
-export function XCheck({equal}) {
+export function XCheck({ready}) {
   const loading = useContext(LoadingContext);
   return (
     <Stack direction='row' alignItems='center'>
-      {equal ? <HappyIcon sx = {{color: 'green'}}/> : <SadIcon sx = {{color: 'red'}}/>}
-      <FormControlLabel control={<Checkbox disabled={loading || (!equal)} checked={false} onChange={(e)=>{console.log(e)}}/>} label='Xcheck' labelPlacement='start'/>
+      {ready ? <HappyIcon sx = {{color: 'green'}}/> : <SadIcon sx = {{color: 'red'}}/>}
+      <FormControlLabel control={<Checkbox disabled={loading || (!ready)} checked={false} onChange={(e)=>{console.log(e)}}/>} label='Xcheck' labelPlacement='start'/>
     </Stack>
   );
 }
 
-export default function PersonControlPanel({data, onChange, nameId, onChangeNameId, serviceEquality}) {
+export default function PersonControlPanel({data, onChange, nameId, onChangeNameId, xCheckReady}) {
   const loading = useContext(LoadingContext);
   return(
     <Stack
@@ -80,7 +80,7 @@ export default function PersonControlPanel({data, onChange, nameId, onChangeName
         justifyContent: "space-evenly",
         alignItems: "flex-end",
       }}>
-      <XCheck equal={serviceEquality}/>
+      <XCheck ready={xCheckReady}/>
       <RecordNavigator nameId={nameId} onChangeNameId={onChangeNameId}/>
       <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
       <FormControlLabel control={<Checkbox disabled={loading} checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
