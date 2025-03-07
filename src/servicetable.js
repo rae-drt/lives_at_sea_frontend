@@ -107,7 +107,7 @@ export default function ServiceTable({transcriber, complete, flipComplete, data,
           <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete}/>
           <DataGrid
             getCellClassName={(p) => {
-              if(difference.length > 0) {
+              if (difference !== null) {
                 if(p.id > difference.length) {
                   return 'differs';
                 }

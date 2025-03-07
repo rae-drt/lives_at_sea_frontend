@@ -80,7 +80,8 @@ export default function ServiceRecord() {
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
     const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords[1], serviceRecords[2]);
     const differenceMap = sameServices ?
-      [] : //empty array if the services are identical. If there is any difference, the array will be the same length as the shorter services table.
+      null : //null if the services are identical. If there is any difference, the array will be the same length as the shorter services table (potentially empty, making _all_ rows in the longer table "different").
+             //TODO it may well be that if one table is empty, the API just doesn't return anything at all for it -- if so, I can make that work for me by passing an empty array in place of the missing entry
       getDifferenceMap(serviceRecords[1], serviceRecords[2]);
     return (
       <LoadingContext value={fetchingPersonTableData || fetchingServices}>
