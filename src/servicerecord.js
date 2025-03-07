@@ -71,8 +71,8 @@ export default function ServiceRecord() {
                 <PersonControlPanel data={personTableData} onChange={setPersonTableData} nameId={nameId} onChangeNameId={setNameId} serviceEquality={_.isEqual(serviceRecords[1], serviceRecords[2])}/>
               </Stack>
               <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                <ServiceTable transcriber={personTableData.tr1id} complete={personTableData.complete1} flipComplete={()=>{setPersonTableData({...personTableData, complete: !personTableData.complete})}} data={serviceRecords[1]} onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}/>
-                <ServiceTable transcriber={personTableData.tr2id} complete={personTableData.complete2} flipComplete={()=>{setPersonTableData({...personTableData, complete: !personTableData.complete})}} data={serviceRecords[2]} onChange={(d)=>{setServiceRecords({1: structuredClone(serviceRecords[1]), 2: d});}}/>
+                <ServiceTable transcriber={personTableData.tr1id} complete={personTableData.complete1} flipComplete={()=>{setPersonTableData({...personTableData, complete1: !personTableData.complete1})}} data={serviceRecords[1]} onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}/>
+                <ServiceTable transcriber={personTableData.tr2id} complete={personTableData.complete2} flipComplete={()=>{setPersonTableData({...personTableData, complete2: !personTableData.complete2})}} data={serviceRecords[2]} onChange={(d)=>{setServiceRecords({1: structuredClone(serviceRecords[1]), 2: d});}}/>
               </Stack>
             </Stack>
           </ThemeProvider>
