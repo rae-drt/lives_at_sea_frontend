@@ -61,18 +61,19 @@ export default function ServiceRecord() {
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
     const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords[1], serviceRecords[2]);
     const differenceMap = sameServices ?
-      [] : //empty array if the services are identical. If there is any difference, the array will be the same length as the services
-           //TODO: I don't know what happens if there is a different number of service records, should look into that.
+      [] : //empty array if the services are identical. If there is any difference, the array will be the same length as the shorter services table.
       _.reduce(serviceRecords[1], (outerResult, outerValue, outerKey) => {
-        outerResult.push(
-          _.reduce(outerValue, (innerResult, innerValue, innerKey) => {
-            if(!_.isEqual(innerValue, serviceRecords[2][outerKey][innerKey])) {
-              innerResult[innerKey] = '';
-            }
-            return innerResult;
-          },
-          {} /*This will be passed/returned as innerResult, accumulating*/)
-        );
+        if(outerKey in serviceRecords[2]) { //check for this in case one table is longer than the other. will work out regardless of which is longer, as either way we get an array of less rows than the longer table.
+          outerResult.push(
+            _.reduce(outerValue, (innerResult, innerValue, innerKey) => {
+              if(!_.isEqual(innerValue, serviceRecords[2][outerKey][innerKey])) {
+                innerResult[innerKey] = '';
+              }
+              return innerResult;
+            },
+            {} /*This will be passed/returned as innerResult, accumulating*/)
+          );
+        }
         return outerResult;
       },
       [] /*This will be passed/returned as outerResult, accumulating*/
