@@ -1,9 +1,11 @@
-import {useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
 
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Popover from '@mui/material/Popover';
 import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -52,10 +54,45 @@ export function RecordNavigator({nameId, onChangeNameId}) {
       <IconButton disabled={loading} onClick={()=>onChange(id + 1)}><EastIcon color='primary'/></IconButton>
     );
   }
+
+  //re https://github.com/mui/material-ui/issues/5393, https://stackoverflow.com/questions/67578008/how-to-get-value-from-material-ui-textfield-after-pressing-enter
+  function RecordNavigatorTeleport({id, onChange}) {
+    const [valid, setValid] = useState(true);
+    const [popoverAnchor, setPopoverAnchor] = useState(false);
+
+    return (
+      <>
+        <Typography onClick={(e)=>{setPopoverAnchor(e.currentTarget)}}>Record</Typography>
+        <Popover
+          open={Boolean(popoverAnchor)}
+          anchorEl={popoverAnchor}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+        >
+          <TextField
+            onKeyPress={(e) => {
+              if(e.key === 'Enter' && valid) {
+                onChange(parseInt(e.target.value));
+                setPopoverAnchor(false);
+              }
+            }}
+            onKeyDown={(e)=>{e.key === 'Escape' && setPopoverAnchor(false);}}
+            defaultValue={id}
+            onChange={(e)=>{setValid(!(/\D/.test(e.target.value)));}}
+            error={!valid}
+            helperText={valid || 'Input must be a valid service number'}
+          />
+        </Popover>
+      </>
+    );
+  }
+
   return (
     <Stack direction='row' alignItems='center'>
       <RecordNavigatorBack id={nameId} onChange={onChangeNameId}/>
-      <Typography>Record</Typography>
+      <RecordNavigatorTeleport id={nameId} onChange={onChangeNameId}/>
       <RecordNavigatorForward id={nameId} onChange={onChangeNameId}/>
     </Stack>
   );
