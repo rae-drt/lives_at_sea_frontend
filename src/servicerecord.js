@@ -85,7 +85,7 @@ export default function ServiceRecord() {
       getDifferenceMap(serviceRecords[1], serviceRecords[2]);
     return (
       <LoadingContext value={fetchingPersonTableData || fetchingServices}>
-        <Stack direction='row' spacing={2}>
+        <Stack direction='row' spacing={2} alignItems='flex-start'>
           <Stack height='100vh' width={0.4} sx = {{overflow: 'scroll', position: 'sticky', top: '0px'}}>
             <img width='125%' src={process.env.PUBLIC_URL + '/adm/188/506/309728.png'} alt='Microfilm of record 309728 from ADM 188/506'/>
           </Stack>
