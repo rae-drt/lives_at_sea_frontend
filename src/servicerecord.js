@@ -85,13 +85,10 @@ export default function ServiceRecord() {
       getDifferenceMap(serviceRecords[1], serviceRecords[2]);
     return (
       <LoadingContext value={fetchingPersonTableData || fetchingServices}>
-        <Stack direction='row' spacing={2} alignItems='flex-start'>
-          <Stack height='100vh' width={0.4} sx = {{overflow: 'scroll', position: 'sticky', top: '0px'}}>
-            <img width='125%' src={process.env.PUBLIC_URL + '/adm/188/506/309728_watermarked.png'} alt='Microfilm of record 309728 from ADM 188/506'/>
-          </Stack>
+        <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
           <ThemeProvider theme={theme}>
-            <Stack width={0.6} sx={{alignItems: 'flex-start', justifyContent: 'space-evenly'}} spacing={2}>
-              <Stack direction='row' width={0.9}>
+            <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
+              <Stack direction='row' width={0.7} alignItems='center'>
                 <PersonTable data={personTableData} onChange={setPersonTableData}/>
                 <PersonControlPanel
                   data={personTableData}
@@ -107,7 +104,7 @@ export default function ServiceRecord() {
                   }
                 />
               </Stack>
-              <Stack direction='row' width={1} sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
+              <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
                 <ServiceTable
                   transcriber={personTableData.tr1id}
                   complete={personTableData.complete1}
