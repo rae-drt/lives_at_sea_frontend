@@ -91,7 +91,7 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
   );
 }
 
-export default function ServiceTable({transcriber, complete, flipComplete, data, onChange, difference}) {
+export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference}) {
   const loading = useContext(LoadingContext);
 
   return (
@@ -105,7 +105,10 @@ export default function ServiceTable({transcriber, complete, flipComplete, data,
             },
           }}
         >
-          <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading}/>
+          <Stack direction='row' justifyContent='space-between'>
+            <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading}/>
+            {cloneButton}
+          </Stack>
           <DataGrid
             getCellClassName={(p) => {
               if (difference !== null) {

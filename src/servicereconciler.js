@@ -1,4 +1,5 @@
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import ServiceTable from './servicetable';
 
 const _ = require('lodash');
@@ -28,6 +29,15 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
       <ServiceTable
         transcriber={personTableData['tr' + thisTable + 'id']}
         complete={personTableData['complete' + thisTable]}
+        cloneButton={
+          <Button
+            disabled={differenceMap === null}
+            onClick={() => { setServiceRecords({
+              [thisTable]: serviceRecords[thisTable],
+              [thatTable]: structuredClone(serviceRecords[thisTable])
+            });}}
+          >Copy {thisTable} to {thatTable}</Button>
+        }
         flipComplete={()=>{ setPersonTableData({...personTableData, ['complete' + thisTable]: !personTableData['complete' + thisTable]})}}
         data={serviceRecords[thisTable]}
         onChange={(d)=>{setServiceRecords({[thisTable]: d, [thatTable]: structuredClone(serviceRecords[thatTable])});}}
