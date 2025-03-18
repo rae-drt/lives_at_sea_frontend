@@ -82,11 +82,11 @@ const columns: GridColDef[] = [
   },
 ];
 
-export function TranscriptionInfo({transcriber, complete, flipComplete}) {
+export function TranscriptionInfo({transcriber, complete, flipComplete, disabled}) {
   return (
     <Stack direction='row' spacing={4} alignItems='center'>
       <Typography>Transcriber: {transcriber}</Typography>
-      <FormControlLabel control={<Checkbox checked={complete} onChange={flipComplete}/>} label='Complete' labelPlacement='start'/>
+      <FormControlLabel control={<Checkbox checked={complete} onChange={flipComplete} disabled={disabled}/>} label='Complete' labelPlacement='start'/>
     </Stack>
   );
 }
@@ -105,7 +105,7 @@ export default function ServiceTable({transcriber, complete, flipComplete, data,
             },
           }}
         >
-          <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete}/>
+          <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading}/>
           <DataGrid
             getCellClassName={(p) => {
               if (difference !== null) {
