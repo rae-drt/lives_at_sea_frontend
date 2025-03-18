@@ -23,6 +23,18 @@ function getDifferenceMap(table1, table2) {
 }
 
 export default function ServiceReconciler({personTableData, setPersonTableData, serviceRecords, setServiceRecords}) {
+  function getTable(thisTable, thatTable) {
+    return (
+      <ServiceTable
+        transcriber={personTableData['tr' + thisTable + 'id']}
+        complete={personTableData['complete' + thisTable]}
+        flipComplete={()=>{ setPersonTableData({...personTableData, ['complete' + thisTable]: !personTableData['complete' + thisTable]})}}
+        data={serviceRecords[thisTable]}
+        onChange={(d)=>{setServiceRecords({[thisTable]: d, [thatTable]: structuredClone(serviceRecords[thatTable])});}}
+        difference={differenceMap}
+      />
+    );
+  }
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
   const differenceMap = (serviceRecords.length === 0 || _.isEqual(serviceRecords[1], serviceRecords[2])) ?
     null : //null if the services are identical. If there is any difference, the array will be the same length as the shorter services table (potentially empty, making _all_ rows in the longer table "different").
@@ -30,21 +42,8 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
     getDifferenceMap(serviceRecords[1], serviceRecords[2]);
   return (
     <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-      <ServiceTable
-        transcriber={personTableData.tr1id}
-        complete={personTableData.complete1}
-        flipComplete={()=>{ setPersonTableData({...personTableData, complete1: !personTableData.complete1})}}
-        data={serviceRecords[1]}
-        onChange={(d)=>{setServiceRecords({1: d, 2: structuredClone(serviceRecords[2])});}}
-        difference={differenceMap}
-      />
-      <ServiceTable
-        transcriber={personTableData.tr2id}
-        complete={personTableData.complete2}
-        flipComplete={()=>{setPersonTableData({...personTableData, complete2: !personTableData.complete2})}}
-        data={serviceRecords[2]} onChange={(d)=>{setServiceRecords({1: structuredClone(serviceRecords[1]), 2: d});}}
-        difference={differenceMap}
-      />
+      {getTable(1, 2)}
+      {getTable(2, 1)}
     </Stack>
   );
 }
