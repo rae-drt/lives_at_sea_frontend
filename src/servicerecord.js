@@ -6,6 +6,7 @@ import PersonTable from './persontable';
 import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
 import { LoadingContext } from './loadingcontext';
+import { catref } from './data_utils'
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -27,6 +28,7 @@ export default function ServiceRecord() {
         throw new Error('Bad response: ' + response.status);
       }
       const data = await(response.json());
+      document.title = catref(data);
       setPersonTableData(data);
       ///*For when there is no network*/ setPersonTableData({"nameid": 0, "series": 188, "piece": 0, "forename": "", "surname": "", "officialnumber": "", "birthday": 0, "birthmonth": 0, "birthyear": 0, "birthplace": "", "birthcounty": "", "occupation": "", "dischargeday": 0, "dischargemonth": 0, "dischargeyear": 0, "dischargereason": "", "tr1id": 0, "complete1": false, "tr2id": 0, "complete2": false, "reconciled": false, "notWW1": false, "error": false});
       setFetchingPersonTableData(false);
