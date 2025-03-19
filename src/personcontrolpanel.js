@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { LoadingContext } from './loadingcontext';
 
 import Stack from '@mui/material/Stack';
@@ -15,8 +16,10 @@ import SadIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import WestIcon from '@mui/icons-material/ArrowBack'
 import EastIcon from '@mui/icons-material/ArrowForward';
 
-export function RecordNavigator({nameId, onChangeNameId}) {
-  function RecordNavigatorBack({id, onChange}) {
+export function RecordNavigator() {
+  const { nameId } = useParams();
+  const navigate = useNavigate();
+  function RecordNavigatorBack() {
     /*
     useEffect(() => {
       const fetchData = async() => {
@@ -32,10 +35,10 @@ export function RecordNavigator({nameId, onChangeNameId}) {
     */
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>onChange(id - 1)} ><WestIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>navigate('/' + (Number(nameId) - 1))} ><WestIcon color='primary'/></IconButton>
     );
   }
-  function RecordNavigatorForward({id, onChange}) {
+  function RecordNavigatorForward() {
     /*
     useEffect(() => {
       const fetchData = async() => {
@@ -51,12 +54,12 @@ export function RecordNavigator({nameId, onChangeNameId}) {
       */
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>onChange(id + 1)}><EastIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>navigate('/' + (Number(nameId) + 1))}><EastIcon color='primary'/></IconButton>
     );
   }
 
   //re https://github.com/mui/material-ui/issues/5393, https://stackoverflow.com/questions/67578008/how-to-get-value-from-material-ui-textfield-after-pressing-enter
-  function RecordNavigatorTeleport({id, onChange}) {
+  function RecordNavigatorTeleport() {
     const [valid, setValid] = useState(true);
     const [popoverAnchor, setPopoverAnchor] = useState(false);
 
@@ -74,12 +77,12 @@ export function RecordNavigator({nameId, onChangeNameId}) {
           <TextField
             onKeyPress={(e) => {
               if(e.key === 'Enter' && valid) {
-                onChange(parseInt(e.target.value));
+                navigate('/' + e.target.value);
                 setPopoverAnchor(false);
               }
             }}
             onKeyDown={(e)=>{e.key === 'Escape' && setPopoverAnchor(false);}}
-            defaultValue={id}
+            defaultValue={nameId}
             onChange={(e)=>{setValid(!(/\D/.test(e.target.value)));}}
             error={!valid}
             helperText={valid || 'Input must be a valid service number'}
@@ -91,9 +94,9 @@ export function RecordNavigator({nameId, onChangeNameId}) {
 
   return (
     <Stack direction='row' alignItems='center'>
-      <RecordNavigatorBack id={nameId} onChange={onChangeNameId}/>
-      <RecordNavigatorTeleport id={nameId} onChange={onChangeNameId}/>
-      <RecordNavigatorForward id={nameId} onChange={onChangeNameId}/>
+      <RecordNavigatorBack/>
+      <RecordNavigatorTeleport/>
+      <RecordNavigatorForward/>
     </Stack>
   );
 }
@@ -108,7 +111,7 @@ export function XCheck({ready, checked, onChange}) {
   );
 }
 
-export default function PersonControlPanel({data, onChange, nameId, onChangeNameId, xCheckReady}) {
+export default function PersonControlPanel({data, onChange, xCheckReady}) {
   const loading = useContext(LoadingContext);
   return(
     <Stack
@@ -118,7 +121,7 @@ export default function PersonControlPanel({data, onChange, nameId, onChangeName
         alignItems: "flex-end",
       }}>
       <XCheck ready={xCheckReady} checked={data.reconciled} onChange={()=>{onChange({...data, reconciled: !data.reconciled})}}/>
-      <RecordNavigator nameId={nameId} onChangeNameId={onChangeNameId}/>
+      <RecordNavigator/>
       <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
       <FormControlLabel control={<Checkbox disabled={loading} checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
       <Button variant='contained'>EXTRAS</Button>

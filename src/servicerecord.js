@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
 import PersonTable from './persontable';
@@ -13,7 +14,7 @@ const _ = require('lodash');
 export default function ServiceRecord() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
-  const [nameId, setNameId] = useState(40001); //lowest nameid as default
+  const { nameId } = useParams();
   const [personTableData, setPersonTableData] = useState();
   const [serviceRecords, setServiceRecords] = useState([]);
   const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
@@ -70,8 +71,6 @@ export default function ServiceRecord() {
                 <PersonControlPanel
                   data={personTableData}
                   onChange={setPersonTableData}
-                  nameId={nameId}
-                  onChangeNameId={setNameId}
                   xCheckReady={
                     personTableData.tr1id > 0 &&
                     personTableData.tr2id > 0 &&
