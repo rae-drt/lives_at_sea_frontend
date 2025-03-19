@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
+import { catref } from './data_utils'
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -31,7 +32,7 @@ export function PersonTableField({data, onChange, field}) {
 export default function PersonTable({data, onChange}) {
   return (
     <Grid container alignItems='flex-end' columns={7}>
-      <Grid container size={5} justifyContent='flex-start'><Typography variant='h6'>Service record, ADM {data.series}/{data.piece}/{data.officialnumber}</Typography></Grid>
+      <Grid container size={5} justifyContent='flex-start'><Typography variant='h6'>Service record, {catref(data)}</Typography></Grid>
       <Grid size={1}><FormControlLabel control={<Checkbox checked={data.error} onChange={(e)=>{onChange({...data, error: !data.error})}}/>} label='Error?' labelPlacement='start'/></Grid>
       <Grid container size={1} justifyContent='flex-end'><Button variant='outlined' onClick={()=>{alert('clicked')}}>Enter</Button></Grid>
       <Grid size={7}>
