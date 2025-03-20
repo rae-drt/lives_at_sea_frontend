@@ -22,66 +22,6 @@ const columnGroupingModel: GridColumnGroupingModel = [
   },
 ]
 
-const columns: GridColDef[] = [
-  {
-    field: 'row',
-    headerName: 'Row',
-    width: 50,
-  },
-  {
-    field: 'ship',
-    headerName: 'Ship',
-    width: 200,
-    editable: true,
-  },
-  {
-    field: 'rating',
-    headerName: 'Rating',
-    width: 100,
-    editable: true,
-  },
-  {
-    field: 'fromday',
-    headerName: 'D',
-    width: 40,
-    minWidth: 40,
-    editable: true,
-  },
-  {
-    field: 'frommonth',
-    headerName: 'M',
-    width: 30,
-    minWidth: 40,
-    editable: true,
-  },
-  {
-    field: 'fromyear',
-    headerName: 'Y',
-    width: 50,
-    editable: true,
-  },
-  {
-    field: 'today',
-    headerName: 'D',
-    width: 40,
-    minWidth: 40,
-    editable: true,
-  },
-  {
-    field: 'tomonth',
-    headerName: 'M',
-    width: 40,
-    minWidth: 40,
-    editable: true,
-  },
-  {
-    field: 'toyear',
-    headerName: 'Y',
-    width: 50,
-    editable: true,
-  },
-];
-
 export function TranscriptionInfo({transcriber, complete, flipComplete, disabled}) {
   return (
     <Stack direction='row' spacing={4} alignItems='center'>
@@ -93,6 +33,66 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
 
 export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference}) {
   const loading = useContext(LoadingContext);
+
+  const columns: GridColDef[] = [
+    {
+      field: 'row',
+      headerName: 'Row',
+      width: 50,
+    },
+    {
+      field: 'ship',
+      headerName: 'Ship',
+      width: 200,
+      editable: true,
+    },
+    {
+      field: 'rating',
+      headerName: 'Rating',
+      width: 100,
+      editable: true,
+    },
+    {
+      field: 'fromday',
+      headerName: 'D',
+      width: 40,
+      minWidth: 40,
+      editable: true,
+    },
+    {
+      field: 'frommonth',
+      headerName: 'M',
+      width: 30,
+      minWidth: 40,
+      editable: true,
+    },
+    {
+      field: 'fromyear',
+      headerName: 'Y',
+      width: 50,
+      editable: true,
+    },
+    {
+      field: 'today',
+      headerName: 'D',
+      width: 40,
+      minWidth: 40,
+      editable: true,
+    },
+    {
+      field: 'tomonth',
+      headerName: 'M',
+      width: 40,
+      minWidth: 40,
+      editable: true,
+    },
+    {
+      field: 'toyear',
+      headerName: 'Y',
+      width: 50,
+      editable: true,
+    },
+  ];
 
   return (
     <Card>
