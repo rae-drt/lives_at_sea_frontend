@@ -1,5 +1,6 @@
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
 
 const _ = require('lodash');
@@ -30,13 +31,21 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
         transcriber={personTableData['tr' + thisTable + 'id']}
         complete={personTableData['complete' + thisTable]}
         cloneButton={
-          <Button
-            disabled={differenceMap === null}
-            onClick={() => { setServiceRecords({
-              [thisTable]: serviceRecords[thisTable],
-              [thatTable]: structuredClone(serviceRecords[thisTable])
-            });}}
-          >Copy {thisTable} to {thatTable}</Button>
+          <Tooltip title='Replace other table with this table'>
+            <span>
+              <Button
+                disabled={differenceMap === null}
+                onClick={() => { setServiceRecords({
+                  [thisTable]: serviceRecords[thisTable],
+                  [thatTable]: structuredClone(serviceRecords[thisTable])
+                });}}
+              >{ thisTable < thatTable ?
+                   thisTable + ' ' + String.fromCharCode(8658) + ' ' + thatTable :
+                   thatTable + ' ' + String.fromCharCode(8656) + ' ' + thisTable
+               }
+              </Button>
+            </span>
+          </Tooltip>
         }
         flipComplete={()=>{ setPersonTableData({...personTableData, ['complete' + thisTable]: !personTableData['complete' + thisTable]})}}
         data={serviceRecords[thisTable]}
