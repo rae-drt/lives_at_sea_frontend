@@ -99,6 +99,13 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
       <CardContent>
         <Box
           sx={{
+            [`.${gridClasses.cell}`]: {
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0px',
+              pl: '3px',
+              pr: '3px',
+            },
             [`.${gridClasses.cell}.differs`]: {
               backgroundColor: '#ff943975',
               color: '#1a3e72',
