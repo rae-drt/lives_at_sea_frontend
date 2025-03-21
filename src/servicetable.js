@@ -39,6 +39,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
       field: 'row',
       headerName: 'Row',
       width: 50,
+      align: 'right',
     },
     {
       field: 'ship',
