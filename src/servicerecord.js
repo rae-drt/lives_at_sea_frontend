@@ -23,7 +23,11 @@ export default function ServiceRecord() {
   useEffect(() => {
     const fetchData = async() => {
       setFetchingPersonTableData(true);
-      const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
+      const response = await(fetch('https://ofktct1tij.execute-api.eu-west-2.amazonaws.com/Testing/service?nameid=100001', {
+        method: "POST",
+        body: 'fake_payload',
+      }));
+      //const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
       if(!response.ok) {
         throw new Error('Bad response: ' + response.status);
       }
