@@ -31,7 +31,7 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
   );
 }
 
-export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference}) {
+export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, rowControls}) {
   const loading = useContext(LoadingContext);
 
   const columns: GridColDef[] = [
@@ -92,6 +92,12 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
       headerName: 'Y',
       width: 50,
       editable: true,
+    },
+    {
+      field: 'row_controls',
+      headerName: '',
+      width: 160,
+      renderCell: rowControls,
     },
   ];
 
