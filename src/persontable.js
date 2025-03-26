@@ -33,7 +33,7 @@ export default function PersonTable({data, onChange}) {
   return (
     <Grid container alignItems='flex-end' columns={7}>
       <Grid container size={5} justifyContent='flex-start'><Typography variant='h6'>Service record, {catref(data)}</Typography></Grid>
-      <Grid size={1}><FormControlLabel control={<Checkbox checked={data.error} onChange={(e)=>{onChange({...data, error: !data.error})}}/>} label='Error?' labelPlacement='start'/></Grid>
+      <Grid size={1}><FormControlLabel control={<Checkbox checked={data.error} disabled={true}/>} label='Error?' labelPlacement='start'/></Grid>
       <Grid container size={1} justifyContent='flex-end'><Button variant='outlined' onClick={()=>{alert('clicked')}}>Enter</Button></Grid>
       <Grid size={7}>
         <Card sx={{background: data.error ? '#ff943975' : '#ffffffff'}}>
