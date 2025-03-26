@@ -6,8 +6,8 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path='/' element={<Navigate to='/40001'/>}/>
-        <Route path='/:nameId' element={<ServiceRecord/>}/>
+        <Route path='/' element={<Navigate to='/rating/40001'/>}/>
+        <Route path='/rating/:nameId' element={<ServiceRecord/>}/>
       </Routes>
     </div>
   );
