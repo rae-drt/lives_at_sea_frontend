@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
 import PersonTable from './persontable';
-import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
+import ServiceReconciler from './servicereconciler';
 import { LoadingContext } from './loadingcontext';
-import { catref } from './data_utils'
+import OtherData from './otherdata';
+import OtherServices from './otherservices';
+import { catref } from './data_utils';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Alert from '@mui/material/Alert';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -15,11 +20,12 @@ const _ = require('lodash');
 export default function ServiceRecord() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
-  const { nameId } = useParams();
+  const { nameId, tab } = useParams();
   const [personTableData, setPersonTableData] = useState();
   const [serviceRecords, setServiceRecords] = useState([]);
   const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
   const [fetchingServices, setFetchingServices] = useState(true);
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async() => {
       setFetchingPersonTableData(true);
@@ -63,30 +69,46 @@ export default function ServiceRecord() {
   else {
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
     const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords[1], serviceRecords[2]);
-    return (
-      <LoadingContext value={fetchingPersonTableData || fetchingServices}>
-        <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
-          <ThemeProvider theme={theme}>
-            <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
-              <Stack direction='row' width={0.7} alignItems='center'>
-                <PersonTable data={personTableData} onChange={setPersonTableData}/>
-                <PersonControlPanel
-                  data={personTableData}
-                  onChange={setPersonTableData}
-                  xCheckReady={
-                    personTableData.tr1id > 0 &&
-                    personTableData.tr2id > 0 &&
-                    personTableData.complete1 &&
-                    personTableData.complete2 &&
-                    sameServices
+    if(tab !== 'main' && tab !== 'otherdata' && tab !== 'otherservices') {
+      return (<Alert severity='error'>Bad location</Alert>);
+    }
+    else {
+      return (
+        <LoadingContext value={fetchingPersonTableData || fetchingServices}>
+          <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
+            <ThemeProvider theme={theme}>
+              <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
+                <Stack direction='row' width={0.7} alignItems='center'>
+                  <PersonTable data={personTableData} onChange={setPersonTableData}/>
+                  <PersonControlPanel
+                    data={personTableData}
+                    onChange={setPersonTableData}
+                    xCheckReady={
+                      personTableData.tr1id > 0 &&
+                      personTableData.tr2id > 0 &&
+                      personTableData.complete1 &&
+                      personTableData.complete2 &&
+                      sameServices
+                    }
+                  />
+                </Stack>
+                <Stack sx={{alignItems: 'center'}}>
+                  <Tabs value={tab} onChange={(e, v) => { navigate('/' + nameId + '/' + v) }}>
+                    <Tab value='main' label='Services'/>
+                    <Tab value='otherdata' label='Other Data'/>
+                    <Tab value='otherservices' label='Other Services'/>
+                  </Tabs>
+                  {tab === 'main' &&
+                    <ServiceReconciler personTableData={personTableData} setPersonTableData={setPersonTableData} serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>
                   }
-                />
+                  {tab === 'otherdata' && <OtherData/>}
+                  {tab === 'otherservices' && <OtherServices/>}
+                </Stack>
               </Stack>
-              <ServiceReconciler personTableData={personTableData} setPersonTableData={setPersonTableData} serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>
-            </Stack>
-          </ThemeProvider>
-        </Stack>
-      </LoadingContext>
-    );
+            </ThemeProvider>
+          </Stack>
+        </LoadingContext>
+      );
+    }
   }
 }

@@ -126,7 +126,6 @@ export default function PersonControlPanel({data, onChange, xCheckReady}) {
       <RecordNavigator/>
       <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
       <FormControlLabel control={<Checkbox disabled={loading} checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
-      <Button variant='contained' onClick={()=>{navigate('/rating/extras/' + nameId, { state: data })}}>EXTRAS</Button>
     </Stack>
   );
 }

@@ -1,5 +1,4 @@
 import './App.css';
-import Extras from './extras.js';
 import ServiceRecord from './servicerecord.js';
 import { Routes, Route, Navigate} from 'react-router';
 
@@ -7,9 +6,9 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path='/' element={<Navigate to='/rating/40001'/>}/>
-        <Route path='/rating/:nameId' element={<ServiceRecord/>}/>
-        <Route path='/rating/extras/:nameId' element={<Extras/>}/>
+        <Route path='/' element={<Navigate to='40001'/>}/>
+        <Route path='/:nameId' element={<Navigate to='main'/>}/>
+        <Route path='/:nameId/:tab' element={<ServiceRecord/>}/>
       </Routes>
     </div>
   );

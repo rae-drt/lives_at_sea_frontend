@@ -10,7 +10,6 @@ export default function OtherServices() {
     const fetchData = async() => {
       const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
       socket.onmessage = (e) => {
-        console.log(e.data);
         if(e.data === 'NULL') {
           setOtherServices([]);
         }
@@ -23,7 +22,6 @@ export default function OtherServices() {
     };
     fetchData();
   }, [nameId]);
-  console.log(otherServices);
 
   const columns: GridColDef[] = [
     {
