@@ -23,7 +23,7 @@ export default function ServiceRecord() {
   useEffect(() => {
     const fetchData = async() => {
       setFetchingPersonTableData(true);
-      const response = await(fetch('https://ofktct1tij.execute-api.eu-west-2.amazonaws.com/Testing/service?nameid=100001', {
+      const response = await(fetch('https://ofktct1tij.execute-api.eu-west-2.amazonaws.com/Testing/service?nameid=100123', {
         method: "POST",
         body: 'fake_payload',
       }));
