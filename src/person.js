@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router';
+import { useParams, useLocation, useNavigate } from 'react-router';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -18,6 +20,7 @@ export default function Person() {
   //      But this will do for now
   const { nameId, dataType } = useParams();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [personTableData, setPersonTableData] = useState();
   const [serviceRecords, setServiceRecords] = useState([]);
   const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
@@ -73,7 +76,7 @@ export default function Person() {
         <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
           <ThemeProvider theme={theme}>
             <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
-              <Stack direction='row' width={0.7} alignItems='center'>
+              <Stack direction='row' width={0.7} alignItems='flex-start'>
                 <PersonTable data={personTableData} onChange={setPersonTableData}/>
                 <PersonControlPanel
                   data={personTableData}
@@ -87,7 +90,10 @@ export default function Person() {
                   }
                 />
               </Stack>
-              <ServiceReconciler personTableData={personTableData} setPersonTableData={setPersonTableData} serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>
+              <Tabs value={dataType} onChange={(e,v) => {navigate('/' + nameId + '/' + v);}}>
+                <Tab value='main' label='Services'/>
+              </Tabs>
+              {dataType === 'main' && <ServiceReconciler personTableData={personTableData} setPersonTableData={setPersonTableData} serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
             </Stack>
           </ThemeProvider>
         </Stack>

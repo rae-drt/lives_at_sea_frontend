@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router';
 import { LoadingContext } from './loadingcontext';
 
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Popover from '@mui/material/Popover';
 import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
@@ -124,7 +123,6 @@ export default function PersonControlPanel({data, onChange, xCheckReady}) {
       <RecordNavigator/>
       <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
       <FormControlLabel control={<Checkbox disabled={loading} checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
-      <Button variant='contained'>EXTRAS</Button>
     </Stack>
   );
 }
