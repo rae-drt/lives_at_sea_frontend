@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useLocation } from 'react-router';
+import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
 import PersonTable from './persontable';
@@ -15,7 +16,8 @@ const _ = require('lodash');
 export default function Person() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
-  const { nameId } = useParams();
+  const { nameId, dataType } = useParams();
+  const { pathname } = useLocation();
   const [personTableData, setPersonTableData] = useState();
   const [serviceRecords, setServiceRecords] = useState([]);
   const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
@@ -59,6 +61,9 @@ export default function Person() {
   //I think this will only occur during initial load
   if(((typeof serviceRecords) === 'undefined') || ((typeof personTableData) === 'undefined')) {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
+  }
+  else if(dataType !== 'main') {
+    return (<Alert severity='error'>Bad location: {pathname}</Alert>);
   }
   else {
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
