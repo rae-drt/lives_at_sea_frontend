@@ -5,6 +5,7 @@ import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
+import OtherData from './otherdata';
 import PersonTable from './persontable';
 import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
@@ -65,7 +66,7 @@ export default function Person() {
   if(((typeof serviceRecords) === 'undefined') || ((typeof personTableData) === 'undefined')) {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
-  else if(dataType !== 'main') {
+  else if(dataType !== 'main' && dataType !== 'otherdata') {
     return (<Alert severity='error'>Bad location: {pathname}</Alert>);
   }
   else {
@@ -92,8 +93,10 @@ export default function Person() {
               </Stack>
               <Tabs value={dataType} onChange={(e,v) => {navigate('/' + nameId + '/' + v);}}>
                 <Tab value='main' label='Services'/>
+                <Tab value='otherdata' label='Other Data'/>
               </Tabs>
               {dataType === 'main' && <ServiceReconciler personTableData={personTableData} setPersonTableData={setPersonTableData} serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
+              {dataType === 'otherdata' && <OtherData/>}
             </Stack>
           </ThemeProvider>
         </Stack>
