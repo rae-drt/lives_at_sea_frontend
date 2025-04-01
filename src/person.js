@@ -12,7 +12,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const _ = require('lodash');
 
-export default function ServiceRecord() {
+export default function Person() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
   const { nameId } = useParams();

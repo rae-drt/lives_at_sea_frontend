@@ -1,5 +1,5 @@
 import './App.css';
-import ServiceRecord from './servicerecord.js';
+import Person from './person.js';
 import { Routes, Route, Navigate} from 'react-router';
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
     <div className="App">
       <Routes>
         <Route path='/' element={<Navigate to='/40001'/>}/>
-        <Route path='/:nameId' element={<ServiceRecord/>}/>
+        <Route path='/:nameId' element={<Person/>}/>
       </Routes>
     </div>
   );
