@@ -38,55 +38,12 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
      * Could farm this out to its own component, or to a function that returns the buttons.
      * This would require passing thisTable, thatTable, serviceRecords and setServiceRecords.
      */
-    function rowControls({row}) {
+    function rowControls(params, sx) {
+      const {row, ...otherParams} = params;
       // row.row is the row number as presented in the table. This is one higher than the array index of the row.
       // TODO: is row.row guaranteed to be an integer? (i.e. not a string)
-      const emptyRow = {};
-      for(const k of Object.keys(row)) emptyRow[k] = null;
-      const sx = {
-        px: 0.2,
-        py: 0,
-      }
       return (
-        <Stack direction='row' spacing={0}>
-          <Tooltip title='Insert row above' placement='top' followCursor arrow>
-            <span>
-              <IconButton sx={sx} color='primary' onClick={()=>{
-                  const newTable = structuredClone(serviceRecords[thisTable].slice(0, row.row - 1));
-                  newTable.push({...emptyRow, row: row.row});
-                  newTable.push(...structuredClone(serviceRecords[thisTable].slice(row.row - 1)));
-                  for(const x of newTable.slice(row.row)) x['row'] += 1;
-                  setServiceRecords({[thisTable]: newTable, [thatTable]: structuredClone(serviceRecords[thatTable])});
-                }}>
-                <InsertAboveIcon/>
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title='Insert row below' placement='top' followCursor arrow>
-            <span>
-              <IconButton sx={sx} color='primary' onClick={()=>{
-                  const newTable = structuredClone(serviceRecords[thisTable].slice(0, row.row));
-                  newTable.push({...emptyRow, row: row.row + 1});
-                  newTable.push(...structuredClone(serviceRecords[thisTable].slice(row.row)));
-                  for(const x of newTable.slice(row.row + 1)) x['row'] += 1;
-                  setServiceRecords({[thisTable]: newTable, [thatTable]: structuredClone(serviceRecords[thatTable])});
-                }}>
-                <InsertBelowIcon/>
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title='Delete row' placement='top' followCursor arrow>
-            <span>
-              <IconButton sx={sx} color='primary' onClick={()=>{
-                  const newTable = structuredClone(serviceRecords[thisTable].slice(0, row.row - 1));
-                  newTable.push(...structuredClone(serviceRecords[thisTable].slice(row.row)));
-                  for(const x of newTable.slice(row.row - 1)) x['row'] -= 1;
-                  setServiceRecords({[thisTable]: newTable, [thatTable]: structuredClone(serviceRecords[thatTable])});
-                }}>
-                <DeleteIcon/>
-              </IconButton>
-            </span>
-          </Tooltip>
+        <>
           <Tooltip title={'Overwrite row in ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
               <IconButton sx={sx} color='primary' onClick={()=>{
@@ -112,7 +69,7 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
               </IconButton>
             </span>
           </Tooltip>
-        </Stack>
+        </>
       );
     };
     return (
@@ -140,7 +97,7 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
         data={serviceRecords[thisTable]}
         onChange={(d)=>{setServiceRecords({[thisTable]: d, [thatTable]: structuredClone(serviceRecords[thatTable])});}}
         difference={differenceMap}
-        rowControls={rowControls}
+        extraRowControls={rowControls}
       />
     );
   }

@@ -10,6 +10,8 @@ import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
+import DataTable from './datatable';
+
 const columnGroupingModel: GridColumnGroupingModel = [
   {
     groupId: 'fromDate',
@@ -31,7 +33,7 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
   );
 }
 
-export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, rowControls}) {
+export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, extraRowControls}) {
   const loading = useContext(LoadingContext);
 
   const columns: GridColDef[] = [
@@ -93,37 +95,22 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
       width: 50,
       editable: true,
     },
-    {
-      field: 'row_controls',
-      headerName: '',
-      width: 160,
-      renderCell: rowControls,
-    },
   ];
 
   return (
     <Card>
       <CardContent>
-        <Box
-          sx={{
-            [`.${gridClasses.cell}`]: {
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0px',
-              pl: '3px',
-              pr: '3px',
-            },
-            [`.${gridClasses.cell}.differs`]: {
-              backgroundColor: '#ff943975',
-              color: '#1a3e72',
-            },
-          }}
-        >
+        <Box>
           <Stack direction='row' justifyContent='space-between'>
             <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading}/>
             {cloneButton}
           </Stack>
-          <DataGrid
+          <DataTable
+            rows={data}
+            columns={columns}
+            columnGroupingModel={columnGroupingModel}
+            onChange={onChange}
+            extraRowControls={extraRowControls}
             getCellClassName={(p) => {
               if (difference !== null) {
                 if(p.id > difference.length) {
@@ -134,33 +121,11 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
                 }
               }
             }}
-            loading={loading}
-            density='compact'
-            rows={data}
-            columns={columns}
-            getRowId = {(row) => {return row.row;}}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 20,
-                },
-              },
-            }}
-            onCellEditStop = {(cellParams, e) => {
-              if('target' in e) { //if we click out without changing anything, e does not have a target (maybe not even an event, but this works) TODO is there an accepted way to handle this?
-              const newData = structuredClone(data);
-              newData[cellParams.id - 1][cellParams.field] = e.target.value;
-              onChange(newData);}
-            }}
-            pageSizeOptions={[20]}
-            disableColumnSorting
-            disableColumnMenu
-            columnGroupingModel={columnGroupingModel}
-            getRowHeight={()=>'auto'}
             sx={{
-              '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
-              '& .MuiDataGrid-columnSeparator': { display: 'none' },
-              '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
+              [`.${gridClasses.cell}.differs`]: {
+                backgroundColor: '#ff943975',
+                color: '#1a3e72',
+              },
             }}
           />
         </Box>
