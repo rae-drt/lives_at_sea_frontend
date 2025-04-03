@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
 
 import { DataGrid, GridColDef, GridColumnGroupingModel, gridClasses } from '@mui/x-data-grid';
+import Alert from '@mui/material/Alert';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
@@ -17,9 +18,42 @@ import DeleteIcon from '@mui/icons-material/DeleteForever';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
 import InsertThatIcon from '@mui/icons-material/MenuOpen';
 
+/* Confirm that the passed data array is safe to use in the table interfaces, which assume a row property one greater than array index.
+ * If the array is undefined or empty then it is necessarily safe.
+ * Otherwise, all members of the array must:
+ *   1. Have a row property
+ *   2. The row property must be an integer
+ *   3. The row property must be one greater than the array index of the member
+ * Additionally, the first member of the array must have a row of 1.
+ */
+function valid_rows(data_array) {
+  if(typeof(data_array) === 'undefined') {
+    return true;
+  }
+  if(data_array.length === 0) {
+    return true;
+  }
+  for(let i = 0; i < data_array.length; i++) {
+    if('row' in data_array[i] === false) {
+      return false;
+    }
+    if(Number.isInteger(data_array[i].row) === false) {
+      return false;
+    }
+    if(data_array[i].row !== i + 1) {
+      return false;
+    }
+  }
+  return data_array[0].row === 1;
+}
+
 export default function DataTable(props) {
   const loading = useContext(LoadingContext);
   const {rows, columns, onChange, extraRowControls, sx, ...otherProps} = props;
+
+  if(!valid_rows(rows)) {
+    return(<Alert severity='error'>Rows do not start at 1 and/or are not consecutive.</Alert>);
+  }
 
   const table = <DataGrid
     loading={loading}
@@ -61,7 +95,6 @@ export default function DataTable(props) {
 
   function baseRowControls(params) {
     // row.row is the row number as presented in the table. This is one higher than the array index of the row.
-    // TODO: is row.row guaranteed to be an integer? (i.e. not a string)
     const {row, ...otherParams} = params;
     const sx = {
       px: 0.2,

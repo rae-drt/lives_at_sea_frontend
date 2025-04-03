@@ -41,7 +41,6 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
     function rowControls(params, sx) {
       const {row, ...otherParams} = params;
       // row.row is the row number as presented in the table. This is one higher than the array index of the row.
-      // TODO: is row.row guaranteed to be an integer? (i.e. not a string)
       return (
         <>
           <Tooltip title={'Overwrite row in ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
