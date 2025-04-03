@@ -144,7 +144,7 @@ export default function DataTable(props) {
         </Tooltip>
         <Tooltip title='Delete row' placement='top' followCursor arrow>
           <span>
-            <IconButton sx={sx} color='primary' onClick={()=>{
+            <IconButton sx={sx} color='primary' disabled={typeof(rows) === 'undefined' || row.row === rows.length} onClick={()=>{
                 const newRows = structuredClone(rows.slice(0, row.row - 1));
                 newRows.push(...structuredClone(rows.slice(row.row)));
                 for(const x of newRows.slice(row.row - 1)) x['row'] -= 1;
