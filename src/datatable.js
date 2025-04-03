@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { LoadingContext } from './loadingcontext';
 
 import { DataGrid, GridColDef, GridColumnGroupingModel, gridClasses } from '@mui/x-data-grid';
@@ -47,8 +47,22 @@ function valid_rows(data_array) {
   return data_array[0].row === 1;
 }
 
+function need_empty_last(data_array) {
+  const _ = require('lodash');
+  if(typeof(data_array) === 'undefined') return false;
+  if(data_array.length === 0) return true;
+  return !(_.isEqual(Object.keys(data_array[data_array.length - 1]), ['row']));
+}
+
 export default function DataTable(props) {
   const loading = useContext(LoadingContext);
+  useEffect(() => {
+    if(need_empty_last(rows)) {
+      const newRows = structuredClone(rows);
+      newRows.push({row: rows.length + 1});
+      onChange(newRows);
+    }
+  }, [props.rows]);
   const {rows, columns, onChange, extraRowControls, sx, ...otherProps} = props;
 
   if(!valid_rows(rows)) {
