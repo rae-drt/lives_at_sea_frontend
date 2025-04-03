@@ -63,8 +63,6 @@ export default function DataTable(props) {
     // row.row is the row number as presented in the table. This is one higher than the array index of the row.
     // TODO: is row.row guaranteed to be an integer? (i.e. not a string)
     const {row, ...otherParams} = params;
-    const emptyRow = {};
-    for(const k of Object.keys(row)) emptyRow[k] = null;
     const sx = {
       px: 0.2,
       py: 0,
@@ -75,7 +73,7 @@ export default function DataTable(props) {
           <span>
             <IconButton sx={sx} color='primary' onClick={()=>{
                 const newRows = structuredClone(rows.slice(0, row.row - 1));
-                newRows.push({...emptyRow, row: row.row});
+                newRows.push({row: row.row});
                 newRows.push(...structuredClone(rows.slice(row.row - 1)));
                 for(const x of newRows.slice(row.row)) x['row'] += 1;
                 onChange(newRows);
@@ -88,7 +86,7 @@ export default function DataTable(props) {
           <span>
             <IconButton sx={sx} color='primary' onClick={()=>{
                 const newRows = structuredClone(rows.slice(0, row.row));
-                newRows.push({...emptyRow, row: row.row + 1});
+                newRows.push({row: row.row + 1});
                 newRows.push(...structuredClone(rows.slice(row.row)));
                 for(const x of newRows.slice(row.row + 1)) x['row'] += 1;
                 onChange(newRows);
