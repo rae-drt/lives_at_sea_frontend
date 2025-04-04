@@ -47,6 +47,7 @@ function need_empty_last(data_array) {
 }
 
 export default function DataTable(props) {
+  const {rows, columns, onChange, extraRowControls, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
   useEffect(() => {
     if(need_empty_last(rows)) {
@@ -54,8 +55,7 @@ export default function DataTable(props) {
       newRows.push({row: rows.length + 1});
       onChange(newRows);
     }
-  }, [props.rows]);
-  const {rows, columns, onChange, extraRowControls, sx, ...otherProps} = props;
+  }, [rows, onChange]);
 
   if(!valid_rows(rows)) {
     return(<Alert severity='error'>Rows do not start at 1 and/or are not consecutive.</Alert>);
@@ -63,7 +63,7 @@ export default function DataTable(props) {
 
   function baseRowControls(params) {
     // row.row is the row number as presented in the table. This is one higher than the array index of the row.
-    const {row, ...otherParams} = params;
+    const {row} = params; //const {row, ...otherParams} = params; would give access to the rest of the params if needed
     const sx = {
       px: 0.2,
       py: 0,
