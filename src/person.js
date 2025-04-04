@@ -12,7 +12,7 @@ import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
 import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
-import { catref, officerref } from './data_utils'
+import { catref, officerref } from './data_utils';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 

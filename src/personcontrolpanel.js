@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { LoadingContext } from './loadingcontext';
 
@@ -19,38 +19,12 @@ export function RecordNavigator() {
   const { sailorType, nameId } = useParams();
   const navigate = useNavigate();
   function RecordNavigatorBack() {
-    /*
-    useEffect(() => {
-      const fetchData = async() => {
-        const response = await(fetch(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=1&startafter=' + (id - 1)));
-        if(!response.ok) {
-          throw new Error('Bad response: ' + response.status);
-        }
-        const data = await(response.json());
-        onChange(data.namelist[0]);
-      }
-      fetchData();
-    }, [id, onChange]);
-    */
     const loading = useContext(LoadingContext);
     return(
       <IconButton disabled={loading} onClick={()=>navigate('/' + sailorType + '/' + (Number(nameId) - 1))} ><WestIcon color='primary'/></IconButton>
     );
   }
   function RecordNavigatorForward() {
-    /*
-    useEffect(() => {
-      const fetchData = async() => {
-        const response = await(fetch(process.env.REACT_APP_API_ROOT + 'nameid?pagesize=1&startafter=' + (id - 1)));
-        if(!response.ok) {
-          throw new Error('Bad response: ' + response.status);
-        }
-        const data = await(response.json());
-        onChange(data.namelist[0]);
-      }
-      fetchData();
-    }, [id, onChange]);
-      */
     const loading = useContext(LoadingContext);
     return(
       <IconButton disabled={loading} onClick={()=>navigate('/' + sailorType + '/' + (Number(nameId) + 1))}><EastIcon color='primary'/></IconButton>

@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
-import { catref } from './data_utils'
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';

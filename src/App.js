@@ -1,5 +1,5 @@
 import './App.css';
-import Person from './person.js';
+import Person from './person';
 import { Routes, Route, Navigate} from 'react-router';
 
 function App() {
