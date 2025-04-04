@@ -1,22 +1,14 @@
 import { useContext, useEffect } from 'react';
 import { LoadingContext } from './loadingcontext';
 
-import { DataGrid, GridColDef, GridColumnGroupingModel, gridClasses } from '@mui/x-data-grid';
+import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import Alert from '@mui/material/Alert';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import Checkbox from '@mui/material/Checkbox';
-import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import InsertAboveIcon from '@mui/icons-material/Publish';
 import InsertBelowIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/DeleteForever';
-import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
-import InsertThatIcon from '@mui/icons-material/MenuOpen';
 
 /* Confirm that the passed data array is safe to use in the table interfaces, which assume a row property one greater than array index.
  * If the array is undefined or empty then it is necessarily safe.
