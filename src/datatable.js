@@ -76,7 +76,7 @@ export default function DataTable(props) {
     columns={[...columns, {
         field: 'row_controls',
         headerName: '',
-        width: 160,
+        width: 140,
         renderCell: baseRowControls,
       },
     ]}
