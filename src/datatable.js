@@ -81,13 +81,13 @@ export default function DataTable(props) {
       },
     ]}
     getRowId = {(row) => {return row.row;}}
-    onCellEditStop = {(cellParams, e) => {
-      if('target' in e) { //if we click out without changing anything, e does not have a target (maybe not even an event, but this works) TODO is there an accepted way to handle this?
-        const newRows = structuredClone(rows);
-        newRows[cellParams.id - 1][cellParams.field] = e.target.value;
-        onChange(newRows);
-      }
+    processRowUpdate={(updatedRow, originalRow, {rowId}) =>{
+      const newRows = structuredClone(rows);
+      newRows[rowId - 1] = structuredClone(updatedRow);
+      onChange(newRows);
+      return updatedRow;
     }}
+    onProcessRowUpdateError={(e)=>{alert(e);}}
     disableColumnSorting
     disableColumnMenu
     getRowHeight={()=>'auto'}
