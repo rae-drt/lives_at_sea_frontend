@@ -69,44 +69,6 @@ export default function DataTable(props) {
     return(<Alert severity='error'>Rows do not start at 1 and/or are not consecutive.</Alert>);
   }
 
-  const table = <DataGrid
-    loading={loading}
-    density='compact'
-    rows={rows}
-    columns={[...columns, {
-        field: 'row_controls',
-        headerName: '',
-        width: 140,
-        renderCell: baseRowControls,
-      },
-    ]}
-    getRowId = {(row) => {return row.row;}}
-    processRowUpdate={(updatedRow, originalRow, {rowId}) =>{
-      const newRows = structuredClone(rows);
-      newRows[rowId - 1] = structuredClone(updatedRow);
-      onChange(newRows);
-      return updatedRow;
-    }}
-    onProcessRowUpdateError={(e)=>{alert(e);}}
-    disableColumnSorting
-    disableColumnMenu
-    getRowHeight={()=>'auto'}
-    sx={{
-      ...sx,
-      [`.${gridClasses.cell}`]: {
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0px',
-        pl: '3px',
-        pr: '3px',
-      },
-      '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
-      '& .MuiDataGrid-columnSeparator': { display: 'none' },
-      '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
-    }}
-    {...otherProps}
-  />;
-
   function baseRowControls(params) {
     // row.row is the row number as presented in the table. This is one higher than the array index of the row.
     const {row, ...otherParams} = params;
@@ -159,5 +121,42 @@ export default function DataTable(props) {
     );
   };
 
-  return table;
+  return(
+    <DataGrid
+      loading={loading}
+      density='compact'
+      rows={rows}
+      columns={[...columns, {
+          field: 'row_controls',
+          headerName: '',
+          width: 140,
+          renderCell: baseRowControls,
+        },
+      ]}
+      getRowId = {(row) => {return row.row;}}
+      processRowUpdate={(updatedRow, originalRow, {rowId}) =>{
+        const newRows = structuredClone(rows);
+        newRows[rowId - 1] = structuredClone(updatedRow);
+        onChange(newRows);
+        return updatedRow;
+      }}
+      onProcessRowUpdateError={(e)=>{alert(e);}}
+      disableColumnSorting
+      disableColumnMenu
+      getRowHeight={()=>'auto'}
+      sx={{
+        ...sx,
+        [`.${gridClasses.cell}`]: {
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0px',
+          pl: '3px',
+          pr: '3px',
+        },
+        '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
+        '& .MuiDataGrid-columnSeparator': { display: 'none' },
+        '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
+      }}
+      {...otherProps}
+    />);
 }
