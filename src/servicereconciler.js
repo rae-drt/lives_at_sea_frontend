@@ -61,6 +61,15 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
     getDifferenceMap(serviceRecords[1], serviceRecords[2]);
   return (
     <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
+<Button variant='outlined' onClick={()=>{
+         console.log(personTableData.nameid);
+         console.log(JSON.stringify({1: serviceRecords[1], 2: serviceRecords[2]},null,2));
+         const response = fetch('https://ofktct1tij.execute-api.eu-west-2.amazonaws.com/Testing/service?nameid=' + personTableData.nameid, {
+           method: "POST",
+           body: JSON.stringify({1: serviceRecords[1], 2: serviceRecords[2]}),
+         }).then((x)=>{console.log(x)},(x)=>{console.warn(x);});
+      }}>Enter</Button>
+
       {getTable(1, 2)}
       {getTable(2, 1)}
     </Stack>

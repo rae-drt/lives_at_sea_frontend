@@ -34,7 +34,12 @@ export default function PersonTable({data, onChange}) {
     <Grid container alignItems='flex-end' columns={7}>
       <Grid container size={5} justifyContent='flex-start'><Typography variant='h6'>Service record, {catref(data)}</Typography></Grid>
       <Grid size={1}><FormControlLabel control={<Checkbox checked={data.error} onChange={(e)=>{onChange({...data, error: !data.error})}}/>} label='Error?' labelPlacement='start'/></Grid>
-      <Grid container size={1} justifyContent='flex-end'><Button variant='outlined' onClick={()=>{alert('clicked')}}>Enter</Button></Grid>
+      <Grid container size={1} justifyContent='flex-end'><Button variant='outlined' onClick={()=>{
+         const response = fetch('https://ofktct1tij.execute-api.eu-west-2.amazonaws.com/Testing/name?nameid=100123', {
+           method: "POST",
+           body: JSON.stringify(data),
+         }).then((x)=>{console.log(x)},(x)=>{console.warn(x);});
+      }}>Enter</Button></Grid>
       <Grid size={7}>
         <Card sx={{background: data.error ? '#ff943975' : '#ffffffff'}}>
           <CardContent>
