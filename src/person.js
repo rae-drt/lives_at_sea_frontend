@@ -10,6 +10,7 @@ import OtherServices from './otherservices';
 import PersonTable from './persontable';
 import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
+import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
 import { catref } from './data_utils'
 
@@ -79,7 +80,10 @@ export default function Person() {
           <ThemeProvider theme={theme}>
             <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
               <Stack direction='row' width={0.7} alignItems='flex-start'>
-                <PersonTable data={personTableData} onChange={setPersonTableData}/>
+                <Stack>
+                  <PersonTableControlPanel data={personTableData}/>
+                  <PersonTable data={personTableData} onChange={setPersonTableData}/>
+                </Stack>
                 <PersonControlPanel
                   data={personTableData}
                   onChange={setPersonTableData}
