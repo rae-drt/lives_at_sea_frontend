@@ -12,7 +12,7 @@ import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
 import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
-import { catref, officerref } from './data_utils';
+import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -100,7 +100,7 @@ export default function Person() {
               <Stack direction='row' width={0.7} alignItems='flex-start'>
                 <Stack>
                   <PersonTableControlPanel data={personTableData}/>
-                  <PersonTable data={personTableData} onChange={setPersonTableData}/>
+                  <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8} rows={sailorType === 'officer' ? OFFICER_LAYOUT: RATING_LAYOUT}/>
                 </Stack>
                 <PersonControlPanel
                   data={personTableData}

@@ -8,9 +8,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-export default function PersonTable({data, onChange}) {
-  const ROW_CELLS = 8;
-
+export default function PersonTable({data, onChange, rows, rowCells}) {
   /* Each PersonTableRow is expected to be all or nothing: either all of its fields should exist, or none of them should. 
      At time of writing this is not actually tested for and should render OK if the rule is broken (but the label might not make sense)
    */
@@ -51,8 +49,14 @@ export default function PersonTable({data, onChange}) {
       cells.push(<Grid key={counter++} size={fields[field]}><PersonTableField data={data} onChange={onChange} field={field}/></Grid>);
       cellsPlaced -= fields[field];
     }
-    cells.push(<Grid key={counter++} size={ROW_CELLS - cellsPlaced}/>); //spacer
+    cells.push(<Grid key={counter++} size={rowCells - cellsPlaced}/>); //spacer
     return(cells);
+  }
+
+  const table = [];
+  let counter = 0;
+  for(const row of rows) {
+    table.push(<PersonTableRow key={counter++} labels={row.labels} fields={row.fields}/>);
   }
 
   return (
@@ -60,13 +64,8 @@ export default function PersonTable({data, onChange}) {
       <Card sx={{background: data.error ? '#ff943975' : '#ffffffff'}}>
         <CardContent>
           <Stack direction='row' spacing={2}>
-            <Grid container columns={ROW_CELLS} alignItems='center' justifyContent='flex-start'>
-              <PersonTableRow labels={{'Forename, surname': 2}}      fields={{forename: 3, surname:3}}/>
-              <PersonTableRow labels={{'Official number': 2}}        fields={{officialnumber: 3}}/>
-              <PersonTableRow labels={{'Born': 2}}                   fields={{birthday: 1, birthmonth: 1, birthyear: 1}}/>
-              <PersonTableRow labels={{'Birth place, county': 2}}    fields={{birthplace: 3, birthcountry: 3}}/>
-              <PersonTableRow labels={{'Occupation': 2}}             fields={{occupation: 3}}/>
-              <PersonTableRow labels={{'Discharge date, reason': 2}} fields={{dischargeday: 1, dischargemonth: 1, dischargeyear: 1, dischargereason: 3}}/>
+            <Grid container columns={rowCells} alignItems='center' justifyContent='flex-start'>
+              {table}
             </Grid>
           </Stack>
         </CardContent>
