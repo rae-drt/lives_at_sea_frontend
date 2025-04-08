@@ -6,9 +6,10 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path='/' element={<Navigate to='/40001'/>}/>
-        <Route path='/:nameId' element={<Navigate to='main'/>}/>
-        <Route path='/:nameId/:dataType' element={<Person/>}/>
+        <Route path='/' element={<Navigate to='/rating/40001'/>}/>
+        <Route path='/rating/:nameid' element={<Navigate to='main'/>}/>
+        <Route path='/officer/:nameid' element={<Navigate to='otherservices'/>}/>
+        <Route path='/:sailorType/:nameId/:dataType' element={<Person/>}/>
       </Routes>
     </div>
   );

@@ -17,20 +17,21 @@ import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { LoadingContext } from './loadingcontext';
-import { catref } from './data_utils'
+import { catref, officerref } from './data_utils'
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const _ = require('lodash');
 
 export default function PersonTableControlPanel({data}) {
+  const {sailorType} = useParams();
   return (
     <Card>
       <CardContent>
         <Stack direction='row' justifyContent='space-between' spacing={2}>
-          <Typography variant='h6'>{catref(data)}</Typography>
+          <Typography variant='h6'>{sailorType === 'officer' ? 'Officer #' + officerref(data) : catref(data)}</Typography>
           <Stack direction='row' spacing={2}>
-            <FormControlLabel control={<Checkbox checked={data.error} disabled={true}/>} label='Error?' labelPlacement='start'/>
+            {'error' in data && <FormControlLabel control={<Checkbox checked={data.error} disabled={true}/>} label='Error?' labelPlacement='start'/>}
             <Button variant='outlined' onClick={()=>{alert('clicked')}}>Enter</Button>
           </Stack>
         </Stack>

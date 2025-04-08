@@ -16,7 +16,7 @@ import WestIcon from '@mui/icons-material/ArrowBack'
 import EastIcon from '@mui/icons-material/ArrowForward';
 
 export function RecordNavigator() {
-  const { nameId } = useParams();
+  const { sailorType, nameId } = useParams();
   const navigate = useNavigate();
   function RecordNavigatorBack() {
     /*
@@ -34,7 +34,7 @@ export function RecordNavigator() {
     */
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>navigate('/' + (Number(nameId) - 1))} ><WestIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>navigate('/' + sailorType + '/' + (Number(nameId) - 1))} ><WestIcon color='primary'/></IconButton>
     );
   }
   function RecordNavigatorForward() {
@@ -53,7 +53,7 @@ export function RecordNavigator() {
       */
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>navigate('/' + (Number(nameId) + 1))}><EastIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>navigate('/' + sailorType + '/' + (Number(nameId) + 1))}><EastIcon color='primary'/></IconButton>
     );
   }
 
@@ -76,15 +76,17 @@ export function RecordNavigator() {
           <TextField
             onKeyPress={(e) => {
               if(e.key === 'Enter' && valid) {
-                navigate('/' + e.target.value);
+                const intendedSailor = e.target.value.trim();
+                if(intendedSailor.includes('/')) navigate('/' + intendedSailor);
+                else navigate('/' + sailorType + '/' + e.target.value);
                 setPopoverAnchor(false);
               }
             }}
             onKeyDown={(e)=>{e.key === 'Escape' && setPopoverAnchor(false);}}
             defaultValue={nameId}
-            onChange={(e)=>{setValid(!(/\D/.test(e.target.value)));}}
+            onChange={(e)=>{setValid(/(?:rating\/|officer\/)?\d+$/.test(e.target.value.trim()));}}
             error={!valid}
-            helperText={valid || 'Input must be a valid service number'}
+            helperText={valid || 'Enter nameid with optional sailor type. Examples: 100123; rating/100123; officer/7.'}
           />
         </Popover>
       </>
@@ -112,6 +114,7 @@ export function XCheck({ready, checked, onChange}) {
 
 export default function PersonControlPanel({data, onChange, xCheckReady}) {
   const loading = useContext(LoadingContext);
+  const {sailorType} = useParams();
   return(
     <Stack
       spacing={3}
@@ -119,10 +122,14 @@ export default function PersonControlPanel({data, onChange, xCheckReady}) {
         justifyContent: "space-evenly",
         alignItems: "flex-end",
       }}>
-      <XCheck ready={xCheckReady} checked={data.reconciled} onChange={()=>{onChange({...data, reconciled: !data.reconciled})}}/>
+      { sailorType === 'rating' &&
+        <XCheck ready={xCheckReady} checked={data.reconciled} onChange={()=>{onChange({...data, reconciled: !data.reconciled})}}/>
+      }
       <RecordNavigator/>
       <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
-      <FormControlLabel control={<Checkbox disabled={loading} checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
+      { sailorType === 'rating' &&
+        <FormControlLabel control={<Checkbox disabled={loading} checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
+      }
     </Stack>
   );
 }

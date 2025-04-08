@@ -12,7 +12,7 @@ import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
 import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
-import { catref } from './data_utils'
+import { catref, officerref } from './data_utils'
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -21,7 +21,7 @@ const _ = require('lodash');
 export default function Person() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
-  const { nameId, dataType } = useParams();
+  const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [personTableData, setPersonTableData] = useState();
@@ -31,18 +31,33 @@ export default function Person() {
   useEffect(() => {
     const fetchData = async() => {
       setFetchingPersonTableData(true);
-      const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
-      if(!response.ok) {
-        throw new Error('Bad response: ' + response.status);
+      if(sailorType === 'rating') {
+        const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
+        if(!response.ok) {
+          throw new Error('Bad response: ' + response.status);
+        }
+        const data = await(response.json());
+        document.title = catref(data);
+        setPersonTableData(data);
       }
-      const data = await(response.json());
-      document.title = catref(data);
-      setPersonTableData(data);
+      else if(sailorType === 'officer') {
+        const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+        socket.onmessage = (e) => {
+          if(e.data === 'NULL') {
+            throw new Error('Bad response');
+          }
+          const data = JSON.parse(e.data);
+          setPersonTableData(data);
+          document.title = 'Officer #' + officerref(data);
+          socket.close();
+        };
+        socket.onopen = () => { socket.send('L@S:Officer:' + nameId) };
+      }
       ///*For when there is no network*/ setPersonTableData({"nameid": 0, "series": 188, "piece": 0, "forename": "", "surname": "", "officialnumber": "", "birthday": 0, "birthmonth": 0, "birthyear": 0, "birthplace": "", "birthcounty": "", "occupation": "", "dischargeday": 0, "dischargemonth": 0, "dischargeyear": 0, "dischargereason": "", "tr1id": 0, "complete1": false, "tr2id": 0, "complete2": false, "reconciled": false, "notWW1": false, "error": false});
       setFetchingPersonTableData(false);
     }
     fetchData();
-  }, [nameId]);
+  }, [sailorType, nameId]);
   useEffect(() => {
     const fetchData = async() => {
       setFetchingServices(true);
@@ -65,11 +80,14 @@ export default function Person() {
   });
 
   //I think this will only occur during initial load
-  if(((typeof serviceRecords) === 'undefined') || ((typeof personTableData) === 'undefined')) {
-    return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
-  }
-  else if(dataType !== 'main' && dataType !== 'otherservices' && dataType !== 'otherdata') {
+  if(
+    (sailorType !== 'rating' && sailorType !== 'officer') ||
+    (dataType !== 'main' && dataType !== 'otherservices' && dataType !== 'otherdata')
+  ) {
     return (<Alert severity='error'>Bad location: {pathname}</Alert>);
+  }
+  else if(((typeof serviceRecords) === 'undefined') || ((typeof personTableData) === 'undefined')) {
+    return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
   else {
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
@@ -96,9 +114,9 @@ export default function Person() {
                   }
                 />
               </Stack>
-              <Tabs value={dataType} onChange={(e,v) => {navigate('/' + nameId + '/' + v);}}>
-                <Tab value='main' label='Services'/>
-                <Tab value='otherservices' label='Other Services'/>
+              <Tabs value={dataType} onChange={(e,v) => {navigate('/' + sailorType + '/' + nameId + '/' + v);}}>
+                {sailorType === 'rating' && <Tab value='main' label='Services'/>}
+                <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
                 <Tab value='otherdata' label='Other Data'/>
               </Tabs>
               {dataType === 'main' && <ServiceReconciler personTableData={personTableData} setPersonTableData={setPersonTableData} serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
