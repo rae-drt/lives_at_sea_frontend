@@ -12,25 +12,6 @@ import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Button from '@mui/material/Button';
 
-export function PersonTableField({data, onChange, field}) {
-  const loading = useContext(LoadingContext);
-  return (
-    field in data ?
-    <TextField
-      disabled={loading}
-      size='small'
-      fullWidth
-      value={data[field]}
-      onChange={(e)=>{
-        const newData = {...data};
-        newData[field] = e.target.value;
-        onChange(newData);
-      }}
-    />:
-    <div/>
-  );
-}
-
 export default function PersonTable({data, onChange}) {
   const ROW_CELLS = 8;
 
@@ -38,6 +19,25 @@ export default function PersonTable({data, onChange}) {
      At time of writing this is not actually tested for and should render OK if the rule is broken (but the label might not make sense)
    */
   function PersonTableRow({labels, fields}) {
+    function PersonTableField({field}) {
+      const loading = useContext(LoadingContext);
+      return (
+        field in data ?
+        <TextField
+          disabled={loading}
+          size='small'
+          fullWidth
+          value={data[field]}
+          onChange={(e)=>{
+            const newData = {...data};
+            newData[field] = e.target.value;
+            onChange(newData);
+          }}
+        />:
+        <div/>
+      );
+    }
+
     if(typeof(data) === 'undefined') return <div/>;
     for(const field in fields) {
       if(!(field in data)) {
