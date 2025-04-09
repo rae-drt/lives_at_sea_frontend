@@ -91,7 +91,6 @@ export default function Person() {
   }
   else {
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
-    const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords[1], serviceRecords[2]);
     return (
       <LoadingContext value={fetchingPersonTableData || fetchingServices}>
         <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
@@ -110,13 +109,6 @@ export default function Person() {
                 <PersonControlPanel
                   data={personTableData}
                   onChange={setPersonTableData}
-                  xCheckReady={
-                    personTableData.tr1id > 0 &&
-                    personTableData.tr2id > 0 &&
-                    personTableData.complete1 &&
-                    personTableData.complete2 &&
-                    sameServices
-                  }
                 />
               </Stack>
               <Tabs value={dataType} onChange={(e,v) => {navigate('/' + sailorType + '/' + nameId + '/' + v);}}>

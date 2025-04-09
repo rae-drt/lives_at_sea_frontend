@@ -10,8 +10,6 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import HappyIcon from '@mui/icons-material/SentimentSatisfiedAlt';
-import SadIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import WestIcon from '@mui/icons-material/ArrowBack'
 import EastIcon from '@mui/icons-material/ArrowForward';
 
@@ -76,16 +74,6 @@ export function RecordNavigator() {
   );
 }
 
-export function XCheck({ready, checked, onChange}) {
-  const loading = useContext(LoadingContext);
-  return (
-    <Stack direction='row' alignItems='center'>
-      {ready ? <HappyIcon sx = {{color: 'green'}}/> : <SadIcon sx = {{color: 'red'}}/>}
-      <FormControlLabel control={<Checkbox disabled={loading || (!ready)} checked={checked} onChange={onChange}/>} label='Xcheck' labelPlacement='start'/>
-    </Stack>
-  );
-}
-
 export default function PersonControlPanel({data, onChange, xCheckReady}) {
   const loading = useContext(LoadingContext);
   const {sailorType} = useParams();
@@ -96,9 +84,6 @@ export default function PersonControlPanel({data, onChange, xCheckReady}) {
         justifyContent: "space-evenly",
         alignItems: "flex-end",
       }}>
-      { sailorType === 'rating' &&
-        <XCheck ready={xCheckReady} checked={data.reconciled} onChange={()=>{onChange({...data, reconciled: !data.reconciled})}}/>
-      }
       <RecordNavigator/>
       <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
       { sailorType === 'rating' &&

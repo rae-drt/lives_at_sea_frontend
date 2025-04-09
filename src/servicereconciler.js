@@ -1,3 +1,4 @@
+import { useContext} from 'react';
 import { useParams } from 'react-router';
 
 import Stack from '@mui/material/Stack';
@@ -11,6 +12,12 @@ import InsertBelowIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/DeleteForever';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
 import InsertThatIcon from '@mui/icons-material/MenuOpen';
+
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import HappyIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import SadIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import { LoadingContext } from './loadingcontext';
 
 const _ = require('lodash');
 
@@ -33,6 +40,15 @@ function getDifferenceMap(table1, table2) {
   );
 }
 
+function XCheck({ready, checked, onChange}) {
+  const loading = useContext(LoadingContext);
+  return (
+    <Stack direction='row' alignItems='center'>
+      {ready ? <HappyIcon sx = {{color: 'green'}}/> : <SadIcon sx = {{color: 'red'}}/>}
+      <FormControlLabel control={<Checkbox disabled={loading || (!ready)} checked={checked} onChange={onChange}/>} label='Xcheck' labelPlacement='start'/>
+    </Stack>
+  );
+}
 export default function ServiceReconciler({personTableData, setPersonTableData, serviceRecords, setServiceRecords}) {
   const {nameId} = useParams();
   function getTable(thisTable, thatTable) {
@@ -108,10 +124,17 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
     null : //null if the services are identical. If there is any difference, the array will be the same length as the shorter services table (potentially empty, making _all_ rows in the longer table "different").
            //TODO it may well be that if one table is empty, the API just doesn't return anything at all for it -- if so, I can make that work for me by passing an empty array in place of the missing entry
     getDifferenceMap(serviceRecords[1], serviceRecords[2]);
+  const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords[1], serviceRecords[2]);
+  const xCheckReady = personTableData.tr1id > 0 &&
+                      personTableData.tr2id > 0 &&
+                      personTableData.complete1 &&
+                      personTableData.complete2 &&
+                      sameServices
   return (
     <Stack>
-      <Stack direction='row' justifyContent='flex-end'>
-        <Button disabled={differenceMap !== null} onClick={()=>{
+      <Stack direction='row' justifyContent='flex-end' spacing={4}>
+        <XCheck ready={xCheckReady} checked={personTableData.reconciled} onChange={()=>{setPersonTableData({...personTableData, reconciled: !personTableData.reconciled})}}/>
+        <Button disabled={!xCheckReady} onClick={()=>{
           const response = fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId, {
             method: "POST",
             body: JSON.stringify({1: serviceRecords[1], 2: serviceRecords[2]}),
