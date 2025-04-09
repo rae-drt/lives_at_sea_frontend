@@ -8,55 +8,55 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-export default function PersonTable({data, onChange, rows, rowCells}) {
-  /* Each PersonTableRow is expected to be all or nothing: either all of its fields should exist, or none of them should. 
-     At time of writing this is not actually tested for and should render OK if the rule is broken (but the label might not make sense)
-   */
-  function PersonTableRow({labels, fields}) {
-    function PersonTableField({field}) {
-      const loading = useContext(LoadingContext);
-      return (
-        field in data ?
-        <TextField
-          disabled={loading}
-          size='small'
-          fullWidth
-          value={data[field]}
-          onChange={(e)=>{
-            const newData = {...data};
-            newData[field] = e.target.value;
-            onChange(newData);
-          }}
-        />:
-        <div/>
-      );
-    }
+function PersonTableField({data, onChange, field}) {
+  const loading = false; //useContext(LoadingContext);
+  return (
+    field in data ?
+    <TextField
+      disabled={loading}
+      size='small'
+      fullWidth
+      value={data[field]}
+      onChange={(e)=>{
+        const newData = {...data};
+        newData[field] = e.target.value;
+        onChange(newData);
+      }}
+    />:
+    <div/>
+  );
+}
 
-    if(typeof(data) === 'undefined') return <div/>;
-    for(const field in fields) {
-      if(!(field in data)) {
-        return <div/>;
-      }
+/* Each PersonTableRow is expected to be all or nothing: either all of its fields should exist, or none of them should. 
+   At time of writing this is not actually tested for and should render OK if the rule is broken (but the label might not make sense)
+ */
+function PersonTableRow({onChange, data, rowCells, labels, fields}) {
+  if(typeof(data) === 'undefined') return <div/>;
+  for(const field in fields) {
+    if(!(field in data)) {
+      return <div/>;
     }
-    let counter = 0;
-    let cells = [];
-    let cellsPlaced = 0;
-    for(const label in labels) {
-      cells.push(<Grid container key={counter++} direction='row' size={labels[label]}><Typography>{label}</Typography></Grid>);
-      cellsPlaced += labels[label];
-    }
-    for(const field in fields) {
-      cells.push(<Grid key={counter++} size={fields[field]}><PersonTableField data={data} onChange={onChange} field={field}/></Grid>);
-      cellsPlaced -= fields[field];
-    }
-    cells.push(<Grid key={counter++} size={rowCells - cellsPlaced}/>); //spacer
-    return(cells);
   }
+  let counter = 0;
+  let cells = [];
+  let cellsPlaced = 0;
+  for(const label in labels) {
+    cells.push(<Grid container key={counter++} direction='row' size={labels[label]}><Typography>{label}</Typography></Grid>);
+    cellsPlaced += labels[label];
+  }
+  for(const field in fields) {
+    cells.push(<Grid key={counter++} size={fields[field]}><PersonTableField data={data} onChange={onChange} field={field}/></Grid>);
+    cellsPlaced -= fields[field];
+  }
+  cells.push(<Grid key={counter++} size={rowCells - cellsPlaced}/>); //spacer
+  return(cells);
+}
 
+export default function PersonTable({data, onChange, rows, rowCells}) {
   const table = [];
   let counter = 0;
   for(const row of rows) {
-    table.push(<PersonTableRow key={counter++} labels={row.labels} fields={row.fields}/>);
+    table.push(<PersonTableRow key={counter++} labels={row.labels} fields={row.fields} data={data} onChange={onChange} rowCells={rowCells}/>);
   }
 
   return (
