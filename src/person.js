@@ -99,7 +99,12 @@ export default function Person() {
             <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
               <Stack direction='row' width={0.7} alignItems='flex-start'>
                 <Stack>
-                  <PersonTableControlPanel data={personTableData}/>
+                  <PersonTableControlPanel data={personTableData} onChange={(()=>{
+                    const response = fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId, {
+                      method: "POST",
+                      body: JSON.stringify(personTableData),
+                    }).then(Function.prototype(),(x)=>{alert(x);}); //SO says that Function.prototype() is a good NOP (https://stackoverflow.com/a/33458430)
+                  })}/>
                   <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8} rows={sailorType === 'officer' ? OFFICER_LAYOUT: RATING_LAYOUT}/>
                 </Stack>
                 <PersonControlPanel

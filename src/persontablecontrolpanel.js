@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { catref, officerref } from './data_utils'
 
-export default function PersonTableControlPanel({data}) {
+export default function PersonTableControlPanel({data, onChange}) {
   const {sailorType} = useParams();
   return (
     <Card>
@@ -17,7 +17,7 @@ export default function PersonTableControlPanel({data}) {
           <Typography variant='h6'>{sailorType === 'officer' ? 'Officer #' + officerref(data) : catref(data)}</Typography>
           <Stack direction='row' spacing={2}>
             {'error' in data && <FormControlLabel control={<Checkbox checked={data.error} disabled={true}/>} label='Error?' labelPlacement='start'/>}
-            <Button variant='outlined' onClick={()=>{alert('clicked')}}>Enter</Button>
+            <Button variant='outlined' onClick={onChange}>Enter</Button>
           </Stack>
         </Stack>
       </CardContent>
