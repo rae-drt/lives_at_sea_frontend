@@ -1,3 +1,5 @@
+import { useParams } from 'react-router';
+
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
@@ -32,6 +34,7 @@ function getDifferenceMap(table1, table2) {
 }
 
 export default function ServiceReconciler({personTableData, setPersonTableData, serviceRecords, setServiceRecords}) {
+  const {nameId} = useParams();
   function getTable(thisTable, thatTable) {
 
     /* Generates the buttons.
@@ -106,9 +109,19 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
            //TODO it may well be that if one table is empty, the API just doesn't return anything at all for it -- if so, I can make that work for me by passing an empty array in place of the missing entry
     getDifferenceMap(serviceRecords[1], serviceRecords[2]);
   return (
-    <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-      {getTable(1, 2)}
-      {getTable(2, 1)}
+    <Stack>
+      <Stack direction='row' justifyContent='flex-end'>
+        <Button disabled={differenceMap !== null} onClick={()=>{
+          const response = fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId, {
+            method: "POST",
+            body: JSON.stringify({1: serviceRecords[1], 2: serviceRecords[2]}),
+          }).then(Function.prototype(),(x)=>{alert(x);}); //Function.prototype is a nop
+        }}>Enter</Button>
+      </Stack>
+      <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
+        {getTable(1, 2)}
+        {getTable(2, 1)}
+      </Stack>
     </Stack>
   );
 }
