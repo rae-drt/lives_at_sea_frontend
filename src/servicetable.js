@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
 
-import { DataGrid, GridColDef, GridColumnGroupingModel, gridClasses } from '@mui/x-data-grid';
+import { GridColDef, GridColumnGroupingModel, gridClasses } from '@mui/x-data-grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';

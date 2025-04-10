@@ -8,9 +8,6 @@ import ServiceTable from './servicetable';
 import { SERVICE_FIELDS } from './data_utils';
 
 import IconButton from '@mui/material/IconButton';
-import InsertAboveIcon from '@mui/icons-material/Publish';
-import InsertBelowIcon from '@mui/icons-material/Download';
-import DeleteIcon from '@mui/icons-material/DeleteForever';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
 import InsertThatIcon from '@mui/icons-material/MenuOpen';
 
@@ -88,7 +85,7 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
      * This would require passing thisTable, thatTable, serviceRecords and setServiceRecords.
      */
     function rowControls(params, sx) {
-      const {row, ...otherParams} = params;
+      const {row} /*, ...otherParams}*/ = params;
       // row.row is the row number as presented in the table. This is one higher than the array index of the row.
       return (
         <>
@@ -166,7 +163,7 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
         <XCheck ready={xCheckReady} checked={personTableData.reconciled} onChange={()=>{setPersonTableData({...personTableData, reconciled: !personTableData.reconciled})}}/>
         <Button disabled={!xCheckReady} onClick={()=>{
           setServiceRecords({1: deleteEmptyServiceRows(serviceRecords[1]), 2: deleteEmptyServiceRows(serviceRecords[2])});
-          const response = fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId, {
+          fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId, {
             method: "POST",
             body: JSON.stringify({1: serviceRecords[1].slice(0, serviceRecords[1].length - 1), 2: serviceRecords[2].slice(0, serviceRecords[2].length -1)}),
           }).then(Function.prototype(),(x)=>{alert(x);}); //Function.prototype is a nop

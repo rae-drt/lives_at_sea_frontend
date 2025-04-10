@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 function PersonTableField({data, onChange, field}) {
-  const loading = false; //useContext(LoadingContext);
+  const loading = useContext(LoadingContext);
   return (
     field in data ?
     <TextField
