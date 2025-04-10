@@ -66,7 +66,8 @@ export default function Person() {
         throw new Error('Bad response: ' + response.status);
       }
       const data = await(response.json());
-      setServiceRecords(data);
+      if(_.isEmpty(data)) setServiceRecords({1:[], 2:[]});
+      else setServiceRecords(data);
       // /*For when there is no network*/ setServiceRecords({});
       setFetchingServices(false);
     }
