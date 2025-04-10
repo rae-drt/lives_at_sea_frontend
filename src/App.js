@@ -10,7 +10,11 @@ function App() {
         <Route path={process.env.PUBLIC_URL}>
           <Route path='' element={<Navigate to='rating/40001'/>}/>
           <Route path='search' element={<Navigate to='rating'/>}/>
-          <Route path='search/:sailorType' element={<Search/>}/>
+          <Route path='search'>
+            <Route path=':sailorType' element={<Search/>}>
+              <Route path=':nameId/:dataType' element={<Person/>}/>
+            </Route>
+          </Route>
           <Route path='rating' element={<Navigate to='40001'/>}/>
           <Route path='officer' element={<Navigate to='7'/>}/>
           <Route path='rating/:nameid' element={<Navigate to='main'/>}/>

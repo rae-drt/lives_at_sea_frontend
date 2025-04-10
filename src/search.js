@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { useParams, useNavigate, Outlet } from 'react-router';
+import { useParams, useNavigate, Outlet, Link } from 'react-router';
 import { LoadingContext } from './loadingcontext';
 
 import Card from '@mui/material/Card';
@@ -11,7 +11,6 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import List from '@mui/material/List';
-import Link from '@mui/material/Link';
 import ListItem from '@mui/material/List';
 
 import PersonTable from './persontable';
@@ -78,7 +77,7 @@ export default function DataTable(props) {
 
   const list = [];
   for(const identifier of identifiers) {
-    list.push(<ListItem key={identifier}><Link target='_blank' href={process.env.PUBLIC_URL + '/' + sailorType + '/' + identifier}>{identifier}</Link></ListItem>);
+    list.push(<ListItem key={identifier}><Link to={process.env.PUBLIC_URL + '/search/' + sailorType + '/' + identifier + (sailorType === 'rating' ? '/main' : '/otherservices')}>{identifier}</Link></ListItem>);
   }
 
   return(
@@ -101,10 +100,16 @@ export default function DataTable(props) {
       <PersonTable data={data} onChange={setData} onButton={searchFunction} rowCells={8}
                    rows={sailorType === 'officer' ? OFFICER_LAYOUT : [{labels: {'ADM': 2}, fields: {series: 1, piece: 1, nameid: 1}}, ...RATING_LAYOUT]}
       />
-      <List>
-        {list}
-      </List>
-      <Outlet/>
+      <Card>
+        <CardContent>
+          <Stack direction='row' alignItems='flex-start'>
+            <List>
+              {list}
+            </List>
+            <Outlet/>
+          </Stack>
+        </CardContent>
+      </Card>
     </LoadingContext>
   );
 }
