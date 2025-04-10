@@ -112,7 +112,7 @@ export default function Person() {
                   onChange={setPersonTableData}
                 />
               </Stack>
-              <Tabs value={dataType} onChange={(e,v) => {navigate('/' + sailorType + '/' + nameId + '/' + v);}}>
+              <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
                 {sailorType === 'rating' && <Tab value='main' label='Services'/>}
                 <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
                 <Tab value='otherdata' label='Other Data'/>

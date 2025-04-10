@@ -19,13 +19,13 @@ export function RecordNavigator() {
   function RecordNavigatorBack() {
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>navigate('/' + sailorType + '/' + (Number(nameId) - 1))} ><WestIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + (Number(nameId) - 1))} ><WestIcon color='primary'/></IconButton>
     );
   }
   function RecordNavigatorForward() {
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>navigate('/' + sailorType + '/' + (Number(nameId) + 1))}><EastIcon color='primary'/></IconButton>
+      <IconButton disabled={loading} onClick={()=>navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + (Number(nameId) + 1))}><EastIcon color='primary'/></IconButton>
     );
   }
 
@@ -49,8 +49,8 @@ export function RecordNavigator() {
             onKeyPress={(e) => {
               if(e.key === 'Enter' && valid) {
                 const intendedSailor = e.target.value.trim();
-                if(intendedSailor.includes('/')) navigate('/' + intendedSailor);
-                else navigate('/' + sailorType + '/' + e.target.value);
+                if(intendedSailor.includes('/')) navigate(process.env.PUBLIC_URL + '/' + intendedSailor);
+                else navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + e.target.value);
                 setPopoverAnchor(false);
               }
             }}

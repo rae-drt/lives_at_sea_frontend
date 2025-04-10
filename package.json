@@ -2,6 +2,7 @@
   "name": "las_fe",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://localhost/~bogden/las",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
