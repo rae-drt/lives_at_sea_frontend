@@ -5,6 +5,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
+import { SERVICE_FIELDS } from './data_utils';
 
 import IconButton from '@mui/material/IconButton';
 import InsertAboveIcon from '@mui/icons-material/Publish';
@@ -51,6 +52,35 @@ function XCheck({ready, checked, onChange}) {
 }
 export default function ServiceReconciler({personTableData, setPersonTableData, serviceRecords, setServiceRecords}) {
   const {nameId} = useParams();
+
+  function deleteEmptyServiceRows(services) {
+    const newRows = structuredClone(services);
+
+    //identify the empty rows
+    const emptyRows = [];
+    outer:
+    for(const row of newRows) {
+      for(const field of SERVICE_FIELDS) {
+        if(row[field]) { //Anything truthy here means that the row has some real content somewhere
+          continue outer;
+        }
+      }
+      emptyRows.push(row.row)
+    }
+
+    //delete the empty rows -- go backwards so that the indices continue to work
+    for(const emptyRow of emptyRows.reverse()) {
+      newRows.splice(emptyRow - 1, 1);
+    }
+
+    //renumber the remaining rows
+    for(let i = 0; i < newRows.length; i++) {
+      newRows[i].row = i + 1;
+    }
+
+    return newRows;
+  }
+
   function getTable(thisTable, thatTable) {
 
     /* Generates the buttons.
@@ -135,9 +165,10 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
       <Stack direction='row' justifyContent='flex-end' spacing={4}>
         <XCheck ready={xCheckReady} checked={personTableData.reconciled} onChange={()=>{setPersonTableData({...personTableData, reconciled: !personTableData.reconciled})}}/>
         <Button disabled={!xCheckReady} onClick={()=>{
+          setServiceRecords({1: deleteEmptyServiceRows(serviceRecords[1]), 2: deleteEmptyServiceRows(serviceRecords[2])});
           const response = fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId, {
             method: "POST",
-            body: JSON.stringify({1: serviceRecords[1], 2: serviceRecords[2]}),
+            body: JSON.stringify({1: serviceRecords[1].slice(0, serviceRecords[1].length - 1), 2: serviceRecords[2].slice(0, serviceRecords[2].length -1)}),
           }).then(Function.prototype(),(x)=>{alert(x);}); //Function.prototype is a nop
         }}>Enter</Button>
       </Stack>
