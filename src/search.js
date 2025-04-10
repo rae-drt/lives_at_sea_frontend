@@ -18,7 +18,7 @@ import PersonTable from './persontable';
 
 import { useEffect } from 'react';
 
-import {RATING_FIELDS, RATING_LAYOUT, OFFICER_FIELDS, OFFICER_LAYOUT, convert_to_date} from './data_utils';
+import {RATING_FIELDS, RATING_LAYOUT, OFFICER_FIELDS, OFFICER_LAYOUT, convert_to_date, catref, officerref} from './data_utils';
 
 const _ = require('lodash');
 
@@ -37,6 +37,40 @@ export default function DataTable(props) {
   const loading = useContext(LoadingContext);
   const [data, setData] = useState(initData(sailorType));
   const [identifiers, setIdentifiers] = useState([]);
+  const [identifierMap, setIdentifierMap] = useState({});
+  useEffect(() => {
+    const fetchData = async() => {
+      const map = {}
+      for(const identifier of identifiers) {
+        if(sailorType === 'rating') {
+          const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + identifier));
+          if(!response.ok) {
+            throw new Error('Bad response: ' + response.status);
+          }
+          const data = await(response.json());
+          console.log('r', data);
+          map[identifier] = catref(data);
+        }
+        else if(sailorType === 'officer') {
+          const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+          socket.onmessage = (e) => {
+            if(e.data === 'NULL') {
+              throw new Error('Bad response');
+            }
+            const data = JSON.parse(e.data);
+            console.log('o', data);
+            map[identifier] = officerref(data);
+            socket.close();
+          };
+          socket.onopen = () => { socket.send('L@S:Officer:' + identifier) };
+        }
+      }
+      console.log('map', map);
+      setIdentifierMap(map);
+    }
+    fetchData();
+  }, [identifiers, sailorType]);
+  console.log('stateMap', identifierMap);
 
   function searchFunction(params) {
     const strippedData = structuredClone(data);
@@ -68,6 +102,7 @@ export default function DataTable(props) {
           setIdentifiers([]);
         }
         else {
+          console.log(JSON.parse(e.data));
           setIdentifiers(JSON.parse(e.data));
         }
         socket.close();
@@ -78,7 +113,7 @@ export default function DataTable(props) {
 
   const list = [];
   for(const identifier of identifiers) {
-    list.push(<ListItem key={identifier}><Link target='_blank' href={process.env.PUBLIC_URL + '/' + sailorType + '/' + identifier}>{identifier}</Link></ListItem>);
+    list.push(<ListItem key={identifier}><Link target='_blank' href={process.env.PUBLIC_URL + '/' + sailorType + '/' + identifier}>{identifierMap[identifier]}</Link></ListItem>);
   }
 
   return(
