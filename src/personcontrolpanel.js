@@ -77,6 +77,7 @@ export function RecordNavigator() {
 export default function PersonControlPanel({data, onChange, xCheckReady}) {
   const loading = useContext(LoadingContext);
   const {sailorType} = useParams();
+  const navigate = useNavigate();
   return(
     <Stack
       spacing={3}
@@ -85,7 +86,7 @@ export default function PersonControlPanel({data, onChange, xCheckReady}) {
         alignItems: "flex-end",
       }}>
       <RecordNavigator/>
-      <Stack direction='row' alignItems='center'><Typography>Progress</Typography><IconButton><WestIcon color='primary'/></IconButton></Stack>
+      <Stack direction='row' alignItems='center'><Typography>{sailorType === 'rating' ? 'Progress' : 'Officers'}</Typography><IconButton><WestIcon color='primary' onClick={()=>{navigate(process.env.PUBLIC_URL + '/officers/' + (data.surname ? data.surname.charAt(0) : ''))}}/></IconButton></Stack>
       { sailorType === 'rating' &&
         <FormControlLabel control={<Checkbox disabled={loading} checked={data.notWW1} onChange={(e)=>{onChange({...data, notWW1: !data.notWW1})}}/>} label='Not WW1' labelPlacement='start'/>
       }

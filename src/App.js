@@ -1,5 +1,6 @@
 import './App.css';
 import Person from './person';
+import OfficerIndex from './officerindex';
 import { Routes, Route, Navigate} from 'react-router';
 
 function App() {
@@ -8,6 +9,8 @@ function App() {
       <Routes>
         <Route path={process.env.PUBLIC_URL}>
           <Route path='' element={<Navigate to='rating/40001'/>}/>
+          <Route path='officers' element={<Navigate to='A'/>}/>
+          <Route path='officers/:letter' element={<OfficerIndex/>}/>
           <Route path='rating' element={<Navigate to='40001'/>}/>
           <Route path='officer' element={<Navigate to='7'/>}/>
           <Route path='rating/:nameid' element={<Navigate to='main'/>}/>

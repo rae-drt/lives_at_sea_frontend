@@ -19,6 +19,10 @@ export function officerref(data) {
   return retval;
 }
 
+export function surname_officerref(data) {
+  return (data.surname ? data.surname: '<unknown>') + ', ' + (data.forename ? data.forename : '<unknown>');
+}
+
 export const RATING_LAYOUT = [
     {labels: {'Forename, surname': 2},      fields: {forename: 3, surname:3}},
     {labels: {'Official number': 2},        fields: {officialnumber: 3}},
