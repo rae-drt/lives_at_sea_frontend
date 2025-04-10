@@ -25,7 +25,7 @@ export default function Person() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [personTableData, setPersonTableData] = useState();
-  const [serviceRecords, setServiceRecords] = useState([]);
+  const [serviceRecords, setServiceRecords] = useState({1:[], 2:[]});
   const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
   const [fetchingServices, setFetchingServices] = useState(true);
   useEffect(() => {
