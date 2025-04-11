@@ -80,7 +80,7 @@ export default function OfficerIndex() {
             <CircularProgress size='50vh'/> :
             list.length === 0 ?
               <Typography>No officer surnames for "{letter}"</Typography> :
-              <List sx={{display: 'flex', width: '30em', height: '90vh', flexFlow: 'column wrap'}}>{list}</List>
+              <List sx={{columnWidth: '30em'}}>{list}</List>
         }
       </CardContent>
     </Card>
