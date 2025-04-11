@@ -23,6 +23,32 @@ export function surname_officerref(data) {
   return (data.surname ? data.surname: '<unknown>') + ', ' + (data.forename ? data.forename : '<unknown>');
 }
 
+export const RATING_FIELDS = [
+    'forename',
+    'surname',
+    'officialnumber',
+    'birthday',
+    'birthmonth',
+    'birthyear',
+    'birthplace',
+    'birthcounty',
+    'occupation',
+    'dischargeday',
+    'dischargemonth',
+    'dischargeyear',
+    'dischargereason',
+];
+
+export const OFFICER_FIELDS = [
+  RATING_FIELDS[0], //forename
+  RATING_FIELDS[1], //surname
+  RATING_FIELDS[3], //birthday
+  RATING_FIELDS[4], //birthmonth
+  RATING_FIELDS[5], //birthyear
+  RATING_FIELDS[6], //birthplace
+  RATING_FIELDS[7], //birthcounty
+];
+
 export const RATING_LAYOUT = [
     {labels: {'Forename, surname': 2},      fields: {forename: 3, surname:3}},
     {labels: {'Official number': 2},        fields: {officialnumber: 3}},
@@ -44,3 +70,12 @@ export const SERVICE_FIELDS = [
 ];
 
 export const OFFICER_LAYOUT = [RATING_LAYOUT[0], RATING_LAYOUT[2], RATING_LAYOUT[3]];
+
+export function init_data(type) {
+  if(type === 'rating') {
+    return RATING_FIELDS.reduce((a, b) => ({ ...a, [b]: ''}), {series: '', piece: '', nameid: ''});
+  }
+  else {
+    return OFFICER_FIELDS.reduce((a, b) => ({...a, [b]: ''}), {});
+  }
+}

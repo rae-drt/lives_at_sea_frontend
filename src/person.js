@@ -12,7 +12,7 @@ import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
 import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
-import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
+import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT, init_data } from './data_utils';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -31,27 +31,36 @@ export default function Person() {
   useEffect(() => {
     const fetchData = async() => {
       setFetchingPersonTableData(true);
-      if(sailorType === 'rating') {
-        const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
-        if(!response.ok) {
-          throw new Error('Bad response: ' + response.status);
+      let data;
+      if(nameId === '0') {
+        data = init_data(sailorType);
+      }
+      else {
+        if(sailorType === 'rating') {
+          const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
+          if(!response.ok) {
+            throw new Error('Bad response: ' + response.status);
+          }
+          data = await(response.json());
         }
-        const data = await(response.json());
+        else if(sailorType === 'officer') {
+          const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+          socket.onmessage = (e) => {
+            if(e.data === 'NULL') {
+              throw new Error('Bad response');
+            }
+            data = JSON.parse(e.data);
+            socket.close();
+          };
+          socket.onopen = () => { socket.send('L@S:Officer:' + nameId) };
+        }
+      }
+      setPersonTableData(data);
+      if(sailorType === 'rating') {
         document.title = catref(data);
-        setPersonTableData(data);
       }
       else if(sailorType === 'officer') {
-        const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-        socket.onmessage = (e) => {
-          if(e.data === 'NULL') {
-            throw new Error('Bad response');
-          }
-          const data = JSON.parse(e.data);
-          setPersonTableData(data);
-          document.title = 'Officer #' + officerref(data);
-          socket.close();
-        };
-        socket.onopen = () => { socket.send('L@S:Officer:' + nameId) };
+        document.title = 'Officer #' + officerref(data);
       }
       ///*For when there is no network*/ setPersonTableData({"nameid": 0, "series": 188, "piece": 0, "forename": "", "surname": "", "officialnumber": "", "birthday": 0, "birthmonth": 0, "birthyear": 0, "birthplace": "", "birthcounty": "", "occupation": "", "dischargeday": 0, "dischargemonth": 0, "dischargeyear": 0, "dischargereason": "", "tr1id": 0, "complete1": false, "tr2id": 0, "complete2": false, "reconciled": false, "notWW1": false, "error": false});
       setFetchingPersonTableData(false);
@@ -61,11 +70,14 @@ export default function Person() {
   useEffect(() => {
     const fetchData = async() => {
       setFetchingServices(true);
-      const response = await(fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId));
-      if(!response.ok) {
-        throw new Error('Bad response: ' + response.status);
+      let data = {};
+      if(nameId !== '0') {
+        const response = await(fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId));
+        if(!response.ok) {
+          throw new Error('Bad response: ' + response.status);
+        }
+        data = await(response.json());
       }
-      const data = await(response.json());
       if(_.isEmpty(data)) setServiceRecords({1:[], 2:[]});
       else setServiceRecords(data);
       // /*For when there is no network*/ setServiceRecords({});
@@ -105,7 +117,16 @@ export default function Person() {
                       body: JSON.stringify(personTableData),
                     }).then(Function.prototype(),(x)=>{alert(x);}); //SO says that Function.prototype() is a good NOP (https://stackoverflow.com/a/33458430)
                   })}/>
-                  <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8} rows={sailorType === 'officer' ? OFFICER_LAYOUT: RATING_LAYOUT}/>
+                  {
+                      <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
+                        rows={sailorType === 'officer' ?
+                          OFFICER_LAYOUT :
+                          nameId === '0' ?
+                            [{labels: {'ADM': 2}, fields :{series: 1, piece: 1, nameid: 1}}, ...RATING_LAYOUT] :
+                            RATING_LAYOUT
+                        }
+                      />
+                  }
                 </Stack>
                 <PersonControlPanel
                   data={personTableData}
