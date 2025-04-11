@@ -115,7 +115,7 @@ export default function Person() {
               <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
                 {sailorType === 'rating' && <Tab value='main' label='Services'/>}
                 <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
-                <Tab value='otherdata' label='Other Data'/>
+                <Tab value='otherdata' label='Data'/>
               </Tabs>
               {dataType === 'main' && <ServiceReconciler personTableData={personTableData} setPersonTableData={setPersonTableData} serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
               {dataType === 'otherservices' && <OtherServices/>}
