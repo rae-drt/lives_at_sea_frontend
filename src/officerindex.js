@@ -32,6 +32,7 @@ export default function OfficerIndex() {
     }
     fetchData();
   }, [letter]);
+  document.title = 'Officers';
 
   const list = [];
   if(data !== null) {
