@@ -34,6 +34,8 @@ export default function Person() {
       let data;
       if(nameId === '0') {
         data = init_data(sailorType);
+        document.title = 'New ' + sailorType;
+        setPersonTableData(data);
       }
       else {
         if(sailorType === 'rating') {
@@ -42,6 +44,8 @@ export default function Person() {
             throw new Error('Bad response: ' + response.status);
           }
           data = await(response.json());
+          document.title = catref(data);
+          setPersonTableData(data);
         }
         else if(sailorType === 'officer') {
           const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
@@ -50,17 +54,12 @@ export default function Person() {
               throw new Error('Bad response');
             }
             data = JSON.parse(e.data);
+            document.title = 'Officer #' + officerref(data);
+            setPersonTableData(data);
             socket.close();
           };
           socket.onopen = () => { socket.send('L@S:Officer:' + nameId) };
         }
-      }
-      setPersonTableData(data);
-      if(sailorType === 'rating') {
-        document.title = catref(data);
-      }
-      else if(sailorType === 'officer') {
-        document.title = 'Officer #' + officerref(data);
       }
       setFetchingPersonTableData(false);
     }
