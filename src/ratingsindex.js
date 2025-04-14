@@ -11,7 +11,7 @@ const COMPLETED_1 =  8;
 const COMPLETED_2 = 16;
 const XCHECKED    = 32;
 
-const RECORDS_PER_ROW = 10;
+const RECORDS_PER_ROW = 20;
 const SQUARE_SIZE = 20;
 
 function color(set, state) {
