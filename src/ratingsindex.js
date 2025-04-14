@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import { DataGrid } from '@mui/x-data-grid';
 import { Card, CardContent, Link, Stack, Typography } from '@mui/material';
+import { getOfficialNumber, getOfficialNumberDigits } from './data_utils';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -146,8 +147,33 @@ function computeData(data) {
       return [...acc, result];
     }
   }
-  for(let i = 0; i < data.length; i += RECORDS_PER_ROW) {
-    const chunk = data.slice(i, i + RECORDS_PER_ROW);
+
+  /* Ensure that offical numbers are consecutive by filling in any gaps with an object containing only the
+   * appropriate official number.
+   * Assumes that all official numbers end with a number
+   * Assumes that the API returns the data ordered by official number
+   * Assumes that, if there is a prefix, all official numbers within a piece will have the same prefix
+   * It may be safer to do this based on nameid, but that assumes that officialnumber and nameid are linked.
+   */
+  //TODO: Address the above comments
+  const consecutived_data = [data[0]];
+  let [lastOfficialPre, lastOfficialNo] = getOfficialNumber(data[0].officialnumber);
+  for(const datum of data.slice(1)) {
+    const nextOfficialNo = getOfficialNumberDigits(datum.officialnumber);
+    if(nextOfficialNo <= lastOfficialNo) {
+      throw new Error('Official numbers are not ascending (' + nextOfficialNo + ' <= ' + lastOfficialNo);
+    }
+    while(nextOfficialNo > lastOfficialNo + 1) {
+      lastOfficialNo += 1;
+      consecutived_data.push({officialnumber: lastOfficialPre + lastOfficialNo});
+    }
+    lastOfficialNo += 1;
+    consecutived_data.push(datum);
+  }
+
+  /* Now work through the consecutive-ised array to work out the state of each record */
+  for(let i = 0; i < consecutived_data.length; i += RECORDS_PER_ROW) {
+    const chunk = consecutived_data.slice(i, i + RECORDS_PER_ROW);
     output.push({
       from: chunk[0].officialnumber,
       to:   chunk[chunk.length - 1].officialnumber,

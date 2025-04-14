@@ -79,3 +79,19 @@ export function init_data(type) {
     return OFFICER_FIELDS.reduce((a, b) => ({...a, [b]: ''}), {});
   }
 }
+
+//TODO: Confirm that this contractually produces an empty string at parts[1] when there is no prefix
+export function getOfficialNumber(n) {
+  const re = new RegExp('^(\\D*)(\\d+)$');
+  const parts = n.match(re);
+  parts[2] = Number(parts[2]);
+  return parts.slice(1);
+}
+
+export function getOfficialNumberDigits(n) {
+  return getOfficialNumber(n)[1];
+}
+
+export function getOfficialNumberPrefix(n) {
+  return getOfficialNumber(n)[0];
+}
