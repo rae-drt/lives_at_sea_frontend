@@ -10,7 +10,6 @@ const COMPLETED_1 =  8;
 const COMPLETED_2 = 16;
 const XCHECKED    = 32;
 
-const RECORDS_PER_ROW = 20;
 const SQUARE_SIZE = 20;
 
 function color(set, state) {
@@ -131,20 +130,19 @@ function statusRow(data) {
   }
 
   return(
-    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: SQUARE_SIZE * RECORDS_PER_ROW}}>{states}</svg></Stack>
+    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: SQUARE_SIZE * data.value.length}}>{states}</svg></Stack>
   );
 }
 
 function computeData(data) {
-  const output = [];
-  function getStatusReducer(keys) {
-    return (acc, current) => {
-      let result = current.notWW1 ? 1 : 0;
-      for(const key of Object.keys(keys)) {
-        if(current[key]) result = result | keys[key];
-      }
-      return [...acc, result];
-    }
+  function state(x) {
+    let state = x.notWW1 ? 1 : 0;
+    if(x.tr1id)      state |= ALLOCATED_1;
+    if(x.complete1)  state |= COMPLETED_1;
+    if(x.tr2id)      state |= ALLOCATED_2;
+    if(x.complete2)  state |= COMPLETED_2;
+    if(x.reconciled) state |= XCHECKED;
+    return state;
   }
 
   /* Ensure that nameids are consecutive by filling in any gaps with an object containing only the
@@ -153,7 +151,10 @@ function computeData(data) {
    * Assumes that the API returns the data ordered by official number
    ** TODO: Ask Mark to arrange the API like this.
    */
-  const consecutived_data = [data[0]];
+  const consecutived_data = [{
+    nameid: data[0].nameid,
+    state: state(data[0]),
+  }];
   let lastNo = data[0].nameid;
   for(const datum of data.slice(1)) {
     const nextNo = datum.nameid;
@@ -165,22 +166,22 @@ function computeData(data) {
       consecutived_data.push({nameid: lastNo});
     }
     lastNo += 1;
-    consecutived_data.push(datum);
+    consecutived_data.push({nameid: lastNo, state: state(datum)});
   }
 
-  /* Now work through the consecutive-ised array to work out the state of each record */
-  for(let i = 0; i < consecutived_data.length; i += RECORDS_PER_ROW) {
-    const chunk = consecutived_data.slice(i, i + RECORDS_PER_ROW);
+  return consecutived_data;
+}
+
+function chunk(data, rowLength) {
+  if(!data) { return []; }
+
+  const output = [];
+  for(let i = 0; i < data.length; i += rowLength) {
+    const chunk = data.slice(i, i + rowLength);
     output.push({
       from: chunk[0].nameid,
       to:   chunk[chunk.length - 1].nameid,
-      state: chunk.reduce(getStatusReducer({
-        tr1id: ALLOCATED_1,
-        complete1: COMPLETED_1,
-        tr2id: ALLOCATED_2,
-        complete2: COMPLETED_2,
-        reconciled: XCHECKED}),
-      []),
+      state: chunk.map((x)=>x.state),
       statecount: chunk.length,
     });
   }
@@ -189,22 +190,27 @@ function computeData(data) {
 
 export default function RatingsIndex() {
   const { series, piece } = useParams();
+  const [ data, setData ] = useState();
   const [ chunks, setChunks ] = useState();
+  const [ rowLength, setRowLength ] = useState(20);
   useEffect(() => {
     const fetchData = async() => {
     const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
     socket.onmessage = (e) => {
       if(e.data === 'NULL') {
-        setChunks([]);
+        setData([]);
       }
       else {
-        setChunks(computeData(JSON.parse(e.data)));
+        setData(computeData(JSON.parse(e.data)));
       }
       socket.close();
     };
     socket.onopen = () => { socket.send('L@S:Ratings:' + series + ':' + piece) };
   };
   fetchData();},[series, piece]);
+  useEffect(() => {
+    setChunks(chunk(data, rowLength));
+  },[data, rowLength]);
 
   document.title = 'Ratings Progress';
 
@@ -232,7 +238,7 @@ export default function RatingsIndex() {
     {
       field: 'state',
       headerName: 'State',
-      width: SQUARE_SIZE * RECORDS_PER_ROW + SQUARE_SIZE, //add a SQUARE_SIZE for a bit of space
+      width: SQUARE_SIZE * rowLength + SQUARE_SIZE, //add a SQUARE_SIZE for a bit of space
       align: 'left',
       renderCell: statusRow,
     },
