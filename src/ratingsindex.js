@@ -147,31 +147,26 @@ function computeData(data) {
     }
   }
 
-  function fill_holes() {
   /* Ensure that nameids are consecutive by filling in any gaps with an object containing only the
    * appropriate nameid.
    * Assumes that nameids are ascending within a series, and checks for this.
    * Assumes that the API returns the data ordered by official number
    ** TODO: Ask Mark to arrange the API like this.
    */
-    const filled = [data[0]];
-    let lastNo = data[0].nameid;
-    for(const datum of data.slice(1)) {
-      const nextNo = datum.nameid;
-      if(nextNo <= lastNo) {
-        throw new Error('Nameids are not ascending (' + nextNo + ' <= ' + lastNo);
-      }
-      while(nextNo > lastNo + 1) {
-        lastNo += 1;
-        filled.push({nameid: lastNo});
-      }
-      lastNo += 1;
-      filled.push(datum);
+  const consecutived_data = [data[0]];
+  let lastNo = data[0].nameid;
+  for(const datum of data.slice(1)) {
+    const nextNo = datum.nameid;
+    if(nextNo <= lastNo) {
+      throw new Error('Nameids are not ascending (' + nextNo + ' <= ' + lastNo);
     }
-    return filled;
+    while(nextNo > lastNo + 1) {
+      lastNo += 1;
+      consecutived_data.push({nameid: lastNo});
+    }
+    lastNo += 1;
+    consecutived_data.push(datum);
   }
-
-  const consecutived_data = (data.at(-1).nameid === data[0].nameid + data.length - 1) ? data : fill_holes();
 
   /* Now work through the consecutive-ised array to work out the state of each record */
   for(let i = 0; i < consecutived_data.length; i += RECORDS_PER_ROW) {
