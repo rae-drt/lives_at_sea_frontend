@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import { DataGrid } from '@mui/x-data-grid';
-import { Card, CardContent, Link, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -266,10 +266,22 @@ export default function RatingsIndex() {
               disableColumnMenu
               getRowHeight={()=>'auto'}
             />
-            <Stack>
+            <Stack spacing={2}>
               <Stack spacing={2} alignItems='flex-start' justifyContent='flex-start' sx={{border: 1, px: 2, py: 1}}>
                 <Typography><b>Key</b></Typography>
                 {key()}
+              </Stack>
+              <Stack width='0.2'>
+                <FormControl>
+                  <InputLabel>Width</InputLabel>
+                  <Select label='Width' value={rowLength} onChange={(e, v) => {setRowLength(v.props.value);}}>
+                    <MenuItem value={10}>10</MenuItem>
+                    <MenuItem value={20}>20</MenuItem>
+                    <MenuItem value={30}>30</MenuItem>
+                    <MenuItem value={40}>40</MenuItem>
+                    <MenuItem value={50}>50</MenuItem>
+                  </Select>
+                </FormControl>
               </Stack>
             </Stack>
           </Stack>
