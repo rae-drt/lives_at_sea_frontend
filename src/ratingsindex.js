@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import { DataGrid } from '@mui/x-data-grid';
 import { Card, CardContent, Link, Stack, Typography } from '@mui/material';
-import { getOfficialNumber, getOfficialNumberDigits } from './data_utils';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -148,26 +147,24 @@ function computeData(data) {
     }
   }
 
-  /* Ensure that offical numbers are consecutive by filling in any gaps with an object containing only the
-   * appropriate official number.
-   * Assumes that all official numbers end with a number
+  /* Ensure that nameids are consecutive by filling in any gaps with an object containing only the
+   * appropriate nameid.
+   * Assumes that nameids are ascending within a series, and checks for this.
    * Assumes that the API returns the data ordered by official number
-   * Assumes that, if there is a prefix, all official numbers within a piece will have the same prefix
-   * It may be safer to do this based on nameid, but that assumes that officialnumber and nameid are linked.
+   ** TODO: Ask Mark to arrange the API like this.
    */
-  //TODO: Address the above comments
   const consecutived_data = [data[0]];
-  let [lastOfficialPre, lastOfficialNo] = getOfficialNumber(data[0].officialnumber);
+  let lastNo = data[0].nameid;
   for(const datum of data.slice(1)) {
-    const nextOfficialNo = getOfficialNumberDigits(datum.officialnumber);
-    if(nextOfficialNo <= lastOfficialNo) {
-      throw new Error('Official numbers are not ascending (' + nextOfficialNo + ' <= ' + lastOfficialNo);
+    const nextNo = datum.nameid;
+    if(nextNo <= lastNo) {
+      throw new Error('Nameids are not ascending (' + nextNo + ' <= ' + lastNo);
     }
-    while(nextOfficialNo > lastOfficialNo + 1) {
-      lastOfficialNo += 1;
-      consecutived_data.push({officialnumber: lastOfficialPre + lastOfficialNo});
+    while(nextNo > lastNo + 1) {
+      lastNo += 1;
+      consecutived_data.push({nameid: lastNo});
     }
-    lastOfficialNo += 1;
+    lastNo += 1;
     consecutived_data.push(datum);
   }
 
@@ -175,8 +172,8 @@ function computeData(data) {
   for(let i = 0; i < consecutived_data.length; i += RECORDS_PER_ROW) {
     const chunk = consecutived_data.slice(i, i + RECORDS_PER_ROW);
     output.push({
-      from: chunk[0].officialnumber,
-      to:   chunk[chunk.length - 1].officialnumber,
+      from: chunk[0].nameid,
+      to:   chunk[chunk.length - 1].nameid,
       state: chunk.reduce(getStatusReducer({
         tr1id: ALLOCATED_1,
         complete1: COMPLETED_1,
@@ -213,8 +210,8 @@ export default function RatingsIndex() {
 
   const columnGroupingModel: GridColumnGroupingModel = [
     {
-      groupId: 'officialnumberrange',
-      headerName: 'Official Number',
+      groupId: 'nameidrange',
+      headerName: 'Name ID (item no.)',
       children: [ { field: 'from' }, { field: 'to' }, ],
     },
   ]
