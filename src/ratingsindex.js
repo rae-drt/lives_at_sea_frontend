@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import { DataGrid } from '@mui/x-data-grid';
-import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip } from '@mui/material';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -113,19 +113,21 @@ function key() {
   );
 }
 
-//TODO: The Link returned here ends up inside an <svg> tag -- is that OK?
+//TODO: The Tooltip and Link returned here end up inside an <svg> tag -- is that OK?
 function statusRow(data) {
   const states = [];
   for(let i = 0; i < data.value.length; i++) {
     const state = data.value[i];
     const identifier = data.row.nameid + i;
     states.push(
-      <Link key={'link_' + identifier} href={process.env.PUBLIC_URL + '/rating/' + identifier}>
-        {triangle1(i, state)}
-        {triangle2(i, state)}
-        {(state & NOT_WW1) && cross(i)}
-        {box(i)}
-      </Link>
+      <Tooltip key={'tt_' + identifier} title={identifier}>
+        <Link href={process.env.PUBLIC_URL + '/rating/' + identifier}>
+          {triangle1(i, state)}
+          {triangle2(i, state)}
+          {(state & NOT_WW1) && cross(i)}
+          {box(i)}
+        </Link>
+      </Tooltip>
     );
   }
 
