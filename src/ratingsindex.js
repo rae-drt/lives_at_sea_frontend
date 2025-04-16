@@ -228,7 +228,7 @@ export default function RatingsIndex() {
     {
       field: 'state',
       headerName: 'State',
-      width: SQUARE_SIZE * rowLength + SQUARE_SIZE, //add a SQUARE_SIZE for a bit of space
+      width: SQUARE_SIZE * rowLength + SQUARE_SIZE,
       align: 'left',
       renderCell: statusRow,
     },
