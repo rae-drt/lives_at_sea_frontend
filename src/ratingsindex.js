@@ -118,7 +118,7 @@ function statusRow(data) {
   const states = [];
   for(let i = 0; i < data.value.length; i++) {
     const state = data.value[i];
-    const identifier = Number(data.row.from) + i;
+    const identifier = data.row.nameid + i;
     states.push(
       <Link key={'link_' + identifier} href={process.env.PUBLIC_URL + '/rating/' + identifier}>
         {triangle1(i, state)}
@@ -179,8 +179,8 @@ function chunk(data, rowLength) {
   for(let i = 0; i < data.length; i += rowLength) {
     const chunk = data.slice(i, i + rowLength);
     output.push({
-      from: chunk[0].nameid,
-      to:   chunk[chunk.length - 1].nameid,
+      nameid: Number(chunk[0].nameid),
+      range: chunk[0].nameid + ' - ' + chunk[chunk.length - 1].nameid,
       state: chunk.map((x)=>x.state),
       statecount: chunk.length,
     });
@@ -214,25 +214,11 @@ export default function RatingsIndex() {
 
   document.title = 'Ratings Progress';
 
-  const columnGroupingModel: GridColumnGroupingModel = [
-    {
-      groupId: 'nameidrange',
-      headerName: 'Name ID (item no.)',
-      children: [ { field: 'from' }, { field: 'to' }, ],
-    },
-  ]
-
   const columns: GridColDef[] = [
     {
-      field: 'from',
-      headerName: 'From',
-      width: 80,
-      align: 'right',
-    },
-    {
-      field: 'to',
-      headerName: 'To',
-      width: 80,
+      field: 'range',
+      headerName: 'Range',
+      width: 160,
       align: 'right',
     },
     {
@@ -258,10 +244,9 @@ export default function RatingsIndex() {
           <Stack direction='row' spacing={8}>
             <DataGrid
               density='compact'
-              getRowId = {(row) => {return row.from;}}
+              getRowId={(row) => {return row.nameid}}
               rows={chunks}
               columns={columns}
-              columnGroupingModel={columnGroupingModel}
               disableColumnSorting
               disableColumnMenu
               getRowHeight={()=>'auto'}
