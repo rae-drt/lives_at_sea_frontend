@@ -294,30 +294,46 @@ export default function RatingsIndex() {
   return (
     <Card>
       <CardContent>
-        <Stack alignItems='flex-start' spacing={2}>
-          <Stack direction='row' spacing={2} alignItems='center'>
-            <Typography variant='h6'>ADM</Typography>
-            <Autocomplete size='small'
-                          autoHighlight
-                          options={serieses.map((x)=>({label: '' + x}))}
-                          renderInput={(params) => <TextField {...params} label="Series"/>}
-                          value={series}
-                          onChange={(e, v, r)=>{
-                            if(r === 'selectOption') {
-                              changeSeries(v.label);
-                            }
-                          }}
-            />
-            <Typography variant='h6'>/</Typography>
-            <Autocomplete size='small'
-                          autoHighlight
-                          options={pieces.map((x)=>({label: '' + x}))}
-                          renderInput={(params) => <TextField {...params} label="Piece"/>}
-                          value={piece}
-                          onChange={(e, v, r)=>{if(r === 'selectOption') navigate(process.env.PUBLIC_URL + '/ratings/' + series + '/' + v.label)}}
-            />
-          </Stack>
-          <Stack direction='row' spacing={8}>
+        {/* outermost stack: progress view on left, key on right */}
+        <Stack direction='row' spacing={8}>
+          {/* progress view */}
+          <Stack spacing={2}>
+            {/* progress view header (catref, width controls) */}
+            <Stack direction='row' alignItems='center' justifyContent='space-between'>
+              {/* catref control */}
+              <Stack direction='row' spacing={2} alignItems='center'>
+                <Typography variant='h6'>ADM</Typography>
+                <Autocomplete size='small'
+                              autoHighlight
+                              options={serieses.map((x)=>({label: '' + x}))}
+                              renderInput={(params) => <TextField {...params} label="Series"/>}
+                              value={series}
+                              onChange={(e, v, r)=>{
+                                if(r === 'selectOption') {
+                                  changeSeries(v.label);
+                                }
+                              }}
+                />
+                <Typography variant='h6'>/</Typography>
+                <Autocomplete size='small'
+                              autoHighlight
+                              options={pieces.map((x)=>({label: '' + x}))}
+                              renderInput={(params) => <TextField {...params} label="Piece"/>}
+                              value={piece}
+                              onChange={(e, v, r)=>{if(r === 'selectOption') navigate(process.env.PUBLIC_URL + '/ratings/' + series + '/' + v.label)}}
+                />
+              </Stack>
+              <FormControl>
+                <InputLabel>Width</InputLabel>
+                <Select size='small' label='Width' value={rowLength} onChange={(e, v) => {setRowLength(v.props.value);}}>
+                  <MenuItem value={10}>10</MenuItem>
+                  <MenuItem value={20}>20</MenuItem>
+                  <MenuItem value={30}>30</MenuItem>
+                  <MenuItem value={40}>40</MenuItem>
+                  <MenuItem value={50}>50</MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
             <DataGrid
               density='compact'
               getRowId={(row) => {return row.nameid}}
@@ -328,23 +344,13 @@ export default function RatingsIndex() {
               disableRowSelectionOnClick
               getRowHeight={()=>'auto'}
             />
-            <Stack spacing={2}>
-              <Stack spacing={2} alignItems='flex-start' justifyContent='flex-start' sx={{border: 1, px: 2, py: 1}}>
-                <Typography><b>Key</b></Typography>
-                {key()}
-              </Stack>
-              <Stack width='0.2'>
-                <FormControl>
-                  <InputLabel>Width</InputLabel>
-                  <Select label='Width' value={rowLength} onChange={(e, v) => {setRowLength(v.props.value);}}>
-                    <MenuItem value={10}>10</MenuItem>
-                    <MenuItem value={20}>20</MenuItem>
-                    <MenuItem value={30}>30</MenuItem>
-                    <MenuItem value={40}>40</MenuItem>
-                    <MenuItem value={50}>50</MenuItem>
-                  </Select>
-                </FormControl>
-              </Stack>
+          </Stack>
+          {/* this stack covers the whole right-hand column */}
+          <Stack spacing={2}>
+            {/* this stack appears just at the top of right-hand column */}
+            <Stack spacing={2} alignItems='flex-start' justifyContent='flex-start' sx={{border: 1, px: 2, py: 1}}>
+              <Typography><b>Key</b></Typography>
+              {key()}
             </Stack>
           </Stack>
         </Stack>
