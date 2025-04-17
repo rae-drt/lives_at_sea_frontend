@@ -301,9 +301,10 @@ export default function RatingsIndex() {
             {/* progress view header (catref, width controls) */}
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
               {/* catref control */}
-              <Stack direction='row' spacing={2} alignItems='center'>
+              <Stack direction='row' spacing={2} alignItems='center' width={0.6}>
                 <Typography variant='h6'>ADM</Typography>
                 <Autocomplete size='small'
+                              disableClearable
                               autoHighlight
                               options={serieses.map((x)=>({label: '' + x}))}
                               renderInput={(params) => <TextField {...params} label="Series"/>}
@@ -316,6 +317,8 @@ export default function RatingsIndex() {
                 />
                 <Typography variant='h6'>/</Typography>
                 <Autocomplete size='small'
+                              fullWidth
+                              disableClearable
                               autoHighlight
                               options={pieces.map((x)=>({label: '' + x}))}
                               renderInput={(params) => <TextField {...params} label="Piece"/>}
