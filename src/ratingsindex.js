@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { DataGrid } from '@mui/x-data-grid';
-import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, TextField, Autocomplete } from '@mui/material';
+import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, TextField, Autocomplete, IconButton } from '@mui/material';
+import { ArrowForwardIos } from '@mui/icons-material';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -329,6 +330,29 @@ export default function RatingsIndex() {
                               value={piece}
                               onChange={(e, v, r)=>{if(r === 'selectOption') navigate(process.env.PUBLIC_URL + '/ratings/' + series + '/' + v.label)}}
                 />
+                {/* Nav forward, backward buttons */}
+                <Stack direction='row' spacing={0}>
+                  <Tooltip title='Back one piece'>
+                    <div>
+                      <IconButton
+                        disabled={pieces[0] === Number(piece)}
+                        href={process.env.PUBLIC_URL + '/ratings/' + series + '/' + (pieces[pieces.indexOf(Number(piece)) - 1])}
+                      >
+                        <ArrowForwardIos color='primary' sx={{transform: 'rotate(180deg)'}}/>
+                      </IconButton>
+                    </div>
+                  </Tooltip>
+                  <Tooltip title='Forward one piece'>
+                    <div>
+                      <IconButton
+                        disabled={pieces.at(-1) === Number(piece)}
+                        href={process.env.PUBLIC_URL + '/ratings/' + series + '/' + (pieces[pieces.indexOf(Number(piece)) + 1])}
+                      >
+                        <ArrowForwardIos color='primary'/>
+                      </IconButton>
+                    </div>
+                  </Tooltip>
+                </Stack>
               </Stack>
               <FormControl>
                 <InputLabel>Width</InputLabel>
