@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { DataGrid } from '@mui/x-data-grid';
-import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip } from '@mui/material';
+import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, TextField, Autocomplete } from '@mui/material';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -194,27 +194,78 @@ function chunk(data, rowLength) {
 
 export default function RatingsIndex() {
   const { series, piece } = useParams();
+  const [ serieses, setSerieses ] = useState([]);
+  const [ pieces, setPieces ] = useState([]);
   const [ data, setData ] = useState();
   const [ chunks, setChunks ] = useState();
   const [ rowLength, setRowLength ] = useState(20);
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async() => {
+      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+      socket.onmessage = (e) => {
+        if(e.data === 'NULL') {
+          setData([]);
+        }
+        else {
+          setSerieses(JSON.parse(e.data));
+        }
+        socket.close();
+      };
+      socket.onopen = () => { socket.send('L@S:Serieses') };
+    }
+    fetchData();
+  },[]);
+  useEffect(() => {
+    const fetchData = async() => {
+      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+      socket.onmessage = (e) => {
+        if(e.data === 'NULL') {
+          setPieces([]);
+        }
+        else {
+          setPieces(JSON.parse(e.data));
+        }
+        socket.close();
+      };
+      socket.onopen = () => { socket.send('L@S:Pieces:' + series) };
+    }
+    fetchData();
+  },[series]);
+  useEffect(() => {
+    const fetchData = async() => {
+      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+      socket.onmessage = (e) => {
+        if(e.data === 'NULL') {
+          setData([]);
+        }
+        else {
+          setData(computeData(JSON.parse(e.data)));
+        }
+        socket.close();
+      };
+      socket.onopen = () => { socket.send('L@S:Ratings:' + series + ':' + piece) };
+    }
+    fetchData();
+  },[series, piece]);
+  useEffect(() => {
+    setChunks(chunk(data, rowLength));
+  },[data, rowLength]);
+
+  async function changeSeries(series) {
     const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
     socket.onmessage = (e) => {
       if(e.data === 'NULL') {
         setData([]);
       }
       else {
-        setData(computeData(JSON.parse(e.data)));
+        const d = JSON.parse(e.data);
+        navigate(process.env.PUBLIC_URL + '/ratings/' + series + '/' + d[0]);
       }
       socket.close();
     };
-    socket.onopen = () => { socket.send('L@S:Ratings:' + series + ':' + piece) };
-  };
-  fetchData();},[series, piece]);
-  useEffect(() => {
-    setChunks(chunk(data, rowLength));
-  },[data, rowLength]);
+    socket.onopen = () => { socket.send('L@S:Pieces:' + series) };
+  }
 
   document.title = 'Ratings Progress';
 
@@ -244,7 +295,28 @@ export default function RatingsIndex() {
     <Card>
       <CardContent>
         <Stack alignItems='flex-start' spacing={2}>
-          <Typography variant='h6'>ADM {series}/{piece}</Typography>
+          <Stack direction='row' spacing={2} alignItems='center'>
+            <Typography variant='h6'>ADM</Typography>
+            <Autocomplete size='small'
+                          autoHighlight
+                          options={serieses.map((x)=>({label: '' + x}))}
+                          renderInput={(params) => <TextField {...params} label="Series"/>}
+                          value={series}
+                          onChange={(e, v, r)=>{
+                            if(r === 'selectOption') {
+                              changeSeries(v.label);
+                            }
+                          }}
+            />
+            <Typography variant='h6'>/</Typography>
+            <Autocomplete size='small'
+                          autoHighlight
+                          options={pieces.map((x)=>({label: '' + x}))}
+                          renderInput={(params) => <TextField {...params} label="Piece"/>}
+                          value={piece}
+                          onChange={(e, v, r)=>{if(r === 'selectOption') navigate(process.env.PUBLIC_URL + '/ratings/' + series + '/' + v.label)}}
+            />
+          </Stack>
           <Stack direction='row' spacing={8}>
             <DataGrid
               density='compact'
