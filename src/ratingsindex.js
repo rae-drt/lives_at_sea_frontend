@@ -33,14 +33,14 @@ function has_state(state) {
 function triangle1(pos, state) {
   return(
     <polygon points={`${pos * SQUARE_SIZE},0 ${pos * SQUARE_SIZE + SQUARE_SIZE},0 ${pos * SQUARE_SIZE},${SQUARE_SIZE}`}
-             fill={color(1, state)} stroke='none'/>
+             fill={color(1, state)} stroke={color(1, state) === color(2, state) ? 'none' : 'black'}/>
   );
 }
 
 function triangle2(pos, state) {
   return(
     <polygon points={`${pos * SQUARE_SIZE + SQUARE_SIZE},0 ${pos * SQUARE_SIZE + SQUARE_SIZE},${SQUARE_SIZE} ${pos * SQUARE_SIZE},${SQUARE_SIZE}`}
-             fill={color(2, state)} stroke='none'/>
+             fill={color(2, state)} stroke={color(1, state) === color(2, state) ? 'none' : 'black'}/>
   );
 }
 
@@ -79,20 +79,11 @@ function key() {
     );
   }
 
-  function triangleThing(thing) {
-    return(
-      <>
-        {thing}
-        <line x1={0} x2={SQUARE_SIZE} y1={SQUARE_SIZE} y2={0} stroke='black' strokeWidth={1}/>
-      </>
-    );
-  }
-  
   function squareThing(state1, state2) {
     return(
       <>
-        {triangle1(0, state1)}
-        {triangle2(0, state2)}
+        {triangle1(0, state1 | state2)}
+        {triangle2(0, state1 | state2)}
       </>
     );
   }
@@ -101,13 +92,13 @@ function key() {
     <Stack direction='row' spacing={6}>
       <Stack spacing={1}>
         {keyItem(squareThing(ALLOCATED_1, ALLOCATED_2), 'Both allocated')}
-        {keyItem(triangleThing(triangle1(0, ALLOCATED_1)), 'Set 1 allocated')}
-        {keyItem(triangleThing(triangle2(0, ALLOCATED_2)), 'Set 2 allocated')}
+        {keyItem(triangle1(0, ALLOCATED_1), 'Set 1 allocated')}
+        {keyItem(triangle2(0, ALLOCATED_2), 'Set 2 allocated')}
       </Stack>
       <Stack spacing={1}>
         {keyItem(squareThing(COMPLETED_1, COMPLETED_2), 'Both completed')}
-        {keyItem(triangleThing(triangle1(0, COMPLETED_1)), 'Set 1 completed')}
-        {keyItem(triangleThing(triangle2(0, COMPLETED_2)), 'Set 2 completed')}
+        {keyItem(triangle1(0, COMPLETED_1), 'Set 1 completed')}
+        {keyItem(triangle2(0, COMPLETED_2), 'Set 2 completed')}
       </Stack>
       <Stack spacing={1}>
         {keyItem(squareThing(XCHECKED, XCHECKED), 'Cross-checked')}
