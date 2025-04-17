@@ -25,6 +25,10 @@ function color(set, state) {
   return 'red';
 }
 
+function has_state(state) {
+  return (state & (NOT_WW1 | ALLOCATED_1 | ALLOCATED_2 | COMPLETED_1 | COMPLETED_2 | XCHECKED)) !== 0;
+}
+
 function triangle1(pos, state) {
   return(
     <polygon points={`${pos * SQUARE_SIZE},0 ${pos * SQUARE_SIZE + SQUARE_SIZE},0 ${pos * SQUARE_SIZE},${SQUARE_SIZE}`}
@@ -122,7 +126,7 @@ function statusRow(data) {
     states.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
         <Link href={process.env.PUBLIC_URL + '/rating/' + identifier}
-              onClick={(e) => { (color(1, state) === 'red' || color(2, state) === 'red') && e.preventDefault(); }}
+              onClick={(e) => { (has_state(state) === false) && e.preventDefault(); }}
         >
           {triangle1(i, state)}
           {triangle2(i, state)}
