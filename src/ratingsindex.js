@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { DataGrid } from '@mui/x-data-grid';
 import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, TextField, Autocomplete, IconButton } from '@mui/material';
-import { ArrowForwardIos } from '@mui/icons-material';
+import { ArrowForwardIos, ElectricBolt } from '@mui/icons-material';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -201,7 +201,8 @@ export default function RatingsIndex() {
   const { series, piece } = useParams();
   const [ serieses, setSerieses ] = useState([]);
   const [ pieces, setPieces ] = useState([]);
-  const [ data, setData ] = useState();
+  const [ data, setData ] = useState([]);
+  const [ unreconciled, setUnreconciled ] = useState([]);
   const [ chunks, setChunks ] = useState();
   const [ rowLength, setRowLength ] = useState(20);
   const navigate = useNavigate();
@@ -256,6 +257,15 @@ export default function RatingsIndex() {
   useEffect(() => {
     setChunks(chunk(data, rowLength));
   },[data, rowLength]);
+  useEffect(() => {
+    const x = [];
+    for(const datum of data) {
+      if((datum.state & XCHECKED) === 0 && has_state(datum.state)) {
+        x.push(datum.nameid);
+      }
+    }
+    setUnreconciled(x);
+  },[data]);
 
   async function changeSeries(series) {
     const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
@@ -354,16 +364,30 @@ export default function RatingsIndex() {
                   </Tooltip>
                 </Stack>
               </Stack>
-              <FormControl>
-                <InputLabel>Width</InputLabel>
-                <Select size='small' label='Width' value={rowLength} onChange={(e, v) => {setRowLength(v.props.value);}}>
-                  <MenuItem value={10}>10</MenuItem>
-                  <MenuItem value={20}>20</MenuItem>
-                  <MenuItem value={30}>30</MenuItem>
-                  <MenuItem value={40}>40</MenuItem>
-                  <MenuItem value={50}>50</MenuItem>
-                </Select>
-              </FormControl>
+              {/* Right-side controls */}
+              <Stack direction='row' spacing={2}>
+                <FormControl>
+                  <InputLabel>Width</InputLabel>
+                  <Select size='small' label='Width' value={rowLength} onChange={(e, v) => {setRowLength(v.props.value);}}>
+                    <MenuItem value={10}>10</MenuItem>
+                    <MenuItem value={20}>20</MenuItem>
+                    <MenuItem value={30}>30</MenuItem>
+                    <MenuItem value={40}>40</MenuItem>
+                    <MenuItem value={50}>50</MenuItem>
+                  </Select>
+                </FormControl>
+                <Tooltip title='Next un-cross-checked record'>
+                  {/* div needed for tooltip to work when button is disabled */}
+                  <div>
+                    <IconButton color='primary'
+                                disabled={unreconciled.length === 0}
+                                href={process.env.PUBLIC_URL + '/rating/' + unreconciled[0]}
+                    >
+                      <ElectricBolt/>
+                    </IconButton>
+                  </div>
+                </Tooltip>
+              </Stack>
             </Stack>
             <DataGrid
               density='compact'
