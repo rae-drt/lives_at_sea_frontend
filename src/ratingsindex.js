@@ -33,14 +33,14 @@ function has_state(state) {
 function triangle1(pos, state) {
   return(
     <polygon points={`${pos * SQUARE_SIZE},0 ${pos * SQUARE_SIZE + SQUARE_SIZE},0 ${pos * SQUARE_SIZE},${SQUARE_SIZE}`}
-             fill={color(1, state)} stroke={color(1, state) === color(2, state) ? 'none' : 'black'}/>
+             fill={color(1, state)} stroke={color(1, state) === color(2, state) ? color(1, state) : 'black'}/>
   );
 }
 
 function triangle2(pos, state) {
   return(
     <polygon points={`${pos * SQUARE_SIZE + SQUARE_SIZE},0 ${pos * SQUARE_SIZE + SQUARE_SIZE},${SQUARE_SIZE} ${pos * SQUARE_SIZE},${SQUARE_SIZE}`}
-             fill={color(2, state)} stroke={color(1, state) === color(2, state) ? 'none' : 'black'}/>
+             fill={color(2, state)} stroke={color(1, state) === color(2, state) ? color(1, state) : 'black'}/>
   );
 }
 
