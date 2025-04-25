@@ -273,7 +273,7 @@ export default function RatingsIndex() {
     socket.onopen = () => { socket.send('L@S:Pieces:' + series) };
   }
 
-  document.title = 'Ratings Progress';
+  document.title = 'Items Progress';
 
   const columns: GridColDef[] = [
     {
