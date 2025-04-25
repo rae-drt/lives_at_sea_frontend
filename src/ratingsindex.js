@@ -20,11 +20,14 @@ function color(set, state) {
   if(set === 1) {
     if(state & COMPLETED_1) return 'yellow';
     if(state & ALLOCATED_1) return 'pink';
+    return 'white';
   }
   if(set === 2) {
     if(state & COMPLETED_2) return 'yellow';
     if(state & ALLOCATED_2) return 'pink';
+    return 'white';
   }
+  return 'white';
 }
 
 function triangle1(pos, state) {
