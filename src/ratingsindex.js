@@ -10,11 +10,13 @@ const ALLOCATED_2 =  4;
 const COMPLETED_1 =  8;
 const COMPLETED_2 = 16;
 const XCHECKED    = 32;
+const MISSING     = 64;
 
 const SQUARE_SIZE = 20;
 
 function color(set, state) {
   if(state & XCHECKED)    return 'lightgreen';
+  if(state & MISSING) return 'red';
   if(set === 1) {
     if(state & COMPLETED_1) return 'yellow';
     if(state & ALLOCATED_1) return 'pink';
@@ -23,11 +25,6 @@ function color(set, state) {
     if(state & COMPLETED_2) return 'yellow';
     if(state & ALLOCATED_2) return 'pink';
   }
-  return 'red';
-}
-
-function has_state(state) {
-  return (state & (NOT_WW1 | ALLOCATED_1 | ALLOCATED_2 | COMPLETED_1 | COMPLETED_2 | XCHECKED)) !== 0;
 }
 
 function triangle1(pos, state) {
@@ -102,7 +99,7 @@ function key() {
       </Stack>
       <Stack spacing={1}>
         {keyItem(squareThing(XCHECKED, XCHECKED), 'Cross-checked')}
-        {keyItem(squareThing(0, 0), 'Mising/not used')}
+        {keyItem(squareThing(MISSING, MISSING), 'Mising/not used')}
         {keyItem(cross(0), 'Not WW1')}
       </Stack>
     </Stack>
@@ -118,7 +115,7 @@ function statusRow(data) {
     states.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
         <Link href={process.env.PUBLIC_URL + '/rating/' + identifier}
-              onClick={(e) => { (has_state(state) === false) && e.preventDefault(); }}
+              onClick={(e) => { (state & MISSING) && e.preventDefault(); }}
         >
           {triangle1(i, state)}
           {triangle2(i, state)}
@@ -163,7 +160,7 @@ function computeData(data) {
     }
     while(nextNo > lastNo + 1) {
       lastNo += 1;
-      consecutived_data.push({nameid: lastNo});
+      consecutived_data.push({nameid: lastNo, state: MISSING});
     }
     lastNo += 1;
     consecutived_data.push({nameid: lastNo, state: state(datum)});
@@ -251,7 +248,7 @@ export default function RatingsIndex() {
   useEffect(() => {
     const x = [];
     for(const datum of data) {
-      if((datum.state & XCHECKED) === 0 && has_state(datum.state)) {
+      if((datum.state & XCHECKED) === 0 && (!(datum.state & MISSING))) {
         x.push(datum.nameid);
       }
     }
