@@ -5,6 +5,7 @@ import { DataGrid, gridClasses } from '@mui/x-data-grid';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
+import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import InsertAboveIcon from '@mui/icons-material/Publish';
 import InsertBelowIcon from '@mui/icons-material/Download';
@@ -20,23 +21,9 @@ function checkPrimary(cols, primary) {
   throw new Error('Primary key ' + primary + ' not defined in columns');
 }
 
-function need_empty_last(data_array) {
-  const _ = require('lodash');
-  if(typeof(data_array) === 'undefined') return false;
-  if(data_array.length === 0) return true;
-  return !(_.isEqual(Object.keys(data_array[data_array.length - 1]), ['row']));
-}
-
 export default function DataTable(props) {
   const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
-  useEffect(() => {
-    if(need_empty_last(rows)) {
-      const newRows = structuredClone(rows);
-      newRows.push({row: rows.length + 1});
-      onChange(newRows);
-    }
-  }, [rows, onChange]);
 
   checkPrimary(columns, primary);
 
@@ -79,7 +66,7 @@ export default function DataTable(props) {
         {insertionButtons}
         <Tooltip title='Delete row' placement='top' followCursor arrow>
           <span>
-            <IconButton sx={sx} color='primary' disabled={typeof(rows) === 'undefined' || row.row === rows.length} onClick={()=>{
+            <IconButton sx={sx} color='primary' onClick={()=>{
               const newRows = [];
               for(const x of rows) {
                 if(x[primary] === row[primary]) continue;
@@ -138,6 +125,14 @@ export default function DataTable(props) {
         '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
         '& .MuiDataGrid-columnSeparator': { display: 'none' },
         '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
+      }}
+      slots={{
+        noRowsOverlay: () => (
+          <Alert severity='info'
+                 action={<Button onClick={()=>{onChange([{[primary]: 1}])}}>Add data</Button>}>
+            No data
+          </Alert>
+        ),
       }}
       {...otherProps}
     />);
