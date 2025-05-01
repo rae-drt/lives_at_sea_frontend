@@ -86,8 +86,9 @@ export default function OtherData() {
       rows={otherData}
       columns={columns}
       columnGroupingModel={columnGroupingModel}
+      primary='row'
+      positionalPrimary
       onChange={setOtherData}
-      disableColumnSorting={false}
     />
   );
 }

@@ -10,33 +10,14 @@ import InsertAboveIcon from '@mui/icons-material/Publish';
 import InsertBelowIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/DeleteForever';
 
-/* Confirm that the passed data array is safe to use in the table interfaces, which assume a row property one greater than array index.
- * If the array is undefined or empty then it is necessarily safe.
- * Otherwise, all members of the array must:
- *   1. Have a row property
- *   2. The row property must be an integer
- *   3. The row property must be one greater than the array index of the member
- * Additionally, the first member of the array must have a row of 1.
- */
-function valid_rows(data_array) {
-  if(typeof(data_array) === 'undefined') {
-    return true;
-  }
-  if(data_array.length === 0) {
-    return true;
-  }
-  for(let i = 0; i < data_array.length; i++) {
-    if('row' in data_array[i] === false) {
-      return false;
-    }
-    if(Number.isInteger(data_array[i].row) === false) {
-      return false;
-    }
-    if(data_array[i].row !== i + 1) {
-      return false;
+function checkPrimary(cols, primary) {
+  for(const col of cols) {
+    if(col.field === primary) {
+      if(col.editable) throw new Error('Primary key ' + primary + ' should not be editable');
+      return;
     }
   }
-  return data_array[0].row === 1;
+  throw new Error('Primary key ' + primary + ' not defined in columns');
 }
 
 function need_empty_last(data_array) {
@@ -47,7 +28,7 @@ function need_empty_last(data_array) {
 }
 
 export default function DataTable(props) {
-  const {rows, columns, onChange, extraRowControls, sx, ...otherProps} = props;
+  const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
   useEffect(() => {
     if(need_empty_last(rows)) {
@@ -57,53 +38,57 @@ export default function DataTable(props) {
     }
   }, [rows, onChange]);
 
-  if(!valid_rows(rows)) {
-    return(<Alert severity='error'>Rows do not start at 1 and/or are not consecutive.</Alert>);
-  }
+  checkPrimary(columns, primary);
 
   function baseRowControls(params) {
-    // row.row is the row number as presented in the table. This is one higher than the array index of the row.
     const {row} = params; //const {row, ...otherParams} = params; would give access to the rest of the params if needed
     const sx = {
       px: 0.2,
       py: 0,
     }
+    let insertionButtons = null;
+    if(positionalPrimary) {
+        function insert(pos) {
+          const newRows = rows.map((e) => {
+            const clone = structuredClone(e);
+            if(e[primary] >= pos) clone[primary] += 1;
+            return clone;
+          })
+          newRows.push({[primary]: pos});
+          return newRows;
+        }
+        insertionButtons = (<>
+          <Tooltip title='Insert row above' placement='top' followCursor arrow>
+            <span>
+              <IconButton sx={sx} color='primary' onClick={()=>{onChange(insert(row[primary]))}}>
+                <InsertAboveIcon/>
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title='Insert row below' placement='top' followCursor arrow>
+            <span>
+              <IconButton sx={sx} color='primary' onClick={()=>{onChange(insert(row[primary] + 1))}}>
+                <InsertBelowIcon/>
+              </IconButton>
+            </span>
+          </Tooltip>
+        </>);
+    }
     return (
       <Stack direction='row' spacing={0}>
-        <Tooltip title='Insert row above' placement='top' followCursor arrow>
-          <span>
-            <IconButton sx={sx} color='primary' onClick={()=>{
-                const newRows = structuredClone(rows.slice(0, row.row - 1));
-                newRows.push({row: row.row});
-                newRows.push(...structuredClone(rows.slice(row.row - 1)));
-                for(const x of newRows.slice(row.row)) x['row'] += 1;
-                onChange(newRows);
-              }}>
-              <InsertAboveIcon/>
-            </IconButton>
-          </span>
-        </Tooltip>
-        <Tooltip title='Insert row below' placement='top' followCursor arrow>
-          <span>
-            <IconButton sx={sx} color='primary' onClick={()=>{
-                const newRows = structuredClone(rows.slice(0, row.row));
-                newRows.push({row: row.row + 1});
-                newRows.push(...structuredClone(rows.slice(row.row)));
-                for(const x of newRows.slice(row.row + 1)) x['row'] += 1;
-                onChange(newRows);
-              }}>
-              <InsertBelowIcon/>
-            </IconButton>
-          </span>
-        </Tooltip>
+        {insertionButtons}
         <Tooltip title='Delete row' placement='top' followCursor arrow>
           <span>
             <IconButton sx={sx} color='primary' disabled={typeof(rows) === 'undefined' || row.row === rows.length} onClick={()=>{
-                const newRows = structuredClone(rows.slice(0, row.row - 1));
-                newRows.push(...structuredClone(rows.slice(row.row)));
-                for(const x of newRows.slice(row.row - 1)) x['row'] -= 1;
-                onChange(newRows);
-              }}>
+              const newRows = [];
+              for(const x of rows) {
+                if(x[primary] === row[primary]) continue;
+                const newRow = structuredClone(x);
+                if(positionalPrimary && (x[primary] > row[primary])) newRow[primary] -= 1;
+                newRows.push(newRow);
+              }
+              onChange(newRows);
+            }}>
               <DeleteIcon/>
             </IconButton>
           </span>
@@ -112,6 +97,12 @@ export default function DataTable(props) {
       </Stack>
     );
   };
+
+  const initialState = {};
+  if(positionalPrimary) {
+    initialState.sorting = {sortModel: [{field: primary, sort: 'asc'}]};
+    if(otherProps.disableColumnSorting === false) throw new Error('Data table with positional primary cannot be sortable');
+  }
 
   return(
     <DataGrid
@@ -125,11 +116,10 @@ export default function DataTable(props) {
           renderCell: baseRowControls,
         },
       ]}
-      getRowId = {(row) => {return row.row;}}
+      initialState={initialState}
+      getRowId={(row) => {return row[primary];}}
       processRowUpdate={(updatedRow, originalRow, {rowId}) =>{
-        const newRows = structuredClone(rows);
-        newRows[rowId - 1] = structuredClone(updatedRow);
-        onChange(newRows);
+        onChange(rows.map((e) => e[primary] === rowId ? structuredClone(updatedRow) : structuredClone(e)));
         return updatedRow;
       }}
       onProcessRowUpdateError={(e)=>{alert(e);}}

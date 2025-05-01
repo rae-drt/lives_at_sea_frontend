@@ -109,7 +109,9 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
             rows={data}
             columns={columns}
             columnGroupingModel={columnGroupingModel}
-            onChange={onChange}
+            onChange={(data) => onChange(data.sort((a,b)=>a.row - b.row))}
+            primary='row'
+            positionalPrimary
             extraRowControls={extraRowControls}
             getCellClassName={(p) => {
               if (difference !== null) {

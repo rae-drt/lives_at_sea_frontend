@@ -115,7 +115,8 @@ export default function OtherServices() {
       columns={columns}
       columnGroupingModel={columnGroupingModel}
       onChange={setOtherServices}
-      disableColumnSorting={false}
+      primary='row'
+      positionalPrimary
     />
   );
 }
