@@ -24,6 +24,14 @@ function checkPrimary(cols, primary) {
 export default function DataTable(props) {
   const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
+  const finalOnChange = (data) => {
+    if(positionalPrimary) {
+      onChange(data.sort((a,b)=>a[primary] - b[primary]));
+    }
+    else {
+      onChange(data);
+    }
+  };
 
   checkPrimary(columns, primary);
 
@@ -47,14 +55,14 @@ export default function DataTable(props) {
         insertionButtons = (<>
           <Tooltip title='Insert row above' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} color='primary' onClick={()=>{onChange(insert(row[primary]))}}>
+              <IconButton sx={sx} color='primary' onClick={()=>{finalOnChange(insert(row[primary]))}}>
                 <InsertAboveIcon/>
               </IconButton>
             </span>
           </Tooltip>
           <Tooltip title='Insert row below' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} color='primary' onClick={()=>{onChange(insert(row[primary] + 1))}}>
+              <IconButton sx={sx} color='primary' onClick={()=>{finalOnChange(insert(row[primary] + 1))}}>
                 <InsertBelowIcon/>
               </IconButton>
             </span>
@@ -74,7 +82,7 @@ export default function DataTable(props) {
                 if(positionalPrimary && (x[primary] > row[primary])) newRow[primary] -= 1;
                 newRows.push(newRow);
               }
-              onChange(newRows);
+              finalOnChange(newRows);
             }}>
               <DeleteIcon/>
             </IconButton>
@@ -106,7 +114,7 @@ export default function DataTable(props) {
       initialState={initialState}
       getRowId={(row) => {return row[primary];}}
       processRowUpdate={(updatedRow, originalRow, {rowId}) =>{
-        onChange(rows.map((e) => e[primary] === rowId ? structuredClone(updatedRow) : structuredClone(e)));
+        finalOnChange(rows.map((e) => e[primary] === rowId ? structuredClone(updatedRow) : structuredClone(e)));
         return updatedRow;
       }}
       onProcessRowUpdateError={(e)=>{alert(e);}}
@@ -129,7 +137,7 @@ export default function DataTable(props) {
       slots={{
         noRowsOverlay: () => (
           <Alert severity='info'
-                 action={<Button onClick={()=>{onChange([{[primary]: 1}])}}>Add data</Button>}>
+                 action={<Button onClick={()=>{finalOnChange([{[primary]: 1}])}}>Add data</Button>}>
             No data
           </Alert>
         ),
