@@ -1,32 +1,35 @@
 import { useEffect, useState } from 'react';
+import { useQuery, QueryClient } from '@tanstack/react-query';
 
 import DataTable from './datatable';
 import { LoadingContext } from './loadingcontext';
 import { useParams } from 'react-router';
 
-export default function OtherData() {
-  const {nameId} = useParams();
-  const [otherData, setOtherData] = useState();
-  const [fetching, setFetching] = useState(true);
-  useEffect(() => {
-    const fetchData = async() => {
-      setFetching(true);
-console.error('FETCIHNG');
-      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-      socket.onmessage = (e) => {
-        if(e.data === 'NULL') {
-          setOtherData([]);
-        }
-        else {
-          setOtherData(JSON.parse(e.data));
-        }
-        socket.close();
-        setFetching(false);
-      };
-      socket.onopen = () => { socket.send('L@S:OtherData:' + nameId) };
+function qf({queryKey}) {
+  const [key, nameId] = queryKey;
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+    console.log('FETCHING');
+    socket.onerror = (e) => { reject(e); };
+    socket.onmessage = (e) => {
+      if(e.data === 'NULL') {
+        resolve([]);
+      }
+      else {
+        resolve(JSON.parse(e.data));
+      }
+      socket.close();
     };
-    fetchData();
-  }, [nameId]);
+    socket.onopen = () => { socket.send('L@S:OtherData:' + nameId) };
+  });
+}
+
+export default function OtherData() {
+  const queryClient = new QueryClient();
+  const {nameId} = useParams();
+  const queryKey = ['otherData', nameId];
+  const { data, status, ...gubbins } = useQuery({queryKey: queryKey, queryFn: qf, cacheTime: 1000});//, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: true});
+  console.log(data);
 
   const columnGroupingModel: GridColumnGroupingModel = [
     {
@@ -86,15 +89,16 @@ console.error('FETCIHNG');
       editable: true,
     },
   ];
+        console.log(queryClient.getQueryData(queryKey));
   return(
-    <LoadingContext value={fetching}>
+    <LoadingContext value={status !== 'success'}>
       <DataTable
-        rows={otherData}
+        rows={queryClient.getQueryData(queryKey)}
         columns={columns}
         columnGroupingModel={columnGroupingModel}
         primary='row'
         positionalPrimary
-        onChange={setOtherData}
+        onChange={(x)=>{console.log(x); queryClient.setQueryData(queryKey, x); console.log(data);}}
       />
     </LoadingContext>
   );
