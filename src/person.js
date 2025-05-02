@@ -49,7 +49,7 @@ export default function Person() {
             throw new Error('Bad response: ' + response.status);
           }
           data = await(response.json());
-          Object.keys(data.name).forEach((k)=>data.name[k] = data.name[k] === null ? '' : data.name[k]);
+          Object.keys(data.name).forEach((k)=>data.name[k] = data.name[k] ? data.name[k] : '');
           document.title = catref(data.name);
           setPersonTableData(data.name);
           if(_.isEmpty(data.service_history)) setServiceRecords(EMPTY_SERVICE_HISTORY);
