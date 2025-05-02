@@ -21,11 +21,12 @@ import { LoadingContext } from './loadingcontext';
 const _ = require('lodash');
 
 function getDifferenceMap(table1, table2) {
-  return _.reduce(table1, (rowDifference, rowContent, rowIndex) => {
-      if(rowIndex in table2) { //check for this in case one table is longer than the other. will work out regardless of which is longer, as either way we get an array of less rows than the longer table.
+  function _getDifferenceMap(outerTable, innerTable) {
+    return _.reduce(outerTable, (rowDifference, rowContent, rowIndex) => {
+      if(rowIndex in innerTable) { //check for this in case one table is longer than the other. will work out regardless of which is longer, as either way we get an array of less rows than the longer table.
         rowDifference.push(
           _.reduce(rowContent, (cellDifference, cellContent, cellKey) => {
-            if(!_.isEqual(cellContent, table2[rowIndex][cellKey])) {
+            if(!_.isEqual(cellContent, innerTable[rowIndex][cellKey])) {
               cellDifference[cellKey] = '';
             }
             return cellDifference;
@@ -36,7 +37,14 @@ function getDifferenceMap(table1, table2) {
       return rowDifference;
     },
     [] /*This will be passed/returned as rowDifference, accumulating*/
-  );
+  )};
+  const map1 = _getDifferenceMap(table1, table2);
+  const map2 = _getDifferenceMap(table2, table1);
+  const map = [];
+  for(let i = 0; i < Math.min(map1.length, map2.length); i += 1) {
+    map.push({...(map1[i]), ...(map2[i])});
+  }
+  return map;
 }
 
 function XCheck({ready, checked, onChange}) {
