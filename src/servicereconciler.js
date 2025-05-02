@@ -20,7 +20,7 @@ import { LoadingContext } from './loadingcontext';
 
 const _ = require('lodash');
 
-const ROW_PRIMARY = 'row';
+const ROW_PRIMARY = 'rowid';
 
 function getDifferenceMap(table1, table2) {
   function _getDifferenceMap(outerTable, innerTable) {
@@ -58,7 +58,7 @@ function XCheck({ready, checked, onChange}) {
     </Stack>
   );
 }
-export default function ServiceReconciler({personTableData, setPersonTableData, serviceRecords, setServiceRecords}) {
+export default function ServiceReconciler({serviceRecords, setServiceRecords}) {
   const {nameId} = useParams();
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
@@ -92,8 +92,8 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
     return data_array[0][ROW_PRIMARY] === 1;
   }
 
-  for(const x of [1, 2]) {
-    if(!valid_rows(serviceRecords[x])) {
+  for(const records of serviceRecords.services) {
+    if(!valid_rows(records.records)) {
       return(<Alert severity='error'>Rows do not start at 1 and/or are not consecutive.</Alert>);
     }
   }
@@ -140,10 +140,12 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
           <Tooltip title={'Overwrite row in ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
               <IconButton sx={sx} color='primary' onClick={()=>{
-                  const newTable = structuredClone(serviceRecords[thatTable].slice(0, row[ROW_PRIMARY] - 1));
+                  const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
                   newTable.push(structuredClone(row));
-                  newTable.push(...structuredClone(serviceRecords[thatTable].slice(row[ROW_PRIMARY])));
-                  setServiceRecords({[thisTable]: structuredClone(serviceRecords[thisTable]), [thatTable]: newTable});
+                  newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY])));
+                  const clone = structuredClone(serviceRecords);
+                  clone.services[thatTable].records = newTable;
+                  setServiceRecords(clone);
                 }}>
                   <OverwriteThatIcon sx={{transform: thisTable < thatTable ? 'rotate(0)' : 'rotate(180deg)'}}/>
               </IconButton>
@@ -152,11 +154,13 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
           <Tooltip title={'Insert row into ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
               <IconButton sx={sx} color='primary' onClick={()=>{
-                  const newTable = structuredClone(serviceRecords[thatTable].slice(0, row[ROW_PRIMARY] - 1));
+                  const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
                   newTable.push({...row, [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
-                  newTable.push(...structuredClone(serviceRecords[thatTable].slice(row[ROW_PRIMARY] - 1)));
+                  newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY] - 1)));
                   for(const x of newTable.slice(row[ROW_PRIMARY])) x[ROW_PRIMARY] += 1;
-                  setServiceRecords({[thisTable]: structuredClone(serviceRecords[thisTable]), [thatTable]: newTable});
+                  const clone = structuredClone(serviceRecords);
+                  clone.services[thatTable].records = newTable;
+                  setServiceRecords(clone);
                 }}>
                   <InsertThatIcon sx={{transform: thisTable < thatTable ? 'rotate(180deg)' : 'rotate(0)'}}/>
               </IconButton>
@@ -167,51 +171,64 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
     };
     return (
       <ServiceTable
-        transcriber={personTableData['tr' + thisTable + 'id']}
-        complete={personTableData['complete' + thisTable]}
+        transcriber={serviceRecords.services[thisTable].userid}
+        complete={serviceRecords.services[thisTable].complete}
         primary={ROW_PRIMARY}
         cloneButton={
           <Tooltip title='Replace other table with this table'>
             <span>
               <Button
                 disabled={differenceMap === null}
-                onClick={() => { setServiceRecords({
-                  [thisTable]: serviceRecords[thisTable],
-                  [thatTable]: structuredClone(serviceRecords[thisTable])
-                });}}
+                onClick={() => {
+                  const clone = structuredClone(serviceRecords);
+                  clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
+                  setServiceRecords(clone);
+                }}
               >{ thisTable < thatTable ?
-                   thisTable + ' ' + String.fromCharCode(8658) + ' ' + thatTable :
-                   thatTable + ' ' + String.fromCharCode(8656) + ' ' + thisTable
+                   (thisTable + 1) + ' ' + String.fromCharCode(8658) + ' ' + (thatTable + 1):
+                   (thatTable + 1) + ' ' + String.fromCharCode(8656) + ' ' + (thisTable + 1)
                }
               </Button>
             </span>
           </Tooltip>
         }
-        flipComplete={()=>{ setPersonTableData({...personTableData, ['complete' + thisTable]: !personTableData['complete' + thisTable]})}}
-        data={serviceRecords[thisTable]}
-        onChange={(d)=>{setServiceRecords({[thisTable]: d, [thatTable]: structuredClone(serviceRecords[thatTable])});}}
+        flipComplete={()=>{
+          const clone = structuredClone(serviceRecords);
+          clone.services[thisTable].complete = !clone.services[thisTable].complete;
+          setServiceRecords(clone);
+        }}
+        data={serviceRecords.services[thisTable].records}
+        onChange={(d)=>{
+          const clone = structuredClone(serviceRecords);
+          clone.services[thisTable].records = structuredClone(d);
+          setServiceRecords(clone);
+        }}
         difference={differenceMap}
         extraRowControls={rowControls}
       />
     );
   }
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
-  const differenceMap = (serviceRecords.length === 0 || _.isEqual(serviceRecords[1], serviceRecords[2])) ?
+  const differenceMap = (serviceRecords.services.length === 0 || _.isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records)) ?
     null : //null if the services are identical. If there is any difference, the array will be the same length as the shorter services table (potentially empty, making _all_ rows in the longer table "different").
            //TODO it may well be that if one table is empty, the API just doesn't return anything at all for it -- if so, I can make that work for me by passing an empty array in place of the missing entry
-    getDifferenceMap(serviceRecords[1], serviceRecords[2]);
-  const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords[1], serviceRecords[2]);
-  const xCheckReady = personTableData.tr1id > 0 &&
-                      personTableData.tr2id > 0 &&
-                      personTableData.complete1 &&
-                      personTableData.complete2 &&
+    getDifferenceMap(serviceRecords.services[0].records, serviceRecords.services[1].records);
+  const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records);
+  const xCheckReady = serviceRecords.services[0].userid > 0 &&
+                      serviceRecords.services[1].userid > 0 &&
+                      serviceRecords.services[0].complete &&
+                      serviceRecords.services[1].complete &&
                       sameServices
   return (
     <Stack>
       <Stack direction='row' justifyContent='flex-end' spacing={4}>
-        <XCheck ready={xCheckReady} checked={personTableData.reconciled} onChange={()=>{setPersonTableData({...personTableData, reconciled: !personTableData.reconciled})}}/>
-        <Button disabled={!xCheckReady} onClick={()=>{
-          setServiceRecords({1: deleteEmptyServiceRows(serviceRecords[1]), 2: deleteEmptyServiceRows(serviceRecords[2])});
+        <XCheck ready={xCheckReady} checked={serviceRecords.reconciled} onChange={() => {
+            const clone = structuredClone(serviceRecords);
+            clone.reconciled = !(serviceRecords.reconciled);
+            setServiceRecords(clone);
+          }}/>
+         <Button disabled={!xCheckReady} onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
+          setServiceRecords({1: deleteEmptyServiceRows(serviceRecords[1].records), 2: deleteEmptyServiceRows(serviceRecords[2].records)});
           fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId, {
             method: "POST",
             body: JSON.stringify({1: serviceRecords[1].slice(0, serviceRecords[1].length - 1), 2: serviceRecords[2].slice(0, serviceRecords[2].length -1)}),
@@ -219,8 +236,8 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
         }}>Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-        {getTable(1, 2)}
-        {getTable(2, 1)}
+        {getTable(0, 1)}
+        {getTable(1, 0)}
       </Stack>
     </Stack>
   );

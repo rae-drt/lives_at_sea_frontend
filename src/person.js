@@ -18,6 +18,12 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const _ = require('lodash');
 
+const EMPTY_SERVICES = { userid:0, complete:0, records:[] };
+const EMPTY_SERVICE_HISTORY = {
+  reconciled: false,
+  services: [EMPTY_SERVICES, EMPTY_SERVICES],
+};
+
 export default function Person() {
   //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
   //      But this will do for now
@@ -25,12 +31,11 @@ export default function Person() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [personTableData, setPersonTableData] = useState();
-  const [serviceRecords, setServiceRecords] = useState({1:[], 2:[]});
-  const [fetchingPersonTableData, setFetchingPersonTableData] = useState(true);
-  const [fetchingServices, setFetchingServices] = useState(true);
+  const [serviceRecords, setServiceRecords] = useState(EMPTY_SERVICE_HISTORY);
+  const [fetching, setFetching] = useState(true);
   useEffect(() => {
     const fetchData = async() => {
-      setFetchingPersonTableData(true);
+      setFetching(true);
       let data;
       if(nameId === '0') {
         data = init_data(sailorType);
@@ -44,8 +49,13 @@ export default function Person() {
             throw new Error('Bad response: ' + response.status);
           }
           data = await(response.json());
-          document.title = catref(data);
-          setPersonTableData(data);
+          Object.keys(data.name).forEach((k)=>data.name[k] = data.name[k] === null ? '' : data.name[k]);
+          document.title = catref(data.name);
+          setPersonTableData(data.name);
+          if(_.isEmpty(data.service_history)) setServiceRecords(EMPTY_SERVICE_HISTORY);
+          else {
+            setServiceRecords({reconciled: data.status === 'RECONCILED', services: data.service_history});
+          }
         }
         else if(sailorType === 'officer') {
           const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
@@ -61,27 +71,10 @@ export default function Person() {
           socket.onopen = () => { socket.send('L@S:Officer:' + nameId) };
         }
       }
-      setFetchingPersonTableData(false);
+      setFetching(false);
     }
     fetchData();
   }, [sailorType, nameId]);
-  useEffect(() => {
-    const fetchData = async() => {
-      setFetchingServices(true);
-      let data = {};
-      if(nameId !== '0') {
-        const response = await(fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId));
-        if(!response.ok) {
-          throw new Error('Bad response: ' + response.status);
-        }
-        data = await(response.json());
-      }
-      if(_.isEmpty(data)) setServiceRecords({1:[], 2:[]});
-      else setServiceRecords(data);
-      setFetchingServices(false);
-    }
-    fetchData();
-  }, [nameId]);
 
   const theme = createTheme({
     typography: {
@@ -102,7 +95,7 @@ export default function Person() {
   else {
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
     return (
-      <LoadingContext value={fetchingPersonTableData || fetchingServices}>
+      <LoadingContext value={fetching}>
         <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
           <ThemeProvider theme={theme}>
             <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
@@ -135,7 +128,7 @@ export default function Person() {
                 <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
                 <Tab value='otherdata' label='Data'/>
               </Tabs>
-              {dataType === 'main' && <ServiceReconciler personTableData={personTableData} setPersonTableData={setPersonTableData} serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
+              {dataType === 'main' && <ServiceReconciler serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
               {dataType === 'otherservices' && <OtherServices/>}
               {dataType === 'otherdata' && <OtherData/>}
             </Stack>
