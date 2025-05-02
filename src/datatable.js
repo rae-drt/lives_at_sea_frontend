@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { LoadingContext } from './loadingcontext';
 
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
@@ -18,12 +18,37 @@ function checkPrimary(cols, primary) {
       return;
     }
   }
-  throw new Error('Primary key ' + primary + ' not defined in columns');
+  if(cols.length) throw new Error('Primary key ' + primary + ' not defined in columns');
 }
 
 export default function DataTable(props) {
-  const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, sx, ...otherProps} = props;
+  const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, sx, initialState, ...otherProps} = props;
   const loading = useContext(LoadingContext);
+  const [highestRow, setHighestRow] = useState({[primary]:1});
+  useEffect(() => {
+    if(rows && rows.length) {
+      //console.log(rows.length, 'ENTRY', rows);
+      let highest = rows[0];
+      for(const row of rows) {
+        //console.log(highest);
+        if(row[primary] > highest[primary]) highest = row;
+      }
+      setHighestRow(structuredClone(highest));
+    }
+    else {
+      setHighestRow({[primary]: 1});
+    }
+  }, [rows])
+  useEffect(() => {
+    //console.error(highestRow, rows);
+    if(Object.keys(highestRow).length > 1) { //we know it must have the primary key -- if it only has that key then it is an empty row and we don't need another one
+  //    console.warn(Object.keys(highestRow).length, highestRow);
+      const newRows = structuredClone(rows);
+      newRows.push({[primary]: highestRow[primary] + 1});
+      onChange(newRows);
+    }
+  }, [highestRow]);
+
   const finalOnChange = (data) => {
     if(positionalPrimary) {
       onChange(data.sort((a,b)=>a[primary] - b[primary]));
@@ -33,6 +58,7 @@ export default function DataTable(props) {
     }
   };
 
+//console.log(rows, highestRow);
   checkPrimary(columns, primary);
 
   function baseRowControls(params) {
@@ -93,10 +119,18 @@ export default function DataTable(props) {
     );
   };
 
-  const initialState = {};
+  const finalInitialState = initialState ? initialState : {}
   if(positionalPrimary) {
-    initialState.sorting = {sortModel: [{field: primary, sort: 'asc'}]};
+    finalInitialState.sorting = {sortModel: [{field: primary, sort: 'asc'}]};
     if(otherProps.disableColumnSorting === false) throw new Error('Data table with positional primary cannot be sortable');
+  }
+  else {
+    finalInitialState.sorting = {sortModel: [{field: primary, sort: 'desc'}]};
+    finalInitialState.columns = {
+      columnVisibilityModel: {
+        [primary]: false
+      },
+    }
   }
 
   return(
@@ -111,7 +145,7 @@ export default function DataTable(props) {
           renderCell: baseRowControls,
         },
       ]}
-      initialState={initialState}
+      initialState={finalInitialState}
       getRowId={(row) => {return row[primary];}}
       processRowUpdate={(updatedRow, originalRow, {rowId}) =>{
         finalOnChange(rows.map((e) => e[primary] === rowId ? structuredClone(updatedRow) : structuredClone(e)));
@@ -133,14 +167,6 @@ export default function DataTable(props) {
         '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
         '& .MuiDataGrid-columnSeparator': { display: 'none' },
         '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
-      }}
-      slots={{
-        noRowsOverlay: () => (
-          <Alert severity='info'
-                 action={<Button onClick={()=>{finalOnChange([{[primary]: 1}])}}>Add data</Button>}>
-            No data
-          </Alert>
-        ),
       }}
       {...otherProps}
     />);

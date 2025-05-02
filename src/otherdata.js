@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 
 import DataTable from './datatable';
+import { LoadingContext } from './loadingcontext';
 import { useParams } from 'react-router';
 
 export default function OtherData() {
   const {nameId} = useParams();
   const [otherData, setOtherData] = useState();
+  const [fetching, setFetching] = useState(true);
   useEffect(() => {
     const fetchData = async() => {
+      setFetching(true);
+console.error('FETCIHNG');
       const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
       socket.onmessage = (e) => {
         if(e.data === 'NULL') {
@@ -17,6 +21,7 @@ export default function OtherData() {
           setOtherData(JSON.parse(e.data));
         }
         socket.close();
+        setFetching(false);
       };
       socket.onopen = () => { socket.send('L@S:OtherData:' + nameId) };
     };
@@ -82,13 +87,15 @@ export default function OtherData() {
     },
   ];
   return(
-    <DataTable
-      rows={otherData}
-      columns={columns}
-      columnGroupingModel={columnGroupingModel}
-      primary='row'
-      positionalPrimary
-      onChange={setOtherData}
-    />
+    <LoadingContext value={fetching}>
+      <DataTable
+        rows={otherData}
+        columns={columns}
+        columnGroupingModel={columnGroupingModel}
+        primary='row'
+        positionalPrimary
+        onChange={setOtherData}
+      />
+    </LoadingContext>
   );
 }
