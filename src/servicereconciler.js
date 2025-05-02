@@ -20,6 +20,8 @@ import { LoadingContext } from './loadingcontext';
 
 const _ = require('lodash');
 
+const ROW_PRIMARY = 'row';
+
 function getDifferenceMap(table1, table2) {
   function _getDifferenceMap(outerTable, innerTable) {
     return _.reduce(outerTable, (rowDifference, rowContent, rowIndex) => {
@@ -77,17 +79,17 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
       return true;
     }
     for(let i = 0; i < data_array.length; i++) {
-      if('row' in data_array[i] === false) {
+      if(ROW_PRIMARY in data_array[i] === false) {
         return false;
       }
-      if(Number.isInteger(data_array[i].row) === false) {
+      if(Number.isInteger(data_array[i][ROW_PRIMARY]) === false) {
         return false;
       }
-      if(data_array[i].row !== i + 1) {
+      if(data_array[i][ROW_PRIMARY] !== i + 1) {
         return false;
       }
     }
-    return data_array[0].row === 1;
+    return data_array[0][ROW_PRIMARY] === 1;
   }
 
   for(const x of [1, 2]) {
@@ -108,7 +110,7 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
           continue outer;
         }
       }
-      emptyRows.push(row.row)
+      emptyRows.push(row[ROW_PRIMARY])
     }
 
     //delete the empty rows -- go backwards so that the indices continue to work
@@ -118,7 +120,7 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
 
     //renumber the remaining rows
     for(let i = 0; i < newRows.length; i++) {
-      newRows[i].row = i + 1;
+      newRows[i][ROW_PRIMARY] = i + 1;
     }
 
     return newRows;
@@ -132,15 +134,15 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
      */
     function rowControls(params, sx) {
       const {row} /*, ...otherParams}*/ = params;
-      // row.row is the row number as presented in the table. This is one higher than the array index of the row.
+      // row[ROW_PRIMARY] is the row number as presented in the table. This is one higher than the array index of the row.
       return (
         <>
           <Tooltip title={'Overwrite row in ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
               <IconButton sx={sx} color='primary' onClick={()=>{
-                  const newTable = structuredClone(serviceRecords[thatTable].slice(0, row.row - 1));
+                  const newTable = structuredClone(serviceRecords[thatTable].slice(0, row[ROW_PRIMARY] - 1));
                   newTable.push(structuredClone(row));
-                  newTable.push(...structuredClone(serviceRecords[thatTable].slice(row.row)));
+                  newTable.push(...structuredClone(serviceRecords[thatTable].slice(row[ROW_PRIMARY])));
                   setServiceRecords({[thisTable]: structuredClone(serviceRecords[thisTable]), [thatTable]: newTable});
                 }}>
                   <OverwriteThatIcon sx={{transform: thisTable < thatTable ? 'rotate(0)' : 'rotate(180deg)'}}/>
@@ -150,10 +152,10 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
           <Tooltip title={'Insert row into ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
               <IconButton sx={sx} color='primary' onClick={()=>{
-                  const newTable = structuredClone(serviceRecords[thatTable].slice(0, row.row - 1));
-                  newTable.push({...row, row: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
-                  newTable.push(...structuredClone(serviceRecords[thatTable].slice(row.row - 1)));
-                  for(const x of newTable.slice(row.row)) x.row += 1;
+                  const newTable = structuredClone(serviceRecords[thatTable].slice(0, row[ROW_PRIMARY] - 1));
+                  newTable.push({...row, [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
+                  newTable.push(...structuredClone(serviceRecords[thatTable].slice(row[ROW_PRIMARY] - 1)));
+                  for(const x of newTable.slice(row[ROW_PRIMARY])) x[ROW_PRIMARY] += 1;
                   setServiceRecords({[thisTable]: structuredClone(serviceRecords[thisTable]), [thatTable]: newTable});
                 }}>
                   <InsertThatIcon sx={{transform: thisTable < thatTable ? 'rotate(180deg)' : 'rotate(0)'}}/>
@@ -167,6 +169,7 @@ export default function ServiceReconciler({personTableData, setPersonTableData, 
       <ServiceTable
         transcriber={personTableData['tr' + thisTable + 'id']}
         complete={personTableData['complete' + thisTable]}
+        primary={ROW_PRIMARY}
         cloneButton={
           <Tooltip title='Replace other table with this table'>
             <span>

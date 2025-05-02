@@ -33,12 +33,12 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
   );
 }
 
-export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, extraRowControls}) {
+export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, extraRowControls, primary}) {
   const loading = useContext(LoadingContext);
 
   const columns: GridColDef[] = [
     {
-      field: 'row',
+      field: primary,
       headerName: 'Row',
       width: 50,
       align: 'right',
@@ -109,8 +109,8 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
             rows={data}
             columns={columns}
             columnGroupingModel={columnGroupingModel}
-            onChange={(data) => onChange(data.sort((a,b)=>a.row - b.row))}
-            primary='row'
+            onChange={(data) => onChange(data.sort((a,b)=>a[primary] - b[primary]))}
+            primary={primary}
             positionalPrimary
             extraRowControls={extraRowControls}
             getCellClassName={(p) => {
