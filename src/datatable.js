@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
 
 import { DataGrid, gridClasses } from '@mui/x-data-grid';

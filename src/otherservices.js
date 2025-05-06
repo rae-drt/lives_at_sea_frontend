@@ -1,7 +1,4 @@
-import { useEffect, useState } from 'react';
-
 import DataTable from './datatable';
-import { useParams } from 'react-router';
 
 export default function OtherServices({otherServices, setOtherServices}) {
   const columnGroupingModel: GridColumnGroupingModel = [
