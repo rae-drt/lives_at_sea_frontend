@@ -25,13 +25,13 @@ const EMPTY_SERVICE_HISTORY = {
 };
 
 export default function Person() {
-  //TODO: May well make more sense to pass something like a nameid to ServiceTable and let it look up its own transcriber information (and other data)
-  //      But this will do for now
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [personTableData, setPersonTableData] = useState();
   const [serviceRecords, setServiceRecords] = useState(EMPTY_SERVICE_HISTORY);
+  const [otherServices, setOtherServices] = useState([]);
+  const [otherData, setOtherData] = useState([]);
   const [fetching, setFetching] = useState(true);
   useEffect(() => {
     const fetchData = async() => {
@@ -75,6 +75,38 @@ export default function Person() {
     }
     fetchData();
   }, [sailorType, nameId]);
+  useEffect(() => {
+    const fetchData = async() => {
+      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+      socket.onmessage = (e) => {
+        if(e.data === 'NULL') {
+          setOtherData([]);
+        }
+        else {
+          setOtherData(JSON.parse(e.data));
+        }
+        socket.close();
+      };
+      socket.onopen = () => { socket.send('L@S:OtherData:' + nameId) };
+    };
+    fetchData();
+  }, [nameId]);
+  useEffect(() => {
+    const fetchData = async() => {
+      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+      socket.onmessage = (e) => {
+        if(e.data === 'NULL') {
+          setOtherServices([]);
+        }
+        else {
+          setOtherServices(JSON.parse(e.data));
+        }
+        socket.close();
+      };
+      socket.onopen = () => { socket.send('L@S:OtherServices:' + nameId) };
+    };
+    fetchData();
+  }, [nameId]);
 
   const theme = createTheme({
     typography: {
@@ -128,9 +160,9 @@ export default function Person() {
                 <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
                 <Tab value='otherdata' label='Data'/>
               </Tabs>
-              {dataType === 'main' && <ServiceReconciler serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
-              {dataType === 'otherservices' && <OtherServices/>}
-              {dataType === 'otherdata' && <OtherData/>}
+              {dataType === 'main' &&          <ServiceReconciler serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
+              {dataType === 'otherservices' && <OtherServices     otherServices={otherServices}   setOtherServices={setOtherServices}/>}
+              {dataType === 'otherdata' &&     <OtherData         otherData={otherData}           setOtherData={setOtherData}/>}
             </Stack>
           </ThemeProvider>
         </Stack>

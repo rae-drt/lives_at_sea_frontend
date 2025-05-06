@@ -1,28 +1,6 @@
-import { useEffect, useState } from 'react';
-
 import DataTable from './datatable';
-import { useParams } from 'react-router';
 
-export default function OtherData() {
-  const {nameId} = useParams();
-  const [otherData, setOtherData] = useState();
-  useEffect(() => {
-    const fetchData = async() => {
-      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-      socket.onmessage = (e) => {
-        if(e.data === 'NULL') {
-          setOtherData([]);
-        }
-        else {
-          setOtherData(JSON.parse(e.data));
-        }
-        socket.close();
-      };
-      socket.onopen = () => { socket.send('L@S:OtherData:' + nameId) };
-    };
-    fetchData();
-  }, [nameId]);
-
+export default function OtherData({otherData, setOtherData}) {
   const columnGroupingModel: GridColumnGroupingModel = [
     {
       groupId: 'date',

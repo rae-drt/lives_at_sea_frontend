@@ -3,26 +3,7 @@ import { useEffect, useState } from 'react';
 import DataTable from './datatable';
 import { useParams } from 'react-router';
 
-export default function OtherServices() {
-  const {nameId} = useParams();
-  const [otherServices, setOtherServices] = useState();
-  useEffect(() => {
-    const fetchData = async() => {
-      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-      socket.onmessage = (e) => {
-        if(e.data === 'NULL') {
-          setOtherServices([]);
-        }
-        else {
-          setOtherServices(JSON.parse(e.data));
-        }
-        socket.close();
-      };
-      socket.onopen = () => { socket.send('L@S:OtherServices:' + nameId) };
-    };
-    fetchData();
-  }, [nameId]);
-
+export default function OtherServices({otherServices, setOtherServices}) {
   const columnGroupingModel: GridColumnGroupingModel = [
     {
       groupId: 'fromDate',
