@@ -152,7 +152,6 @@ export default function Person() {
     }
   });
 
-  //I think this will only occur during initial load
   if(
     (sailorType !== 'rating' && sailorType !== 'officer') ||
     (dataType !== 'main' && dataType !== 'otherservices' && dataType !== 'otherdata')
@@ -166,7 +165,6 @@ export default function Person() {
     return (<Alert severity='error'>Error fetching data</Alert>);
   }
   else {
-    //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
     return (
       <LoadingContext value={mainPersonQueryStatus === 'pending' || otherServicesQueryStatus === 'pending' || otherDataQueryStatus === 'pending'}>
         <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
