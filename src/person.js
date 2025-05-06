@@ -158,7 +158,7 @@ export default function Person() {
   ) {
     return (<Alert severity='error'>Bad location: {pathname}</Alert>);
   }
-  else if((typeof(serviceRecords) === 'undefined') || (typeof(personTableData) === 'undefined')) {
+  else if(typeof(personTableData) === 'undefined') {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
   else if(mainPersonQueryStatus === 'error' || otherServicesQueryStatus === 'error' || otherDataQueryStatus === 'error') {
