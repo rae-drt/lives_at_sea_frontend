@@ -18,7 +18,7 @@ function checkPrimary(cols, primary) {
       return;
     }
   }
-  throw new Error('Primary key ' + primary + ' not defined in columns');
+  if(cols.length) throw new Error('Primary key ' + primary + ' not defined in columns');
 }
 
 export default function DataTable(props) {
