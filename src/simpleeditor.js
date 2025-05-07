@@ -38,13 +38,16 @@ export default function SimpleEditor({table, primary}) {
   });
   useEffect(() => {
     if(queryStatus === 'success') {
-      setRows(queryData);
+      if(queryData && queryData.length) {
+        setRows(queryData);
+        setFields(Object.keys(queryData[0]));
+      }
+      else {
+        setRows([]);
+        setFields([]);
+      }
     }
   }, [queryData, queryStatus]);
-  useEffect(() => {
-    if(rows && rows.length) setFields(Object.keys(rows[0]));
-    else setFields([]);
-  }, [rows])
   useEffect(() => { //re https://github.com/mui/mui-x/issues/10578. Unfortunately the 3rd solution requires a non-basic version of DataGrid so we live with the jump.
     const timeoutId = setTimeout(()=>{
       ReactDOM.flushSync(()=>{
