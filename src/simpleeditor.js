@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import ReactDOM from 'react-dom';
 import DataTable from './datatable';
 import { LoadingContext } from './loadingcontext';
 import { Alert, CircularProgress, Stack } from '@mui/material';
-import { useGridApiRef } from '@mui/x-data-grid';
 
 function queryFn({queryKey}) {
   const [, table] = queryKey;
@@ -25,7 +23,6 @@ function queryFn({queryKey}) {
 }
 
 export default function SimpleEditor({table, primary}) {
-  const apiRef = useGridApiRef();
   const [rows, setRows] = useState([]);
   const [fields, setFields] = useState([]);
   const { data: queryData, status: queryStatus } = useQuery({
@@ -48,25 +45,17 @@ export default function SimpleEditor({table, primary}) {
       }
     }
   }, [queryData, queryStatus]);
-  useEffect(() => { //re https://github.com/mui/mui-x/issues/10578. Unfortunately the 3rd solution requires a non-basic version of DataGrid so we live with the jump.
-    const timeoutId = setTimeout(()=>{
-      ReactDOM.flushSync(()=>{
-        apiRef.current.autosizeColumns({includeOutliers: true, includeHeaders: true, expand: true});
-      });
-    },1000);
-   return () => { clearInterval(timeoutId); }
-  }, [rows, apiRef]);
 
   if(fields.length) {
     const columns: GridColDef[] = fields.map((e) => ({
       field: e,
       headerName: e[0].toUpperCase() + e.slice(1),
       editable: e !== primary,
+      flex: 1 / fields.length,
     }));
     return (
       <LoadingContext value={queryStatus==='pending'}>
         <DataTable
-          apiRef={apiRef}
           rows={rows}
           columns={columns}
           primary={primary}
