@@ -98,6 +98,14 @@ export default function DataTable(props) {
     initialState.sorting = {sortModel: [{field: primary, sort: 'asc'}]};
     if(otherProps.disableColumnSorting === false) throw new Error('Data table with positional primary cannot be sortable');
   }
+  else {
+    initialState.sorting = {sortModel: [{field: primary, sort: 'desc'}]};
+    initialState.columns = {
+      columnVisibilityModel: {
+        [primary]: false
+      },
+    }
+  }
 
   return(
     <DataGrid
@@ -118,8 +126,8 @@ export default function DataTable(props) {
         return updatedRow;
       }}
       onProcessRowUpdateError={(e)=>{alert(e);}}
-      disableColumnSorting
-      disableColumnMenu
+      disableColumnSorting={positionalPrimary}
+      disableColumnMenu={positionalPrimary}
       getRowHeight={()=>'auto'}
       sx={{
         ...sx,
