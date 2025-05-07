@@ -41,7 +41,6 @@ export default function DataTable(props) {
       }
     }
     else {
-      console.log(rows);
       onChange([{[primary]: 1}]);
     }
   }, [rows, onChange, primary]);
