@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { LoadingContext } from './loadingcontext';
 
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
@@ -24,6 +24,34 @@ function checkPrimary(cols, primary) {
 export default function DataTable(props) {
   const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
+  const [highestRow, setHighestRow] = useState({[primary]:1});
+  useEffect(() => {
+    if(rows && rows.length) {
+      let highest = rows[0];
+      for(const row of rows) {
+        if(row[primary] > highest[primary]) highest = row;
+      }
+      setHighestRow(structuredClone(highest));
+    }
+    else {
+      console.log(rows);
+      onChange([{[primary]: 1}]);
+    }
+  }, [rows])
+  useEffect(() => {
+    const keys = Object.keys(highestRow);
+    if(keys.length > 1) { //we know it must have the primary key -- if it only has that key then it is an empty row and we don't need another one
+      for(const key of Object.keys(highestRow)) { // equally, if other fields exist but are empty then we still don't need another one
+        if(key !== primary && highestRow[key]) {
+          const newRows = structuredClone(rows);
+          newRows.push({[primary]: highestRow[primary] + 1});
+          onChange(newRows);
+          return;
+        }
+      }
+    }
+  }, [highestRow]);
+
   const finalOnChange = (data) => {
     if(positionalPrimary) {
       onChange(data.sort((a,b)=>a[primary] - b[primary]));
@@ -141,14 +169,6 @@ export default function DataTable(props) {
         '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
         '& .MuiDataGrid-columnSeparator': { display: 'none' },
         '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
-      }}
-      slots={{
-        noRowsOverlay: () => (
-          <Alert severity='info'
-                 action={<Button onClick={()=>{finalOnChange([{[primary]: 1}])}}>Add data</Button>}>
-            No data
-          </Alert>
-        ),
       }}
       {...otherProps}
     />);
