@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
@@ -111,6 +111,7 @@ export default function Person() {
   const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery({queryKey: ['mainPersonData', {sailorType: sailorType, nameId: nameId}], queryFn: mainPersonQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
   const {data: otherServicesQueryData, status: otherServicesQueryStatus} = useQuery({queryKey: ['otherServicesData', nameId], queryFn: otherServicesQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
   const {data: otherDataQueryData, status: otherDataQueryStatus} = useQuery({queryKey: ['otherData', nameId], queryFn: otherDataQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
+  const queryClient = useQueryClient();
   useEffect(() => {
     if(mainPersonQueryStatus !== 'success') return;
     const data = mainPersonQueryData;
@@ -173,10 +174,12 @@ export default function Person() {
               <Stack direction='row' width={0.7} alignItems='flex-start'>
                 <Stack>
                   <PersonTableControlPanel data={personTableData} onChange={(()=>{
-                    const response = fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId, {
-                      method: "POST",
-                      body: JSON.stringify(personTableData),
-                    }).then(Function.prototype(),(x)=>{alert(x);}); //SO says that Function.prototype() is a good NOP (https://stackoverflow.com/a/33458430)
+                    if(sailorType === 'rating') {
+                      queryClient.setQueryData(['mainPersonData', {sailorType, nameId}], {...mainPersonQueryData, name: personTableData});
+                    }
+                    else {
+                      queryClient.setQueryData(['mainPersonData', {sailorType, nameId}], personTableData);
+                    }
                   })}/>
                   {
                       <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
