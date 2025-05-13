@@ -108,7 +108,7 @@ export default function Person() {
   const [serviceRecords, setServiceRecords] = useState(EMPTY_SERVICE_HISTORY);
   const [otherServices, setOtherServices] = useState([]);
   const [otherData, setOtherData] = useState([]);
-  const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery({queryKey: ['mainPersonData', {sailorType, nameId}], queryFn: mainPersonQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
+  const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery({queryKey: ['mainPersonData', {sailorType: sailorType, nameId: nameId}], queryFn: mainPersonQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
   const {data: otherServicesQueryData, status: otherServicesQueryStatus} = useQuery({queryKey: ['otherServicesData', nameId], queryFn: otherServicesQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
   const {data: otherDataQueryData, status: otherDataQueryStatus} = useQuery({queryKey: ['otherData', nameId], queryFn: otherDataQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
   useEffect(() => {
