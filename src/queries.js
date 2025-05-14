@@ -1,0 +1,134 @@
+import { init_data } from './data_utils';
+
+function mainPersonQF({queryKey}) {
+  const [, {sailorType, nameId}] = queryKey;
+  return new Promise((resolve, reject) => {
+    if(nameId === '0') {
+      resolve(init_data(sailorType));
+    }
+    else if(typeof(nameId) === 'undefined') {
+      reject(new Error());
+    }
+    else {
+      if(sailorType === 'rating') {
+        const fetchData = async() => {
+          const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
+          if(!response.ok) {
+            throw new Error('Bad response: ' + response.status);
+          }
+          return response.json();
+        }
+        resolve(fetchData());
+      }
+      else if(sailorType === 'officer') {
+        const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+        socket.onerror = (e) => { reject(e); };
+        socket.onmessage = (e) => {
+          if(e.data === 'NULL') {
+            throw new Error('Bad response');
+          }
+          resolve(JSON.parse(e.data));
+          socket.close();
+        };
+        socket.onopen = () => { socket.send('L@S:Officer:' + nameId) };
+      }
+      else {
+        reject(new Error('Bad sailor type' + sailorType));
+      }
+    }
+  });
+}
+
+function otherServicesQF({queryKey}) {
+  const [, nameId] = queryKey;
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+    socket.onerror = (e) => { reject(e); };
+    socket.onmessage = (e) => {
+      if(e.data === 'NULL') {
+        resolve([]);
+      }
+      else {
+        resolve(JSON.parse(e.data));
+      }
+      socket.close();
+    };
+    socket.onopen = () => { socket.send('L@S:OtherServices:' + nameId) };
+  });
+}
+
+function otherDataQF({queryKey}) {
+  const [, nameId] = queryKey;
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+    socket.onerror = (e) => { reject(e); };
+    socket.onmessage = (e) => {
+      if(e.data === 'NULL') {
+        resolve([]);
+      }
+      else {
+        resolve(JSON.parse(e.data));
+      }
+      socket.close();
+    };
+    socket.onopen = () => { socket.send('L@S:OtherData:' + nameId) };
+  });
+}
+
+export function mainPersonMutate(queryClient, sailorType, nameId, data) {
+  queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, data);
+}
+
+export const mainPersonQuery = (sailorType, nameId) => ({
+  queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
+  queryFn: mainPersonQF,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  staleTime: Infinity,
+});
+
+export const otherServicesQuery = (nameId) => ({
+  queryKey: ['otherServicesData', Number(nameId)],
+  queryFn: otherServicesQF,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  staleTime: Infinity,
+});
+
+export const otherDataQuery = (nameId) => ({
+  queryKey: ['otherData', Number(nameId)],
+  queryFn: otherDataQF,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  staleTime: Infinity
+});
+
+function simpleTableQueryFn({queryKey}) {
+  const [, table] = queryKey;
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+    socket.onerror = (e) => { reject(e); };
+    socket.onmessage = (e) => {
+      if(e.data === 'NULL') {
+        resolve([]);
+      }
+      else {
+        resolve(JSON.parse(e.data));
+      }
+      socket.close();
+    };
+    socket.onopen = () => { socket.send('L@S:SimpleData:' + table) };
+  });
+}
+
+export const simpleTableQuery = (table) => ({
+    queryKey: ['simpleEditor', table],
+    queryFn: simpleTableQueryFn,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
+});

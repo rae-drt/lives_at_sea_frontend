@@ -1,38 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import DataTable from './datatable';
+import { simpleTableQuery } from './queries';
 import { LoadingContext } from './loadingcontext';
 import { Alert, CircularProgress, Stack } from '@mui/material';
-
-function queryFn({queryKey}) {
-  const [, table] = queryKey;
-  return new Promise((resolve, reject) => {
-    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-    socket.onerror = (e) => { reject(e); };
-    socket.onmessage = (e) => {
-      if(e.data === 'NULL') {
-        resolve([]);
-      }
-      else {
-        resolve(JSON.parse(e.data));
-      }
-      socket.close();
-    };
-    socket.onopen = () => { socket.send('L@S:SimpleData:' + table) };
-  });
-}
 
 export default function SimpleEditor({table, primary}) {
   const [rows, setRows] = useState([]);
   const [fields, setFields] = useState([]);
-  const { data: queryData, status: queryStatus } = useQuery({
-    queryKey: ['simpleEditor', table],
-    queryFn: queryFn,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: Infinity,
-  });
+  const { data: queryData, status: queryStatus } = useQuery(simpleTableQuery(table));
   useEffect(() => {
     if(queryStatus === 'success') {
       if(queryData && queryData.length) {

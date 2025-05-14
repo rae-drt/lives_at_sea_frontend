@@ -13,7 +13,8 @@ import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
 import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
-import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT, init_data } from './data_utils';
+import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
+import { mainPersonQuery, mainPersonMutate, otherServicesQuery, otherDataQuery } from './queries';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -25,81 +26,6 @@ const EMPTY_SERVICE_HISTORY = {
   services: [EMPTY_SERVICES, EMPTY_SERVICES],
 };
 
-function mainPersonQF({queryKey}) {
-  const [, {nameId, sailorType}] = queryKey;
-  return new Promise((resolve, reject) => {
-    if(nameId === '0') {
-      resolve(init_data(sailorType));
-    }
-    else if(typeof(nameId) === 'undefined') {
-      reject(new Error());
-    }
-    else {
-      if(sailorType === 'rating') {
-        const fetchData = async() => {
-          const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
-          if(!response.ok) {
-            throw new Error('Bad response: ' + response.status);
-          }
-          return response.json();
-        }
-        resolve(fetchData());
-      }
-      else if(sailorType === 'officer') {
-        const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-        socket.onerror = (e) => { reject(e); };
-        socket.onmessage = (e) => {
-          if(e.data === 'NULL') {
-            throw new Error('Bad response');
-          }
-          resolve(JSON.parse(e.data));
-          socket.close();
-        };
-        socket.onopen = () => { socket.send('L@S:Officer:' + nameId) };
-      }
-      else {
-        reject(new Error('Bad sailor type' + sailorType));
-      }
-    }
-  });
-}
-
-function otherServicesQF({queryKey}) {
-  const [, nameId] = queryKey;
-  return new Promise((resolve, reject) => {
-    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-    socket.onerror = (e) => { reject(e); };
-    socket.onmessage = (e) => {
-      if(e.data === 'NULL') {
-        resolve([]);
-      }
-      else {
-        resolve(JSON.parse(e.data));
-      }
-      socket.close();
-    };
-    socket.onopen = () => { socket.send('L@S:OtherServices:' + nameId) };
-  });
-}
-
-function otherDataQF({queryKey}) {
-  const [, nameId] = queryKey;
-  return new Promise((resolve, reject) => {
-    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-    socket.onerror = (e) => { reject(e); };
-    socket.onmessage = (e) => {
-      if(e.data === 'NULL') {
-        resolve([]);
-      }
-      else {
-        resolve(JSON.parse(e.data));
-      }
-      socket.close();
-    };
-    socket.onopen = () => { socket.send('L@S:OtherData:' + nameId) };
-  });
-}
-
 export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
@@ -108,9 +34,9 @@ export default function Person() {
   const [serviceRecords, setServiceRecords] = useState(EMPTY_SERVICE_HISTORY);
   const [otherServices, setOtherServices] = useState([]);
   const [otherData, setOtherData] = useState([]);
-  const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery({queryKey: ['mainPersonData', {sailorType: sailorType, nameId: nameId}], queryFn: mainPersonQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
-  const {data: otherServicesQueryData, status: otherServicesQueryStatus} = useQuery({queryKey: ['otherServicesData', nameId], queryFn: otherServicesQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
-  const {data: otherDataQueryData, status: otherDataQueryStatus} = useQuery({queryKey: ['otherData', nameId], queryFn: otherDataQF, refetchOnMount: false, refetchOnWindowFocus: false, refetchOnReconnect: false, staleTime: Infinity});
+  const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery(mainPersonQuery(sailorType, nameId));
+  const {data: otherServicesQueryData, status: otherServicesQueryStatus} = useQuery(otherServicesQuery(nameId));
+  const {data: otherDataQueryData, status: otherDataQueryStatus} = useQuery(otherDataQuery(nameId));
   const queryClient = useQueryClient();
   useEffect(() => {
     if(mainPersonQueryStatus !== 'success') return;
@@ -174,12 +100,8 @@ export default function Person() {
               <Stack direction='row' width={0.7} alignItems='flex-start'>
                 <Stack>
                   <PersonTableControlPanel data={personTableData} onChange={(()=>{
-                    if(sailorType === 'rating') {
-                      queryClient.setQueryData(['mainPersonData', {sailorType, nameId}], {...mainPersonQueryData, name: personTableData});
-                    }
-                    else {
-                      queryClient.setQueryData(['mainPersonData', {sailorType, nameId}], personTableData);
-                    }
+                    const payload = sailorType === 'rating' ? {...mainPersonQueryData, name: personTableData} : personTableData;
+                    mainPersonMutate(queryClient, sailorType, nameId, payload);
                   })}/>
                   {
                       <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
