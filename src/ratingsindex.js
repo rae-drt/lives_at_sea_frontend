@@ -44,12 +44,9 @@ function triangle2(pos, state) {
   );
 }
 
-function cross(pos) {
+function dot(pos) {
   return(
-    <>
-      <line x1={pos * SQUARE_SIZE} x2={pos * SQUARE_SIZE + SQUARE_SIZE} y1={0} y2={SQUARE_SIZE} stroke='black' strokeWidth={1}/>
-      <line x1={pos * SQUARE_SIZE} x2={pos * SQUARE_SIZE + SQUARE_SIZE} y1={SQUARE_SIZE} y2={0} stroke='black' strokeWidth={1}/>
-    </>
+    <circle cx={pos * SQUARE_SIZE + 0.5 * SQUARE_SIZE} cy={0.5 * SQUARE_SIZE} r={0.2 * SQUARE_SIZE}/>
   );
 }
 
@@ -103,7 +100,7 @@ function key() {
       <Stack spacing={1}>
         {keyItem(squareThing(XCHECKED, XCHECKED), 'Cross-checked')}
         {keyItem(squareThing(MISSING, MISSING), 'Mising/not used')}
-        {keyItem(cross(0), 'Not WW1')}
+        {keyItem(dot(0), 'Not WW1')}
       </Stack>
     </Stack>
   );
@@ -122,7 +119,7 @@ function statusRow(data) {
         >
           {triangle1(i, state)}
           {triangle2(i, state)}
-          {(state & NOT_WW1) && cross(i)}
+          {(state & NOT_WW1) && dot(i)}
           {box(i)}
         </Link>
       </Tooltip>
