@@ -1,5 +1,5 @@
 import { useContext} from 'react';
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -60,6 +60,7 @@ function XCheck({ready, checked, onChange}) {
 }
 export default function ServiceReconciler({serviceRecords, setServiceRecords}) {
   const {nameId} = useParams();
+  const [searchParams,] = useSearchParams();
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index
@@ -227,7 +228,7 @@ export default function ServiceReconciler({serviceRecords, setServiceRecords}) {
             clone.reconciled = !(serviceRecords.reconciled);
             setServiceRecords(clone);
           }}/>
-         <Button disabled={!xCheckReady} onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
+         <Button disabled={(!searchParams.get('devMode')) && (!xCheckReady)} onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
           const newServiceRecords = structuredClone(serviceRecords);
           newServiceRecords.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
           newServiceRecords.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
