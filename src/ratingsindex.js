@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
+import { useQueries } from '@tanstack/react-query';
 import { DataGrid } from '@mui/x-data-grid';
 import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, TextField, Autocomplete, IconButton } from '@mui/material';
 import { ArrowForwardIos, ElectricBolt } from '@mui/icons-material';
+import { mainPersonQuery } from './queries';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -190,16 +192,52 @@ export default function RatingsIndex() {
   const [ serieses, setSerieses ] = useState([]);
   const [ pieces, setPieces ] = useState([]);
   const [ data, setData ] = useState([]);
+  const [ nameIds, setNameIds ] = useState([]);
   const [ unreconciled, setUnreconciled ] = useState([]);
   const [ chunks, setChunks ] = useState();
   const [ rowLength, setRowLength ] = useState(20);
+  const queryData = useQueries({
+    queries: nameIds.map((nameId) => ({
+      ...(mainPersonQuery('rating', nameId)),
+      /* TODO: Look into enabling this when the API permits writes
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      staleTime: 120000, //check server for updates every couple of minutes
+      */
+    })),
+    combine: (results) => {
+      return {
+        data: results.map((result) => (result.isPending ? null : {
+          nameid: result.data.name.nameid,
+          notWW1: result.data.name.notww1,
+          reconciled: result.data.status === 'RECONCILED',
+          tr1id: result.data.service_history[0].userid,
+          tr2id: result.data.service_history[1].userid,
+          complete1: result.data.service_history[0].complete,
+          complete2: result.data.service_history[1].complete,
+        })),
+        pending: results.some((result) => result.isPending),
+        error:   results.some((result) => result.isError),
+      }
+    },
+  });
+
   const navigate = useNavigate();
+  useEffect(() => {
+    if(queryData.error || queryData.pending || queryData.data.length === 0) {
+      setData([]);
+    }
+    else {
+      setData(computeData(queryData.data));
+    }
+  }, [queryData]);
   useEffect(() => {
     const fetchData = async() => {
       const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
       socket.onmessage = (e) => {
         if(e.data === 'NULL') {
-          setData([]);
+          setNameIds([]);
         }
         else {
           setSerieses(JSON.parse(e.data));
@@ -231,14 +269,14 @@ export default function RatingsIndex() {
       const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
       socket.onmessage = (e) => {
         if(e.data === 'NULL') {
-          setData([]);
+          setNameIds([]);
         }
         else {
-          setData(computeData(JSON.parse(e.data)));
+          setNameIds(JSON.parse(e.data));
         }
         socket.close();
       };
-      socket.onopen = () => { socket.send('L@S:Ratings:' + series + ':' + piece) };
+      socket.onopen = () => { socket.send('L@S:RatingsIds:' + series + ':' + piece) };
     }
     fetchData();
   },[series, piece]);
@@ -259,7 +297,7 @@ export default function RatingsIndex() {
     const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
     socket.onmessage = (e) => {
       if(e.data === 'NULL') {
-        setData([]);
+        setNameIds([]);
       }
       else {
         const d = JSON.parse(e.data);
