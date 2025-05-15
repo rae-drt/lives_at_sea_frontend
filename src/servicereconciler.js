@@ -1,5 +1,6 @@
 import { useContext} from 'react';
 import { useParams, useSearchParams } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -7,6 +8,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
 import { SERVICE_FIELDS } from './data_utils';
+import { serviceRecordsMutate } from './queries';
 
 import IconButton from '@mui/material/IconButton';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -61,6 +63,7 @@ function XCheck({ready, checked, onChange}) {
 export default function ServiceReconciler({serviceRecords, setServiceRecords}) {
   const {nameId} = useParams();
   const [searchParams,] = useSearchParams();
+  const queryClient = useQueryClient();
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index
@@ -229,16 +232,12 @@ export default function ServiceReconciler({serviceRecords, setServiceRecords}) {
             setServiceRecords(clone);
           }}/>
          <Button disabled={(!searchParams.get('devMode')) && (!xCheckReady)} onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
-          const newServiceRecords = structuredClone(serviceRecords);
-          newServiceRecords.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
-          newServiceRecords.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
-          setServiceRecords(newServiceRecords);
-          /*
-          fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId, {
-            method: "POST",
-            body: JSON.stringify({1: serviceRecords[1].slice(0, serviceRecords[1].length - 1), 2: serviceRecords[2].slice(0, serviceRecords[2].length -1)}),
-          }).then(Function.prototype(),(x)=>{alert(x);}); //Function.prototype is a nop
-          */
+          const clone = structuredClone(serviceRecords);
+          clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
+          clone.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
+          //TODO: The 'null' here is a workaround -- either need to compute the actual state here, or we need to be managing it differently
+          //TODO: This is async and slow, need to suspense or something
+          serviceRecordsMutate(queryClient, nameId, { status: serviceRecords.reconciled ? 'RECONCILED' : null, service_history: clone.services });
         }}>Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>

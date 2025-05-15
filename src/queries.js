@@ -79,6 +79,12 @@ export function mainPersonMutate(queryClient, sailorType, nameId, data) {
   queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, data);
 }
 
+export async function serviceRecordsMutate(queryClient, nameId, data) {
+  const key = mainPersonQuery('rating', nameId).queryKey;
+  const currentData = await queryClient.fetchQuery({queryKey: key});
+  queryClient.setQueryData(key, {...currentData, ...data});
+}
+
 export const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
