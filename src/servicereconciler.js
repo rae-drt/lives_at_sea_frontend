@@ -228,11 +228,16 @@ export default function ServiceReconciler({serviceRecords, setServiceRecords}) {
             setServiceRecords(clone);
           }}/>
          <Button disabled={!xCheckReady} onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
-          setServiceRecords({1: deleteEmptyServiceRows(serviceRecords[1].records), 2: deleteEmptyServiceRows(serviceRecords[2].records)});
+          const newServiceRecords = structuredClone(serviceRecords);
+          newServiceRecords.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
+          newServiceRecords.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
+          setServiceRecords(newServiceRecords);
+          /*
           fetch(process.env.REACT_APP_API_ROOT + 'service?nameid=' + nameId, {
             method: "POST",
             body: JSON.stringify({1: serviceRecords[1].slice(0, serviceRecords[1].length - 1), 2: serviceRecords[2].slice(0, serviceRecords[2].length -1)}),
           }).then(Function.prototype(),(x)=>{alert(x);}); //Function.prototype is a nop
+          */
         }}>Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
