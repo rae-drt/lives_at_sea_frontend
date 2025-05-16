@@ -14,7 +14,7 @@ import PersonControlPanel from './personcontrolpanel';
 import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
 import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
-import { mainPersonQuery, mainPersonMutate, otherServicesQuery, otherDataQuery } from './queries';
+import { mainPersonQuery, mainPersonMutate } from './queries';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -32,11 +32,7 @@ export default function Person() {
   const navigate = useNavigate();
   const [personTableData, setPersonTableData] = useState();
   const [serviceRecords, setServiceRecords] = useState(EMPTY_SERVICE_HISTORY);
-  const [otherServices, setOtherServices] = useState([]);
-  const [otherData, setOtherData] = useState([]);
   const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery(mainPersonQuery(sailorType, nameId));
-  const {data: otherServicesQueryData, status: otherServicesQueryStatus} = useQuery(otherServicesQuery(sailorType, nameId));
-  const {data: otherDataQueryData, status: otherDataQueryStatus} = useQuery(otherDataQuery(sailorType, nameId));
   const queryClient = useQueryClient();
   useEffect(() => {
     if(mainPersonQueryStatus !== 'success') return;
@@ -62,17 +58,6 @@ export default function Person() {
     }
     else { throw new Error(); }
   }, [mainPersonQueryData, mainPersonQueryStatus, nameId, sailorType]);
-  useEffect(() => {
-    if(otherServicesQueryStatus === 'success') {
-      setOtherServices(otherServicesQueryData);
-    }
-  }, [otherServicesQueryData, otherServicesQueryStatus]);
-  useEffect(() => {
-    if(otherDataQueryStatus === 'success') {
-      setOtherData(otherDataQueryData);
-    }
-  }, [otherDataQueryData, otherDataQueryStatus]);
-
   const theme = createTheme({
     typography: {
       fontSize: 12,
@@ -88,12 +73,12 @@ export default function Person() {
   else if(typeof(personTableData) === 'undefined') {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
-  else if(mainPersonQueryStatus === 'error' || otherServicesQueryStatus === 'error' || otherDataQueryStatus === 'error') {
+  else if(mainPersonQueryStatus === 'error') {
     return (<Alert severity='error'>Error fetching data</Alert>);
   }
   else {
     return (
-      <LoadingContext value={mainPersonQueryStatus === 'pending' || otherServicesQueryStatus === 'pending' || otherDataQueryStatus === 'pending'}>
+      <LoadingContext value={mainPersonQueryStatus === 'pending'}>
         <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
           <ThemeProvider theme={theme}>
             <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
@@ -125,8 +110,8 @@ export default function Person() {
                 <Tab value='otherdata' label='Data'/>
               </Tabs>
               {dataType === 'main' &&          <ServiceReconciler serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
-              {dataType === 'otherservices' && <OtherServices     otherServices={otherServices}   setOtherServices={setOtherServices}/>}
-              {dataType === 'otherdata' &&     <OtherData         otherData={otherData}           setOtherData={setOtherData}/>}
+              {dataType === 'otherservices' && <OtherServices/>}
+              {dataType === 'otherdata' &&     <OtherData/>}
             </Stack>
           </ThemeProvider>
         </Stack>
