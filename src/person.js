@@ -35,8 +35,8 @@ export default function Person() {
   const [otherServices, setOtherServices] = useState([]);
   const [otherData, setOtherData] = useState([]);
   const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery(mainPersonQuery(sailorType, nameId));
-  const {data: otherServicesQueryData, status: otherServicesQueryStatus} = useQuery(otherServicesQuery(nameId));
-  const {data: otherDataQueryData, status: otherDataQueryStatus} = useQuery(otherDataQuery(nameId));
+  const {data: otherServicesQueryData, status: otherServicesQueryStatus} = useQuery(otherServicesQuery(sailorType, nameId));
+  const {data: otherDataQueryData, status: otherDataQueryStatus} = useQuery(otherDataQuery(sailorType, nameId));
   const queryClient = useQueryClient();
   useEffect(() => {
     if(mainPersonQueryStatus !== 'success') return;

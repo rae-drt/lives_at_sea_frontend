@@ -39,42 +39,6 @@ function mainPersonQF({queryKey}) {
   });
 }
 
-function otherServicesQF({queryKey}) {
-  const [, nameId] = queryKey;
-  return new Promise((resolve, reject) => {
-    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-    socket.onerror = (e) => { reject(e); };
-    socket.onmessage = (e) => {
-      if(e.data === 'NULL') {
-        resolve([]);
-      }
-      else {
-        resolve(JSON.parse(e.data));
-      }
-      socket.close();
-    };
-    socket.onopen = () => { socket.send('L@S:OtherServices:' + nameId) };
-  });
-}
-
-function otherDataQF({queryKey}) {
-  const [, nameId] = queryKey;
-  return new Promise((resolve, reject) => {
-    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-    socket.onerror = (e) => { reject(e); };
-    socket.onmessage = (e) => {
-      if(e.data === 'NULL') {
-        resolve([]);
-      }
-      else {
-        resolve(JSON.parse(e.data));
-      }
-      socket.close();
-    };
-    socket.onopen = () => { socket.send('L@S:OtherData:' + nameId) };
-  });
-}
-
 export function mainPersonMutate(queryClient, sailorType, nameId, data) {
   queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, data);
 }
@@ -94,18 +58,20 @@ export const mainPersonQuery = (sailorType, nameId) => ({
   staleTime: Infinity,
 });
 
-export const otherServicesQuery = (nameId) => ({
-  queryKey: ['otherServicesData', Number(nameId)],
-  queryFn: otherServicesQF,
+export const otherServicesQuery = (sailorType, nameId) => ({
+  queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
+  queryFn: mainPersonQF,
+  select: (x) => ( x.service_other ),
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
   staleTime: Infinity,
 });
 
-export const otherDataQuery = (nameId) => ({
-  queryKey: ['otherData', Number(nameId)],
-  queryFn: otherDataQF,
+export const otherDataQuery = (sailorType, nameId) => ({
+  queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
+  queryFn: mainPersonQF,
+  select: (x) => ( x.other_data ),
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
