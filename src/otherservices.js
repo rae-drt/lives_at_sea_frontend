@@ -1,21 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
-import { Alert } from '@mui/material';
 import { otherServicesQuery } from './queries';
-import { LoadingContext } from './loadingcontext';
-import DataTable from './datatable';
+import Other from './other';
 
 export default function OtherServices() {
-  const { sailorType, nameId } = useParams();
-  const [data, setData] = useState([]);
-  const { data: queryData, status: queryStatus } = useQuery(otherServicesQuery(sailorType, nameId));
-  useEffect(() => {
-    if(queryStatus === 'success') {
-      setData(queryData);
-    }
-  }, [queryData, queryStatus]);
-
   const columnGroupingModel: GridColumnGroupingModel = [
     {
       groupId: 'fromDate',
@@ -102,21 +88,6 @@ export default function OtherServices() {
       editable: true,
     },
   ];
-  if(queryStatus === 'error') {
-    return (<Alert severity='error'>Error fetching data</Alert>);
-  }
-  else {
-    return(
-      <LoadingContext value={queryStatus === 'pending'}>
-        <DataTable
-          rows={data}
-          columns={columns}
-          columnGroupingModel={columnGroupingModel}
-          onChange={setData}
-          primary='row'
-          positionalPrimary
-        />
-      </LoadingContext>
-    );
-  }
+
+  return (<Other query={otherServicesQuery} columns={columns} columnGroupingModel={columnGroupingModel}/>);
 }
