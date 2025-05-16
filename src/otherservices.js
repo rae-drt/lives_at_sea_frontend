@@ -12,7 +12,7 @@ export default function OtherServices() {
       headerName: 'To',
       children: [ { field: 'today'   }, { field: 'tomonth'   }, { field: 'toyear'   } ],
     },
-  ]
+  ];
 
   const columns: GridColDef[] = [
     {
