@@ -49,6 +49,18 @@ export async function serviceRecordsMutate(queryClient, nameId, data) {
   queryClient.setQueryData(key, {...currentData, ...data});
 }
 
+export async function otherDataMutate(queryClient, sailorType, nameId, data) {
+  const key = mainPersonQuery(sailorType, nameId).queryKey;
+  const currentData = await queryClient.fetchQuery({queryKey: key});
+  queryClient.setQueryData(key, {...currentData, other_data: data});
+}
+
+export async function otherServicesMutate(queryClient, sailorType, nameId, data) {
+  const key = mainPersonQuery(sailorType, nameId).queryKey;
+  const currentData = await queryClient.fetchQuery({queryKey: key});
+  queryClient.setQueryData(key, {...currentData, service_other: data});
+}
+
 export const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,

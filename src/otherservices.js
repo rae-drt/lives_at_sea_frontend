@@ -1,4 +1,4 @@
-import { otherServicesQuery } from './queries';
+import { otherServicesQuery, otherServicesMutate } from './queries';
 import Other from './other';
 
 export default function OtherServices() {
@@ -89,5 +89,5 @@ export default function OtherServices() {
     },
   ];
 
-  return (<Other query={otherServicesQuery} columns={columns} columnGroupingModel={columnGroupingModel}/>);
+  return (<Other query={otherServicesQuery} mutate={otherServicesMutate} columns={columns} columnGroupingModel={columnGroupingModel}/>);
 }
