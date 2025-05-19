@@ -95,3 +95,40 @@ export function getOfficialNumberDigits(n) {
 export function getOfficialNumberPrefix(n) {
   return getOfficialNumber(n)[0];
 }
+
+/*
+Bit:              5             4            3            2          1
+Meaning:    Updated    Reconciled    Complete2    Complete1    Started         STATUS         WORKFLOW
+                                                                          0    Not Started    RATINGS
+                                                                     1    1    Transcription  RATINGS
+                                                          1          1    3    Transcription  RATINGS
+                                             1                       1    5    Transcription  RATINGS
+                                             1            1          1    7    Checking       RATINGS
+                                1            1            1          1   15    Reconciled     RATINGS
+                  1             1            1            1          1   31    Maintaining    RATINGS
+*/
+export function status_label(status_code) {
+  switch(status_code) {
+    case  0: return 'Not started';
+    case  1:
+    case  3:
+    case  5: return 'Transcription';
+    case  7: return 'Checking';
+    case 15: return 'Reconciled';
+    case 31: return 'Maintaining';
+    default: return 'Process Error';
+  }
+}
+
+export function status_reconciled(status_code) {
+  return status_code === 15;
+}
+
+export function status_encode(service_record) {
+  let bitfield = 0;
+  if(service_record.services[0].userid || service_record.services[1].userid) bitfield |= 1;
+  if(service_record.services[0].complete) bitfield |= 2;
+  if(service_record.services[1].complete) bitfield |= 4;
+  if(service_record.reconciled) bitfield |= 8;
+  return { status_code: bitfield, description: status_label(bitfield) };
+}

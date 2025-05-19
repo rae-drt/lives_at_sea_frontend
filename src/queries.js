@@ -1,4 +1,4 @@
-import { init_data } from './data_utils';
+import { init_data, status_reconciled, status_encode } from './data_utils';
 
 function mainPersonQF({queryKey}) {
   const [, {sailorType, nameId}] = queryKey;
@@ -53,8 +53,7 @@ export async function mainPersonMutate(queryClient, sailorType, nameId, data) {
 export async function serviceRecordsMutate(queryClient, nameId, data) {
   const key = mainPersonQuery('rating', nameId).queryKey;
   const currentData = await queryClient.fetchQuery({queryKey: key});
-  //TODO: The "RECONCILED" thing is a workaround
-  const newData = {service_history: data.services, status: data.reconciled ? 'RECONCILED' : null};
+  const newData = {service_history: data.services, status: status_encode(data)}
   queryClient.setQueryData(key, {...currentData, ...newData});
 }
 
@@ -83,7 +82,7 @@ export const mainPersonQuery = (sailorType, nameId) => ({
 export const serviceRecordsQuery = (nameId) => ({
   queryKey: ['mainPersonData', {sailorType: 'rating', nameId: Number(nameId)}],
   queryFn: mainPersonQF,
-  select: (x) => ( {reconciled: x.status === 'RECONCILED', services: x.service_history} ), //TODO: The "RECONCILED" thing is a workaround
+  select: (x) => ( {reconciled: status_reconciled(x.status.status_code), services: x.service_history} ),
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
