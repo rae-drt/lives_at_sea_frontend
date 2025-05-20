@@ -15,6 +15,8 @@ const XCHECKED    = 32;
 const MISSING     = 64;
 
 const SQUARE_SIZE = 20;
+const STROKE_WIDTH = 1;
+const SQUARE_GAP = 0.15;
 
 function color(set, state) {
   if(state & XCHECKED)    return 'lightgreen';
@@ -59,7 +61,7 @@ function box(pos) {
           width={SQUARE_SIZE}
           height={SQUARE_SIZE}
           stroke='black'
-          strokeWidth={2}
+          strokeWidth={STROKE_WIDTH}
           fill='none'
     />
   );
@@ -108,28 +110,37 @@ function key() {
   );
 }
 
+function rowWidth(rowLength) {
+  const gapSum = Math.max(0, SQUARE_SIZE * SQUARE_GAP * (rowLength / 5 - 1));
+  const squareSum = SQUARE_SIZE * (rowLength + 1) + STROKE_WIDTH;
+  return gapSum + squareSum;
+}
+
 //TODO: The Tooltip and Link returned here end up inside an <svg> tag -- is that OK?
 function statusRow(data) {
   const states = [];
+  let offset = -1 - SQUARE_GAP;
   for(let i = 0; i < data.value.length; i++) {
     const state = data.value[i];
     const identifier = data.row.nameid + i;
+    offset += 1;
+    if(i % 5 === 0) offset += SQUARE_GAP;
     states.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
         <Link href={process.env.PUBLIC_URL + '/rating/' + identifier}
               onClick={(e) => { (state & MISSING) && e.preventDefault(); }}
         >
-          {triangle1(i, state)}
-          {triangle2(i, state)}
-          {(state & NOT_WW1) && dot(i)}
-          {box(i)}
+          {triangle1(offset, state)}
+          {triangle2(offset, state)}
+          {(state & NOT_WW1) && dot(offset)}
+          {box(offset)}
         </Link>
       </Tooltip>
     );
   }
 
   return(
-    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: SQUARE_SIZE * data.value.length}}>{states}</svg></Stack>
+    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: rowWidth(data.value.length - 1)}}>{states}</svg></Stack>
   );
 }
 
@@ -199,7 +210,7 @@ export default function RatingsIndex() {
     {
       field: 'state',
       headerName: 'State',
-      width: SQUARE_SIZE * Number(searchParams.get('rowLength')) + SQUARE_SIZE,
+      width: rowWidth(Number(searchParams.get('rowLength'))),
       align: 'left',
       renderCell: statusRow,
     },
