@@ -210,7 +210,7 @@ export default function RatingsIndex() {
     }),
   })});
 
-  document.title = 'Ratings Progress';
+  document.title = 'Ratings Progress: ADM 188/' + piece;
 
   if(queryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
