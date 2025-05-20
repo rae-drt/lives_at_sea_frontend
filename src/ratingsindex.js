@@ -15,7 +15,6 @@ const XCHECKED    = 32;
 const MISSING     = 64;
 
 const SQUARE_SIZE = 20;
-const STROKE_WIDTH = 1;
 const SQUARE_GAP = 0.15;
 
 function color(set, state) {
@@ -61,7 +60,6 @@ function box(pos) {
           width={SQUARE_SIZE}
           height={SQUARE_SIZE}
           stroke='black'
-          strokeWidth={STROKE_WIDTH}
           fill='none'
     />
   );
@@ -112,7 +110,7 @@ function key() {
 
 function rowWidth(rowBoxes) {
   const gapSum = Math.max(0, SQUARE_SIZE * SQUARE_GAP * (rowBoxes / 5 - 1));
-  const squareSum = SQUARE_SIZE * (rowBoxes + 1) + STROKE_WIDTH;
+  const squareSum = SQUARE_SIZE * (rowBoxes + 1);
   return gapSum + squareSum;
 }
 
