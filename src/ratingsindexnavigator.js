@@ -40,8 +40,9 @@ export default function RatingsIndexNavigator() {
               <IconButton
                 disabled={pieces[0] === Number(piece)}
                 href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(piece)) - 1])}
+                color='primary'
               >
-                <ArrowForwardIos color='primary' sx={{transform: 'rotate(180deg)'}}/>
+                <ArrowForwardIos sx={{transform: 'rotate(180deg)'}}/>
               </IconButton>
             </div>
           </Tooltip>
@@ -50,8 +51,9 @@ export default function RatingsIndexNavigator() {
               <IconButton
                 disabled={pieces.at(-1) === Number(piece)}
                 href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(piece)) + 1])}
+                color='primary'
               >
-                <ArrowForwardIos color='primary'/>
+                <ArrowForwardIos/>
               </IconButton>
             </div>
           </Tooltip>
