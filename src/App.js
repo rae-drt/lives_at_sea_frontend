@@ -38,8 +38,8 @@ const routes = (
       <Route path='' element={<Navigate to='ratings'/>}/>
       <Route path='officers' element={<Navigate to='A'/>}/>
       <Route path='officers/:letter' element={<OfficerIndex/>}/>
-      <Route path='ratings' element={<Navigate to='188/5'/>}/>{/* lowest series, lowest piece */}
-      <Route path='ratings/:series/:piece' element={<RatingsIndex/>}/>
+      <Route path='ratings' element={<Navigate to='5'/>}/>{/* lowest piece */}
+      <Route path='ratings/:piece' element={<RatingsIndex/>}/>
       <Route path='rating' element={<Navigate to='40001'/>}/>{/* lowest rating */}
       <Route path='officer' element={<Navigate to='7'/>}/>{/* lowest officer number */}
       <Route path='rating/:nameid' element={<Navigate to='main'/>}/>

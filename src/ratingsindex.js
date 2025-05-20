@@ -188,8 +188,7 @@ function chunk(data, rowLength) {
 }
 
 export default function RatingsIndex() {
-  const { series, piece } = useParams();
-  const [ serieses, setSerieses ] = useState([]);
+  const { piece } = useParams();
   const [ pieces, setPieces ] = useState([]);
   const [ data, setData ] = useState([]);
   const [ nameIds, setNameIds ] = useState([]);
@@ -237,22 +236,6 @@ export default function RatingsIndex() {
       const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
       socket.onmessage = (e) => {
         if(e.data === 'NULL') {
-          setNameIds([]);
-        }
-        else {
-          setSerieses(JSON.parse(e.data));
-        }
-        socket.close();
-      };
-      socket.onopen = () => { socket.send('L@S:Serieses') };
-    }
-    fetchData();
-  },[]);
-  useEffect(() => {
-    const fetchData = async() => {
-      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-      socket.onmessage = (e) => {
-        if(e.data === 'NULL') {
           setPieces([]);
         }
         else {
@@ -260,10 +243,10 @@ export default function RatingsIndex() {
         }
         socket.close();
       };
-      socket.onopen = () => { socket.send('L@S:Pieces:' + series) };
+      socket.onopen = () => { socket.send('L@S:Pieces:188') };
     }
     fetchData();
-  },[series]);
+  },[]);
   useEffect(() => {
     const fetchData = async() => {
       const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
@@ -276,10 +259,10 @@ export default function RatingsIndex() {
         }
         socket.close();
       };
-      socket.onopen = () => { socket.send('L@S:RatingsIds:' + series + ':' + piece) };
+      socket.onopen = () => { socket.send('L@S:RatingsIds:188:' + piece) };
     }
     fetchData();
-  },[series, piece]);
+  },[piece]);
   useEffect(() => {
     setChunks(chunk(data, rowLength));
   },[data, rowLength]);
@@ -292,21 +275,6 @@ export default function RatingsIndex() {
     }
     setUnreconciled(x);
   },[data]);
-
-  async function changeSeries(series) {
-    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-    socket.onmessage = (e) => {
-      if(e.data === 'NULL') {
-        setNameIds([]);
-      }
-      else {
-        const d = JSON.parse(e.data);
-        navigate(process.env.PUBLIC_URL + '/ratings/' + series + '/' + d[0]);
-      }
-      socket.close();
-    };
-    socket.onopen = () => { socket.send('L@S:Pieces:' + series) };
-  }
 
   document.title = 'Ratings Progress';
 
@@ -344,18 +312,7 @@ export default function RatingsIndex() {
               {/* catref control */}
               <Stack direction='row' spacing={2} alignItems='center' width={0.6}>
                 <Typography variant='h6'>ADM</Typography>
-                <Autocomplete size='small'
-                              disableClearable
-                              autoHighlight
-                              options={serieses.map((x)=>({label: '' + x}))}
-                              renderInput={(params) => <TextField {...params} label="Series"/>}
-                              value={series}
-                              onChange={(e, v, r)=>{
-                                if(r === 'selectOption') {
-                                  changeSeries(v.label);
-                                }
-                              }}
-                />
+                <Typography variant='h6'>188</Typography>
                 <Typography variant='h6'>/</Typography>
                 <Autocomplete size='small'
                               fullWidth
@@ -364,7 +321,7 @@ export default function RatingsIndex() {
                               options={pieces.map((x)=>({label: '' + x}))}
                               renderInput={(params) => <TextField {...params} label="Piece"/>}
                               value={piece}
-                              onChange={(e, v, r)=>{if(r === 'selectOption') navigate(process.env.PUBLIC_URL + '/ratings/' + series + '/' + v.label)}}
+                              onChange={(e, v, r)=>{if(r === 'selectOption') navigate(process.env.PUBLIC_URL + '/ratings/' + v.label)}}
                 />
                 {/* Nav forward, backward buttons */}
                 <Stack direction='row' spacing={0}>
@@ -372,7 +329,7 @@ export default function RatingsIndex() {
                     <div>
                       <IconButton
                         disabled={pieces[0] === Number(piece)}
-                        href={process.env.PUBLIC_URL + '/ratings/' + series + '/' + (pieces[pieces.indexOf(Number(piece)) - 1])}
+                        href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(piece)) - 1])}
                       >
                         <ArrowForwardIos color='primary' sx={{transform: 'rotate(180deg)'}}/>
                       </IconButton>
@@ -382,7 +339,7 @@ export default function RatingsIndex() {
                     <div>
                       <IconButton
                         disabled={pieces.at(-1) === Number(piece)}
-                        href={process.env.PUBLIC_URL + '/ratings/' + series + '/' + (pieces[pieces.indexOf(Number(piece)) + 1])}
+                        href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(piece)) + 1])}
                       >
                         <ArrowForwardIos color='primary'/>
                       </IconButton>
