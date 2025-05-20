@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { DataGrid } from '@mui/x-data-grid';
-import { Alert, Card, CardContent, CircularProgress, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, IconButton } from '@mui/material';
+import { Alert, Card, CardContent, CircularProgress, Link, Stack, Typography, Tooltip, IconButton } from '@mui/material';
 import { ElectricBolt } from '@mui/icons-material';
 import { pieceQuery } from './queries';
 import RatingsIndexNavigator from './ratingsindexnavigator';
@@ -150,6 +149,7 @@ function chunk(data, rowLength) {
 
 export default function RatingsIndex() {
   const { piece } = useParams();
+  const [ searchParams, ] = useSearchParams({rowLength: 20});
   const { data: queryData, status: queryStatus } = useQuery({...pieceQuery(piece), select: (x) => ({
     ranges: x.piece_ranges,
     states: x.records.map((record) => {
@@ -171,7 +171,6 @@ export default function RatingsIndex() {
       };
     }),
   })});
-  const [ rowLength, setRowLength ] = useState(20); //Tried moving this higher up, but this seems to cause an over-wide table
 
   document.title = 'Ratings Progress';
 
@@ -201,7 +200,7 @@ export default function RatingsIndex() {
     {
       field: 'state',
       headerName: 'State',
-      width: SQUARE_SIZE * rowLength + SQUARE_SIZE,
+      width: SQUARE_SIZE * Number(searchParams.get('rowLength')) + SQUARE_SIZE,
       align: 'left',
       renderCell: statusRow,
     },
@@ -226,16 +225,6 @@ export default function RatingsIndex() {
               <RatingsIndexNavigator/>
               {/* Right-side controls */}
               <Stack direction='row' spacing={2}>
-                <FormControl>
-                  <InputLabel>Width</InputLabel>
-                  <Select size='small' label='Width' value={rowLength} onChange={(e, v) => {setRowLength(v.props.value);}}>
-                    <MenuItem value={10}>10</MenuItem>
-                    <MenuItem value={20}>20</MenuItem>
-                    <MenuItem value={30}>30</MenuItem>
-                    <MenuItem value={40}>40</MenuItem>
-                    <MenuItem value={50}>50</MenuItem>
-                  </Select>
-                </FormControl>
                 <Tooltip title='Next un-cross-checked record'>
                   {/* div needed for tooltip to work when button is disabled */}
                   <div>
@@ -251,8 +240,9 @@ export default function RatingsIndex() {
             </Stack>
             <DataGrid
               density='compact'
+              sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 0)}}
               getRowId={(row) => {return row.nameid}}
-              rows={chunk(states, rowLength)}
+              rows={chunk(states, Number(searchParams.get('rowLength')))}
               columns={columns}
               disableColumnSorting
               disableColumnMenu
