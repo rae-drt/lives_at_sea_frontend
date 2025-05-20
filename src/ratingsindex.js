@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { useQueries } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { DataGrid } from '@mui/x-data-grid';
-import { Card, CardContent, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, TextField, Autocomplete, IconButton } from '@mui/material';
+import { Alert, Card, CardContent, CircularProgress, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, TextField, Autocomplete, IconButton } from '@mui/material';
 import { ArrowForwardIos, ElectricBolt } from '@mui/icons-material';
-import { mainPersonQuery } from './queries';
+import { piecesQuery, pieceQuery } from './queries';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -133,47 +133,7 @@ function statusRow(data) {
   );
 }
 
-function computeData(data) {
-  function state(x) {
-    let state = x.notWW1 ? 1 : 0;
-    if(x.tr1id)      state |= ALLOCATED_1;
-    if(x.complete1)  state |= COMPLETED_1;
-    if(x.tr2id)      state |= ALLOCATED_2;
-    if(x.complete2)  state |= COMPLETED_2;
-    if(x.reconciled) state |= XCHECKED;
-    return state;
-  }
-
-  /* Ensure that nameids are consecutive by filling in any gaps with an object containing only the
-   * appropriate nameid.
-   * Assumes that nameids are ascending within a series, and checks for this.
-   * Assumes that the API returns the data ordered by official number
-   ** TODO: Ask Mark to arrange the API like this.
-   */
-  const consecutived_data = [{
-    nameid: data[0].nameid,
-    state: state(data[0]),
-  }];
-  let lastNo = data[0].nameid;
-  for(const datum of data.slice(1)) {
-    const nextNo = datum.nameid;
-    if(nextNo <= lastNo) {
-      throw new Error('Nameids are not ascending (' + nextNo + ' <= ' + lastNo);
-    }
-    while(nextNo > lastNo + 1) {
-      lastNo += 1;
-      consecutived_data.push({nameid: lastNo, state: MISSING});
-    }
-    lastNo += 1;
-    consecutived_data.push({nameid: lastNo, state: state(datum)});
-  }
-
-  return consecutived_data;
-}
-
 function chunk(data, rowLength) {
-  if(!data) { return []; }
-
   const output = [];
   for(let i = 0; i < data.length; i += rowLength) {
     const chunk = data.slice(i, i + rowLength);
@@ -188,93 +148,47 @@ function chunk(data, rowLength) {
 }
 
 export default function RatingsIndex() {
-  const { piece } = useParams();
-  const [ pieces, setPieces ] = useState([]);
-  const [ data, setData ] = useState([]);
-  const [ nameIds, setNameIds ] = useState([]);
-  const [ unreconciled, setUnreconciled ] = useState([]);
-  const [ chunks, setChunks ] = useState();
-  const [ rowLength, setRowLength ] = useState(20);
-  const queryData = useQueries({
-    queries: nameIds.map((nameId) => ({
-      ...(mainPersonQuery('rating', nameId)),
-      /* TODO: Look into enabling this when the API permits writes
-      refetchOnMount: true,
-      refetchOnWindowFocus: true,
-      refetchOnReconnect: true,
-      staleTime: 120000, //check server for updates every couple of minutes
-      */
-    })),
-    combine: (results) => {
+  const { piece: pieceNumber } = useParams();
+  const { data: pieces, status: piecesStatus } = useQuery(piecesQuery);
+  const { data: piece, status: pieceStatus } = useQuery({...pieceQuery(pieceNumber), select: (x) => ({
+    ranges: x.piece_ranges,
+    states: x.records.map((record) => {
+      let state = 0;
+      if(record.notww1 === null && record.has_tr1 === null && record.has_tr2 === null && record.complete1 === null && record.complete2 === null && record.reconciled === null) {
+        state = 64;
+      }
+      else {
+        if(record.notww1)     state |=  1;
+        if(record.has_tr1)    state |=  2;
+        if(record.has_tr2)    state |=  4;
+        if(record.complete1)  state |=  8;
+        if(record.complete2)  state |= 16;
+        if(record.reconciled) state |= 32;
+      }
       return {
-        data: results.map((result) => (result.isPending ? null : {
-          nameid: result.data.name.nameid,
-          notWW1: result.data.name.notww1,
-          reconciled: result.data.status === 'RECONCILED',
-          tr1id: result.data.service_history[0].userid,
-          tr2id: result.data.service_history[1].userid,
-          complete1: result.data.service_history[0].complete,
-          complete2: result.data.service_history[1].complete,
-        })),
-        pending: results.some((result) => result.isPending),
-        error:   results.some((result) => result.isError),
-      }
-    },
-  });
-
+        nameid: record.nameid,
+        state: state,
+      };
+    }),
+  })});
+  const [ rowLength, setRowLength ] = useState(20);
   const navigate = useNavigate();
-  useEffect(() => {
-    if(queryData.error || queryData.pending || queryData.data.length === 0) {
-      setData([]);
+
+  if(piecesStatus === 'error' || pieceStatus === 'error') {
+    return(<Alert severity='error'>Error fetching data</Alert>);
+  }
+  if(piecesStatus === 'pending' || pieceStatus === 'pending') {
+    return(<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
+  }
+
+  const unreconciled = [];
+  for(const state of piece.states) {
+    if((state.state & (XCHECKED|MISSING)) === 0) {
+      unreconciled.push(state.nameid);
     }
-    else {
-      setData(computeData(queryData.data));
-    }
-  }, [queryData]);
-  useEffect(() => {
-    const fetchData = async() => {
-      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-      socket.onmessage = (e) => {
-        if(e.data === 'NULL') {
-          setPieces([]);
-        }
-        else {
-          setPieces(JSON.parse(e.data));
-        }
-        socket.close();
-      };
-      socket.onopen = () => { socket.send('L@S:Pieces:188') };
-    }
-    fetchData();
-  },[]);
-  useEffect(() => {
-    const fetchData = async() => {
-      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
-      socket.onmessage = (e) => {
-        if(e.data === 'NULL') {
-          setNameIds([]);
-        }
-        else {
-          setNameIds(JSON.parse(e.data));
-        }
-        socket.close();
-      };
-      socket.onopen = () => { socket.send('L@S:RatingsIds:188:' + piece) };
-    }
-    fetchData();
-  },[piece]);
-  useEffect(() => {
-    setChunks(chunk(data, rowLength));
-  },[data, rowLength]);
-  useEffect(() => {
-    const x = [];
-    for(const datum of data) {
-      if((datum.state & XCHECKED) === 0 && (!(datum.state & MISSING))) {
-        x.push(datum.nameid);
-      }
-    }
-    setUnreconciled(x);
-  },[data]);
+  }
+
+  const chunks = chunk(piece.states, rowLength);
 
   document.title = 'Ratings Progress';
 
@@ -320,7 +234,7 @@ export default function RatingsIndex() {
                               autoHighlight
                               options={pieces.map((x)=>({label: '' + x}))}
                               renderInput={(params) => <TextField {...params} label="Piece"/>}
-                              value={piece}
+                              value={pieceNumber}
                               onChange={(e, v, r)=>{if(r === 'selectOption') navigate(process.env.PUBLIC_URL + '/ratings/' + v.label)}}
                 />
                 {/* Nav forward, backward buttons */}
@@ -328,8 +242,8 @@ export default function RatingsIndex() {
                   <Tooltip title='Back one piece'>
                     <div>
                       <IconButton
-                        disabled={pieces[0] === Number(piece)}
-                        href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(piece)) - 1])}
+                        disabled={pieces[0] === Number(pieceNumber)}
+                        href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(pieceNumber)) - 1])}
                       >
                         <ArrowForwardIos color='primary' sx={{transform: 'rotate(180deg)'}}/>
                       </IconButton>
@@ -338,8 +252,8 @@ export default function RatingsIndex() {
                   <Tooltip title='Forward one piece'>
                     <div>
                       <IconButton
-                        disabled={pieces.at(-1) === Number(piece)}
-                        href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(piece)) + 1])}
+                        disabled={pieces.at(-1) === Number(pieceNumber)}
+                        href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(pieceNumber)) + 1])}
                       >
                         <ArrowForwardIos color='primary'/>
                       </IconButton>
