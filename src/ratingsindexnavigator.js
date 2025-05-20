@@ -19,11 +19,12 @@ export default function RatingsIndexNavigator() {
   return (
     <Stack direction='row' alignItems='center' justifyContent='space-between'>
       {/* catref control */}
-      <Stack direction='row' spacing={2} alignItems='center' width={0.6}>
+      <Stack direction='row' spacing={2} alignItems='center' width={1}>
         <Typography variant='h6'>ADM</Typography>
         <Typography variant='h6'>188</Typography>
         <Typography variant='h6'>/</Typography>
         <Autocomplete size='small'
+                      sx={{width:100}}
                       fullWidth
                       disableClearable
                       autoHighlight
