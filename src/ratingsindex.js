@@ -111,7 +111,7 @@ function key() {
 function rowWidth(rowBoxes) {
   const gapSum = Math.max(0, SQUARE_SIZE * SQUARE_GAP * (rowBoxes / 5 - 1));
   const squareSum = SQUARE_SIZE * (rowBoxes + 1);
-  return gapSum + squareSum;
+  return gapSum + squareSum + 1; // +1 to cover possibility of rounding errors
 }
 
 //TODO: The Tooltip and Link returned here end up inside an <svg> tag -- is that OK?
@@ -270,14 +270,14 @@ export default function RatingsIndex() {
             <DataGrid
               loading={queryStatus !== 'success'}
               density='compact'
-              sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 2 /*needs this small increment to avoid horizontal scrollbar*/)}}
+              sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 1 + SQUARE_SIZE/10 /*needs this small increment to avoid horizontal scrollbar*/)}}
               getRowId={(row) => {return row.nameid}}
               rows={queryData && chunk(queryData, Number(searchParams.get('rowBoxes')))}
               columns={columns}
               disableColumnSorting
               disableColumnMenu
               disableRowSelectionOnClick
-              getRowHeight={()=>'auto'}
+              getRowHeight={()=>(SQUARE_SIZE + SQUARE_GAP + 2)}
             />
           </Stack>
           {/* this stack covers the whole right-hand column */}
