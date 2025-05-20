@@ -141,7 +141,6 @@ function chunk(data, rowLength) {
       nameid: Number(chunk[0].nameid),
       range: chunk[0].nameid + ' - ' + chunk[chunk.length - 1].nameid,
       state: chunk.map((x)=>x.state),
-      statecount: chunk.length,
     });
   }
   return output;
@@ -194,7 +193,7 @@ export default function RatingsIndex() {
     {
       field: 'range',
       headerName: 'Range',
-      width: 160,
+      width: 120,
       align: 'right',
     },
     {
@@ -203,12 +202,6 @@ export default function RatingsIndex() {
       width: SQUARE_SIZE * Number(searchParams.get('rowLength')) + SQUARE_SIZE,
       align: 'left',
       renderCell: statusRow,
-    },
-    {
-      field: 'statecount',
-      headerName: '',
-      width: 50,
-      align: 'right',
     },
   ];
 
