@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { DataGrid } from '@mui/x-data-grid';
-import { Alert, Card, CardContent, CircularProgress, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, TextField, Autocomplete, IconButton } from '@mui/material';
-import { ArrowForwardIos, ElectricBolt } from '@mui/icons-material';
-import { piecesQuery, pieceQuery } from './queries';
+import { Alert, Card, CardContent, CircularProgress, Link, Stack, Typography, FormControl, InputLabel, Select, MenuItem, Tooltip, IconButton } from '@mui/material';
+import { ElectricBolt } from '@mui/icons-material';
+import { pieceQuery } from './queries';
+import RatingsIndexNavigator from './ratingsindexnavigator';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -148,9 +149,8 @@ function chunk(data, rowLength) {
 }
 
 export default function RatingsIndex() {
-  const { piece: pieceNumber } = useParams();
-  const { data: pieces, status: piecesStatus } = useQuery(piecesQuery);
-  const { data: piece, status: pieceStatus } = useQuery({...pieceQuery(pieceNumber), select: (x) => ({
+  const { piece } = useParams();
+  const { data, status } = useQuery({...pieceQuery(piece), select: (x) => ({
     ranges: x.piece_ranges,
     states: x.records.map((record) => {
       let state = 0;
@@ -172,23 +172,22 @@ export default function RatingsIndex() {
     }),
   })});
   const [ rowLength, setRowLength ] = useState(20);
-  const navigate = useNavigate();
 
-  if(piecesStatus === 'error' || pieceStatus === 'error') {
+  if(status === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
   }
-  if(piecesStatus === 'pending' || pieceStatus === 'pending') {
+  if(status === 'pending') {
     return(<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
 
   const unreconciled = [];
-  for(const state of piece.states) {
+  for(const state of data.states) {
     if((state.state & (XCHECKED|MISSING)) === 0) {
       unreconciled.push(state.nameid);
     }
   }
 
-  const chunks = chunk(piece.states, rowLength);
+  const chunks = chunk(data.states, rowLength);
 
   document.title = 'Ratings Progress';
 
@@ -224,43 +223,7 @@ export default function RatingsIndex() {
             {/* progress view header (catref, width controls) */}
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
               {/* catref control */}
-              <Stack direction='row' spacing={2} alignItems='center' width={0.6}>
-                <Typography variant='h6'>ADM</Typography>
-                <Typography variant='h6'>188</Typography>
-                <Typography variant='h6'>/</Typography>
-                <Autocomplete size='small'
-                              fullWidth
-                              disableClearable
-                              autoHighlight
-                              options={pieces.map((x)=>({label: '' + x}))}
-                              renderInput={(params) => <TextField {...params} label="Piece"/>}
-                              value={pieceNumber}
-                              onChange={(e, v, r)=>{if(r === 'selectOption') navigate(process.env.PUBLIC_URL + '/ratings/' + v.label)}}
-                />
-                {/* Nav forward, backward buttons */}
-                <Stack direction='row' spacing={0}>
-                  <Tooltip title='Back one piece'>
-                    <div>
-                      <IconButton
-                        disabled={pieces[0] === Number(pieceNumber)}
-                        href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(pieceNumber)) - 1])}
-                      >
-                        <ArrowForwardIos color='primary' sx={{transform: 'rotate(180deg)'}}/>
-                      </IconButton>
-                    </div>
-                  </Tooltip>
-                  <Tooltip title='Forward one piece'>
-                    <div>
-                      <IconButton
-                        disabled={pieces.at(-1) === Number(pieceNumber)}
-                        href={process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(pieceNumber)) + 1])}
-                      >
-                        <ArrowForwardIos color='primary'/>
-                      </IconButton>
-                    </div>
-                  </Tooltip>
-                </Stack>
-              </Stack>
+              <RatingsIndexNavigator/>
               {/* Right-side controls */}
               <Stack direction='row' spacing={2}>
                 <FormControl>
