@@ -145,15 +145,45 @@ function statusRow(data) {
 }
 
 function chunk(data, rowBoxes) {
+  const { states, ranges } = data;
   const output = [];
-  for(let i = 0; i < data.length; i += rowBoxes) {
-    const chunk = data.slice(i, i + rowBoxes);
+  for(let i = 0; i < states.length; i += rowBoxes) {
+    const chunk = states.slice(i, i + rowBoxes);
     output.push({
       nameid: Number(chunk[0].nameid),
       range: chunk[0].nameid + ' - ' + chunk[chunk.length - 1].nameid,
       state: chunk.map((x)=>x.state),
     });
   }
+
+  // Handle the case where the next piece has items that start more than one nameId after this one ends
+  // In this case, we append missing items to the current piece.
+  // TODO: Check this one with Bruno
+  //       But, does it ever come up in practice?
+  //       We know it happens between pieces 88 and 89, but they are not actually in the database (but,
+  //       this code will come into play if we force the piece to load by putting 88 into the URL)
+  const thisEnd = ranges.this_piece.end_item;
+  const nextStart = ranges.next_piece.start_item;
+  const lastOutput = output[output.length - 1];
+
+  //extend the last row that we already have, if necessary
+  const filler = Array(Math.min(rowBoxes - lastOutput.state.length, nextStart - thisEnd - 1)).fill(MISSING, 0);
+  if(filler.length) {
+    lastOutput.state.push(...filler);
+    lastOutput.range = lastOutput.nameid + ' - ' + (lastOutput.nameid + lastOutput.state.length - 1);
+  }
+
+  //add as many new rows as we need to end up with an item numbered one below the lowest item of the next piece
+  for(let i = thisEnd + filler.length + 1; i < nextStart; i += rowBoxes) {
+    const start = i;
+    const end = Math.min(i + rowBoxes - 1, ranges.next_piece.start_item - 1);
+    output.push({
+      nameid: i,
+      range: i + ' - ' + end,
+      state: Array(end - start + 1).fill(MISSING, 0),
+    });
+  }
+
   return output;
 }
 
@@ -244,7 +274,7 @@ export default function RatingsIndex() {
               density='compact'
               sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 0)}}
               getRowId={(row) => {return row.nameid}}
-              rows={queryData && chunk(queryData.states, Number(searchParams.get('rowBoxes')))}
+              rows={queryData && chunk(queryData, Number(searchParams.get('rowBoxes')))}
               columns={columns}
               disableColumnSorting
               disableColumnMenu
