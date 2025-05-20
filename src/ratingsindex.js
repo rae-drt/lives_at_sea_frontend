@@ -187,16 +187,13 @@ export default function RatingsIndex() {
   if(queryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
   }
-  if(queryStatus === 'pending') {
-    return(<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
-  }
-
-  const { states, ranges } = queryData; //convenience variables with meaningful names
 
   const unreconciled = [];
-  for(const state of states) {
-    if((state.state & (XCHECKED|MISSING)) === 0) {
-      unreconciled.push(state.nameid);
+  if(queryStatus === 'success') {
+    for(const state of queryData.states) {
+      if((state.state & (XCHECKED|MISSING)) === 0) {
+        unreconciled.push(state.nameid);
+      }
     }
   }
 
@@ -243,10 +240,11 @@ export default function RatingsIndex() {
               </Stack>
             </Stack>
             <DataGrid
+              loading={queryStatus !== 'success'}
               density='compact'
               sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 0)}}
               getRowId={(row) => {return row.nameid}}
-              rows={chunk(states, Number(searchParams.get('rowBoxes')))}
+              rows={queryData && chunk(queryData.states, Number(searchParams.get('rowBoxes')))}
               columns={columns}
               disableColumnSorting
               disableColumnMenu
