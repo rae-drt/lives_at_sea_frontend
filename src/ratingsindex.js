@@ -1,7 +1,7 @@
 import { useParams, useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { DataGrid } from '@mui/x-data-grid';
-import { Alert, Card, CardContent, CircularProgress, Link, Stack, Typography, Tooltip, IconButton } from '@mui/material';
+import { Alert, Card, CardContent, Link, Stack, Typography, Tooltip, IconButton } from '@mui/material';
 import { ElectricBolt } from '@mui/icons-material';
 import { pieceQuery } from './queries';
 import RatingsIndexNavigator from './ratingsindexnavigator';
