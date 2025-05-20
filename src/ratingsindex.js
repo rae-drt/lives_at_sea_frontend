@@ -110,9 +110,9 @@ function key() {
   );
 }
 
-function rowWidth(rowLength) {
-  const gapSum = Math.max(0, SQUARE_SIZE * SQUARE_GAP * (rowLength / 5 - 1));
-  const squareSum = SQUARE_SIZE * (rowLength + 1) + STROKE_WIDTH;
+function rowWidth(rowBoxes) {
+  const gapSum = Math.max(0, SQUARE_SIZE * SQUARE_GAP * (rowBoxes / 5 - 1));
+  const squareSum = SQUARE_SIZE * (rowBoxes + 1) + STROKE_WIDTH;
   return gapSum + squareSum;
 }
 
@@ -144,10 +144,10 @@ function statusRow(data) {
   );
 }
 
-function chunk(data, rowLength) {
+function chunk(data, rowBoxes) {
   const output = [];
-  for(let i = 0; i < data.length; i += rowLength) {
-    const chunk = data.slice(i, i + rowLength);
+  for(let i = 0; i < data.length; i += rowBoxes) {
+    const chunk = data.slice(i, i + rowBoxes);
     output.push({
       nameid: Number(chunk[0].nameid),
       range: chunk[0].nameid + ' - ' + chunk[chunk.length - 1].nameid,
@@ -159,7 +159,7 @@ function chunk(data, rowLength) {
 
 export default function RatingsIndex() {
   const { piece } = useParams();
-  const [ searchParams, ] = useSearchParams({rowLength: 20});
+  const [ searchParams, ] = useSearchParams({rowBoxes: 20});
   const { data: queryData, status: queryStatus } = useQuery({...pieceQuery(piece), select: (x) => ({
     ranges: x.piece_ranges,
     states: x.records.map((record) => {
@@ -210,7 +210,7 @@ export default function RatingsIndex() {
     {
       field: 'state',
       headerName: 'State',
-      width: rowWidth(Number(searchParams.get('rowLength'))),
+      width: rowWidth(Number(searchParams.get('rowBoxes'))),
       align: 'left',
       renderCell: statusRow,
     },
@@ -246,7 +246,7 @@ export default function RatingsIndex() {
               density='compact'
               sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 0)}}
               getRowId={(row) => {return row.nameid}}
-              rows={chunk(states, Number(searchParams.get('rowLength')))}
+              rows={chunk(states, Number(searchParams.get('rowBoxes')))}
               columns={columns}
               disableColumnSorting
               disableColumnMenu
