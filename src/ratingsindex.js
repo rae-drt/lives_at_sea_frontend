@@ -14,7 +14,7 @@ const COMPLETED_2 = 16;
 const XCHECKED    = 32;
 const MISSING     = 64;
 
-const SQUARE_SIZE = 20;
+const SQUARE_SIZE = 22;
 const SQUARE_GAP = 0.15;
 
 function color(set, state) {
