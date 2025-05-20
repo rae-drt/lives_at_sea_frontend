@@ -25,7 +25,7 @@ function mainPersonQF({queryKey}) {
         socket.onerror = (e) => { reject(e); };
         socket.onmessage = (e) => {
           if(e.data === 'NULL') {
-            throw new Error('Bad response');
+            reject(new Error('Bad response'));
           }
           resolve(JSON.parse(e.data));
           socket.close();
