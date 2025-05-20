@@ -270,7 +270,7 @@ export default function RatingsIndex() {
             <DataGrid
               loading={queryStatus !== 'success'}
               density='compact'
-              sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 0)}}
+              sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 2 /*needs this small increment to avoid horizontal scrollbar*/)}}
               getRowId={(row) => {return row.nameid}}
               rows={queryData && chunk(queryData, Number(searchParams.get('rowBoxes')))}
               columns={columns}
