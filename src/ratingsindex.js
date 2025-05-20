@@ -204,7 +204,7 @@ export default function RatingsIndex() {
     {
       field: 'range',
       headerName: 'Range',
-      width: 120,
+      width: 160,
       align: 'right',
     },
     {
