@@ -150,7 +150,7 @@ function chunk(data, rowLength) {
 
 export default function RatingsIndex() {
   const { piece } = useParams();
-  const { data, status } = useQuery({...pieceQuery(piece), select: (x) => ({
+  const { data: queryData, status: queryStatus } = useQuery({...pieceQuery(piece), select: (x) => ({
     ranges: x.piece_ranges,
     states: x.records.map((record) => {
       let state = 0;
@@ -171,25 +171,25 @@ export default function RatingsIndex() {
       };
     }),
   })});
-  const [ rowLength, setRowLength ] = useState(20);
+  const [ rowLength, setRowLength ] = useState(20); //Tried moving this higher up, but this seems to cause an over-wide table
 
-  if(status === 'error') {
+  document.title = 'Ratings Progress';
+
+  if(queryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
   }
-  if(status === 'pending') {
+  if(queryStatus === 'pending') {
     return(<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
 
+  const { states, ranges } = queryData; //convenience variables with meaningful names
+
   const unreconciled = [];
-  for(const state of data.states) {
+  for(const state of states) {
     if((state.state & (XCHECKED|MISSING)) === 0) {
       unreconciled.push(state.nameid);
     }
   }
-
-  const chunks = chunk(data.states, rowLength);
-
-  document.title = 'Ratings Progress';
 
   const columns: GridColDef[] = [
     {
@@ -252,7 +252,7 @@ export default function RatingsIndex() {
             <DataGrid
               density='compact'
               getRowId={(row) => {return row.nameid}}
-              rows={chunks}
+              rows={chunk(states, rowLength)}
               columns={columns}
               disableColumnSorting
               disableColumnMenu
