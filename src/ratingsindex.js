@@ -217,6 +217,7 @@ export default function RatingsIndex() {
   }
 
   const unreconciled = [];
+  const chunks = queryStatus === 'success' ? chunk(queryData, Number(searchParams.get('rowBoxes'))) : [];
   if(queryStatus === 'success') {
     for(const state of queryData.states) {
       if((state.state & (XCHECKED|MISSING)) === 0) {
@@ -240,6 +241,7 @@ export default function RatingsIndex() {
       renderCell: statusRow,
     },
   ];
+  const PAGE_ROWS = 100;
 
   return (
     <Card>
@@ -272,12 +274,23 @@ export default function RatingsIndex() {
               density='compact'
               sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 1 + SQUARE_SIZE/10 /*needs this small increment to avoid horizontal scrollbar*/)}}
               getRowId={(row) => {return row.nameid}}
-              rows={queryData && chunk(queryData, Number(searchParams.get('rowBoxes')))}
+              rows={chunks}
               columns={columns}
               disableColumnSorting
               disableColumnMenu
               disableRowSelectionOnClick
+              pageSizeOptions={[PAGE_ROWS]}
               getRowHeight={()=>(SQUARE_SIZE + SQUARE_GAP + 2)}
+              hideFooter={chunks.length <= PAGE_ROWS}
+              localeText={{
+                MuiTablePagination: {
+                  labelDisplayedRows: ({ from, to, count, page }) => {
+                    const highPage = Math.ceil(count / 100);
+                    if(highPage) return `Page ${highPage ? page + 1 : 0}/${highPage}`;
+                    else return '';
+                  }
+                },
+              }}
             />
           </Stack>
           {/* this stack covers the whole right-hand column */}
