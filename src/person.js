@@ -18,20 +18,11 @@ import { mainPersonQuery, mainPersonMutate } from './queries';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-const _ = require('lodash');
-
-const EMPTY_SERVICES = { userid:0, complete:0, records:[] };
-const EMPTY_SERVICE_HISTORY = {
-  reconciled: false,
-  services: [EMPTY_SERVICES, EMPTY_SERVICES],
-};
-
 export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [personTableData, setPersonTableData] = useState();
-  const [serviceRecords, setServiceRecords] = useState(EMPTY_SERVICE_HISTORY);
   const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery(mainPersonQuery(sailorType, nameId));
   const queryClient = useQueryClient();
   useEffect(() => {
@@ -40,17 +31,13 @@ export default function Person() {
     if(nameId === '0') {
       document.title = 'New ' + sailorType;
       setPersonTableData(data);
-      setServiceRecords(EMPTY_SERVICE_HISTORY);
       return;
     }
     if(sailorType === 'rating') {
-      Object.keys(data.name).forEach((k)=>data.name[k] = data.name[k] ? data.name[k] : '');
-      setPersonTableData(data.name);
-      document.title = catref(data.name);
-      if(_.isEmpty(data.service_history)) setServiceRecords(EMPTY_SERVICE_HISTORY);
-      else {
-        setServiceRecords({reconciled: data.status === 'RECONCILED', services: data.service_history});
-      }
+      const clone = structuredClone(data);
+      Object.keys(clone).forEach((k)=>clone[k] = clone[k] ? clone[k] : '');
+      setPersonTableData(clone);
+      document.title = catref(data);
     }
     else if(sailorType === 'officer') {
       setPersonTableData(data);
@@ -85,8 +72,7 @@ export default function Person() {
               <Stack direction='row' width={0.7} alignItems='flex-start'>
                 <Stack>
                   <PersonTableControlPanel data={personTableData} onChange={(()=>{
-                    const payload = sailorType === 'rating' ? {...mainPersonQueryData, name: personTableData} : personTableData;
-                    mainPersonMutate(queryClient, sailorType, nameId, payload);
+                    mainPersonMutate(queryClient, sailorType, nameId, personTableData);
                   })}/>
                   {
                       <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
@@ -109,7 +95,7 @@ export default function Person() {
                 <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
                 <Tab value='otherdata' label='Data'/>
               </Tabs>
-              {dataType === 'main' &&          <ServiceReconciler serviceRecords={serviceRecords} setServiceRecords={setServiceRecords}/>}
+              {dataType === 'main' &&          <ServiceReconciler/>}
               {dataType === 'otherservices' && <OtherServices/>}
               {dataType === 'otherdata' &&     <OtherData/>}
             </Stack>

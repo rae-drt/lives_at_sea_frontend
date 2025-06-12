@@ -1,6 +1,6 @@
-import { useContext} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
 import { SERVICE_FIELDS } from './data_utils';
-import { serviceRecordsMutate } from './queries';
+import { serviceRecordsQuery, serviceRecordsMutate } from './queries';
 
 import IconButton from '@mui/material/IconButton';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -60,10 +60,29 @@ function XCheck({ready, checked, onChange}) {
     </Stack>
   );
 }
-export default function ServiceReconciler({serviceRecords, setServiceRecords}) {
+
+const EMPTY_SERVICE_HISTORY = {
+  reconciled: false,
+  services: [
+    { userid:0, complete:0, records:[] },
+    { userid:0, complete:0, records:[] },
+  ]
+};
+
+export default function ServiceReconciler() {
   const {nameId} = useParams();
   const [searchParams,] = useSearchParams();
   const queryClient = useQueryClient();
+  const [serviceRecords, setServiceRecords] = useState(EMPTY_SERVICE_HISTORY);
+  const {data: queryData, status: queryStatus} = useQuery(serviceRecordsQuery(nameId));
+  useEffect(() => {
+    if(queryStatus === 'success') {
+      setServiceRecords(queryData);
+    }
+    else {
+      setServiceRecords(EMPTY_SERVICE_HISTORY);
+    }
+  }, [queryData, queryStatus]);
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index
@@ -232,12 +251,11 @@ export default function ServiceReconciler({serviceRecords, setServiceRecords}) {
             setServiceRecords(clone);
           }}/>
          <Button disabled={(!searchParams.get('devMode')) && (!xCheckReady)} onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
-          const clone = structuredClone(serviceRecords);
-          clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
-          clone.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
-          //TODO: The 'null' here is a workaround -- either need to compute the actual state here, or we need to be managing it differently
-          //TODO: This is async and slow, need to suspense or something
-          serviceRecordsMutate(queryClient, nameId, { status: serviceRecords.reconciled ? 'RECONCILED' : null, service_history: clone.services });
+           const clone = structuredClone(serviceRecords);
+           clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
+           clone.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
+            //TODO: This is async and slow, need to suspense or something
+            serviceRecordsMutate(queryClient, nameId, clone);
         }}>Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>

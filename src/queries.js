@@ -39,14 +39,23 @@ function mainPersonQF({queryKey}) {
   });
 }
 
-export function mainPersonMutate(queryClient, sailorType, nameId, data) {
-  queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, data);
+export async function mainPersonMutate(queryClient, sailorType, nameId, data) {
+  const key = mainPersonQuery(sailorType, nameId).queryKey;
+  const currentData = await queryClient.fetchQuery({queryKey: key});
+  if(sailorType === 'rating') {
+    queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
+  }
+  else {
+    queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, data);
+  }
 }
 
 export async function serviceRecordsMutate(queryClient, nameId, data) {
   const key = mainPersonQuery('rating', nameId).queryKey;
   const currentData = await queryClient.fetchQuery({queryKey: key});
-  queryClient.setQueryData(key, {...currentData, ...data});
+  //TODO: The "RECONCILED" thing is a workaround
+  const newData = {service_history: data.services, status: data.reconciled ? 'RECONCILED' : null};
+  queryClient.setQueryData(key, {...currentData, ...newData});
 }
 
 export async function otherDataMutate(queryClient, sailorType, nameId, data) {
@@ -64,6 +73,17 @@ export async function otherServicesMutate(queryClient, sailorType, nameId, data)
 export const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
+  select: (x) => ( sailorType === 'rating' ? x.name : x),
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  staleTime: Infinity,
+});
+
+export const serviceRecordsQuery = (nameId) => ({
+  queryKey: ['mainPersonData', {sailorType: 'rating', nameId: Number(nameId)}],
+  queryFn: mainPersonQF,
+  select: (x) => ( {reconciled: x.status === 'RECONCILED', services: x.service_history} ), //TODO: The "RECONCILED" thing is a workaround
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
