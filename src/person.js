@@ -27,19 +27,18 @@ export default function Person() {
   const queryClient = useQueryClient();
   useEffect(() => {
     if(mainPersonQueryStatus !== 'success') return;
-    const data = mainPersonQueryData;
     if(nameId === '0') {
       document.title = 'New ' + sailorType;
-      setPersonTableData(data);
+      setPersonTableData(mainPersonQueryData);
       return;
     }
     if(sailorType === 'rating') {
-      setPersonTableData(data);
-      document.title = catref(data);
+      setPersonTableData(mainPersonQueryData);
+      document.title = catref(mainPersonQueryData);
     }
     else if(sailorType === 'officer') {
-      setPersonTableData(data);
-      document.title = 'Officer #' + officerref(data);
+      setPersonTableData(mainPersonQueryData);
+      document.title = 'Officer #' + officerref(mainPersonQueryData);
     }
     else { throw new Error(); }
   }, [mainPersonQueryData, mainPersonQueryStatus, nameId, sailorType]);
