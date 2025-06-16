@@ -250,7 +250,8 @@ export default function ServiceReconciler() {
             clone.reconciled = !(serviceRecords.reconciled);
             setServiceRecords(clone);
           }}/>
-         <Button disabled={(!searchParams.get('devMode')) && (!xCheckReady)} onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
+         <Button disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || _.isEqual(serviceRecords, queryData))}
+                 onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
            const clone = structuredClone(serviceRecords);
            clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
            clone.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);

@@ -18,6 +18,8 @@ import { mainPersonQuery, mainPersonMutate } from './queries';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
+const _ = require('lodash');
+
 export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
@@ -68,7 +70,7 @@ export default function Person() {
             <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
               <Stack direction='row' width={0.7} alignItems='flex-start'>
                 <Stack>
-                  <PersonTableControlPanel data={personTableData} onChange={(()=>{
+                  <PersonTableControlPanel dataChanged={!(_.isEqual(personTableData, mainPersonQueryData))} data={personTableData} onChange={(()=>{
                     mainPersonMutate(queryClient, sailorType, nameId, personTableData);
                   })}/>
                   {
