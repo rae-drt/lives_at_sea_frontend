@@ -34,9 +34,7 @@ export default function Person() {
       return;
     }
     if(sailorType === 'rating') {
-      const clone = structuredClone(data);
-      Object.keys(clone).forEach((k)=>clone[k] = clone[k] ? clone[k] : '');
-      setPersonTableData(clone);
+      setPersonTableData(data);
       document.title = catref(data);
     }
     else if(sailorType === 'officer') {

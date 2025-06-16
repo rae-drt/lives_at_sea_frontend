@@ -16,7 +16,7 @@ function PersonTableField({data, onChange, field}) {
       disabled={loading}
       size='small'
       fullWidth
-      value={data[field]}
+      value={data[field] === null ? '' : data[field]}
       onChange={(e)=>{
         const newData = {...data};
         newData[field] = e.target.value;
