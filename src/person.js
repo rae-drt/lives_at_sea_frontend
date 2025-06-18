@@ -22,6 +22,10 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const _ = require('lodash');
 
+function isNew(id) {
+  return id === '0';
+}
+
 export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
@@ -34,7 +38,7 @@ export default function Person() {
   const queryClient = useQueryClient();
   useEffect(() => {
     if(mainPersonQueryStatus !== 'success') return;
-    if(nameId === '0') {
+    if(isNew(nameId)) {
       document.title = 'New ' + sailorType;
       setPersonTableData(mainPersonQueryData);
       return;
@@ -91,7 +95,7 @@ export default function Person() {
                       <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
                         rows={sailorType === 'officer' ?
                           OFFICER_LAYOUT :
-                          nameId === '0' ?
+                          isNew(nameId) ?
                             [{labels: {'ADM': 2}, fields :{series: 1, piece: 1, nameid: 1}}, ...RATING_LAYOUT] :
                             RATING_LAYOUT
                         }
