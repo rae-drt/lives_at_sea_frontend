@@ -1,3 +1,4 @@
+import { useDirty } from './dirty';
 import { useParams } from 'react-router';
 import Stack from '@mui/material/Stack';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -8,8 +9,9 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { catref, officerref } from './data_utils'
 
-export default function PersonTableControlPanel({dataChanged, data, onChange}) {
+export default function PersonTableControlPanel({data, onChange}) {
   const {sailorType} = useParams();
+  const dirty = useDirty((state)=>state.person);
   return (
     <Card>
       <CardContent>
@@ -17,7 +19,7 @@ export default function PersonTableControlPanel({dataChanged, data, onChange}) {
           <Typography variant='h6'>{sailorType === 'officer' ? 'Officer #' + officerref(data) : catref(data)}</Typography>
           <Stack direction='row' spacing={2}>
             {'error' in data && <FormControlLabel control={<Checkbox checked={data.error} disabled={true}/>} label='Error?' labelPlacement='start'/>}
-            <Button disabled={!dataChanged} variant='outlined' onClick={onChange}>Enter</Button>
+            <Button disabled={!dirty} variant='outlined' onClick={onChange}>Enter</Button>
           </Stack>
         </Stack>
       </CardContent>

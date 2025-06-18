@@ -89,5 +89,5 @@ export default function OtherServices() {
     },
   ];
 
-  return (<Other query={otherServicesQuery} mutate={otherServicesMutate} columns={columns} columnGroupingModel={columnGroupingModel}/>);
+  return (<Other query={otherServicesQuery} mutate={otherServicesMutate} tag='otherservices' columns={columns} columnGroupingModel={columnGroupingModel}/>);
 }

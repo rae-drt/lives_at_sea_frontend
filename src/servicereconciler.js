@@ -9,6 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
 import { SERVICE_FIELDS } from './data_utils';
 import { serviceRecordsQuery, serviceRecordsMutate } from './queries';
+import { useDirty } from './dirty';
 
 import IconButton from '@mui/material/IconButton';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -83,6 +84,17 @@ export default function ServiceReconciler() {
       setServiceRecords(EMPTY_SERVICE_HISTORY);
     }
   }, [queryData, queryStatus]);
+  const setDirty = useDirty((state)=>state.setDirty);
+  const setClean = useDirty((state)=>state.setClean);
+  const dirty = useDirty((state)=>state['services']);
+  useEffect(() => {
+    if(_.isEqual(serviceRecords, queryData)) {
+      setClean('services');
+    }
+    else {
+      setDirty('services');
+    }
+  }, [serviceRecords, queryData, setClean, setDirty]);
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index
@@ -250,7 +262,7 @@ export default function ServiceReconciler() {
             clone.reconciled = !(serviceRecords.reconciled);
             setServiceRecords(clone);
           }}/>
-         <Button disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || _.isEqual(serviceRecords, queryData))}
+         <Button disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
                  onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
            const clone = structuredClone(serviceRecords);
            clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);

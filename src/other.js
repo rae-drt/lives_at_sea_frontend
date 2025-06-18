@@ -4,9 +4,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Stack } from '@mui/material';
 import { LoadingContext } from './loadingcontext';
 import DataTable from './datatable';
+import { useDirty } from './dirty';
 const _ = require('lodash');
 
-export default function Other({query, mutate, columns, columnGroupingModel}) {
+export default function Other({query, mutate, tag, columns, columnGroupingModel}) {
   const { sailorType, nameId } = useParams();
   const [data, setData] = useState([]);
   const queryClient = useQueryClient();
@@ -16,6 +17,17 @@ export default function Other({query, mutate, columns, columnGroupingModel}) {
       setData(queryData);
     }
   }, [queryData, queryStatus]);
+  const setDirty = useDirty((state)=>state.setDirty);
+  const setClean = useDirty((state)=>state.setClean);
+  const dirty = useDirty((state)=>state[tag]);
+  useEffect(() => {
+    if(_.isEqual(data, queryData)) {
+      setClean(tag);
+    }
+    else {
+      setDirty(tag);
+    }
+  }, [data, queryData, tag, setClean, setDirty]);
 
   if(queryStatus === 'error') {
     return (<Alert severity='error'>Error fetching data</Alert>);
@@ -25,7 +37,7 @@ export default function Other({query, mutate, columns, columnGroupingModel}) {
       <LoadingContext value={queryStatus === 'pending'}>
         <Stack>
           <Stack direction='row' justifyContent='flex-end'>
-            <Button disabled={_.isEqual(queryData, data)} onClick={()=>{mutate(queryClient, sailorType, nameId, data);}}>Enter</Button>
+            <Button disabled={!dirty} onClick={()=>{mutate(queryClient, sailorType, nameId, data);}}>Enter</Button>
           </Stack>
           <DataTable
             rows={data}

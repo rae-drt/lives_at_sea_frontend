@@ -13,6 +13,8 @@ import ServiceReconciler from './servicereconciler';
 import PersonControlPanel from './personcontrolpanel';
 import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
+import { useDirty, useDirtyBlocker } from './dirty';
+import BlockNavigationDialog from './blocknavigationdialog';
 import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
 import { mainPersonQuery, mainPersonMutate } from './queries';
 
@@ -24,6 +26,9 @@ export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const setDirty = useDirty((state) => state.setDirty);
+  const setClean = useDirty((state) => state.setClean);
+  const blocker = useDirtyBlocker();
   const [personTableData, setPersonTableData] = useState();
   const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery(mainPersonQuery(sailorType, nameId));
   const queryClient = useQueryClient();
@@ -49,6 +54,14 @@ export default function Person() {
       fontSize: 12,
     }
   });
+  useEffect(() => {
+    if(_.isEqual(personTableData, mainPersonQueryData)) {
+      setClean('person');
+    }
+    else {
+      setDirty('person');
+    }
+  }, [personTableData, mainPersonQueryData, setClean, setDirty]);
 
   if(
     (sailorType !== 'rating' && sailorType !== 'officer') ||
@@ -65,12 +78,13 @@ export default function Person() {
   else {
     return (
       <LoadingContext value={mainPersonQueryStatus === 'pending'}>
+        <BlockNavigationDialog blocker={blocker}/>
         <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
           <ThemeProvider theme={theme}>
             <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
               <Stack direction='row' width={0.7} alignItems='flex-start'>
                 <Stack>
-                  <PersonTableControlPanel dataChanged={!(_.isEqual(personTableData, mainPersonQueryData))} data={personTableData} onChange={(()=>{
+                  <PersonTableControlPanel data={personTableData} onChange={(()=>{
                     mainPersonMutate(queryClient, sailorType, nameId, personTableData);
                   })}/>
                   {
