@@ -1,7 +1,7 @@
-import { useParams, useSearchParams } from 'react-router';
+import { useParams, useSearchParams, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { DataGrid } from '@mui/x-data-grid';
-import { Alert, Card, CardContent, Link, Stack, Typography, Tooltip, IconButton } from '@mui/material';
+import { Alert, Card, CardContent, Stack, Typography, Tooltip, IconButton } from '@mui/material';
 import { ElectricBolt } from '@mui/icons-material';
 import { pieceQuery } from './queries';
 import RatingsIndexNavigator from './ratingsindexnavigator';
@@ -125,9 +125,7 @@ function statusRow(data) {
     if(i % 5 === 0) offset += SQUARE_GAP;
     states.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
-        <Link href={process.env.PUBLIC_URL + '/rating/' + identifier}
-              onClick={(e) => { (state & MISSING) && e.preventDefault(); }}
-        >
+        <Link to={(state & MISSING) ? '#' : '/rating/' + identifier}>
           {triangle1(offset, state)}
           {triangle2(offset, state)}
           {(state & NOT_WW1) && dot(offset)}
