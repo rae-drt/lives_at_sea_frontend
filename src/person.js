@@ -69,11 +69,11 @@ export default function Person() {
   ) {
     return (<Alert severity='error'>Bad location: {pathname}</Alert>);
   }
-  else if(typeof(personTableData) === 'undefined') {
-    return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
-  }
   else if(mainPersonQueryStatus === 'error') {
     return (<Alert severity='error'>Error fetching data</Alert>);
+  }
+  else if(typeof(personTableData) === 'undefined') {
+    return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
   else {
     return (
