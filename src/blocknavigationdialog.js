@@ -1,16 +1,18 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 
 export default function BlockNavigationDialog({blocker}) {
   return (
     <Dialog open={blocker.state === 'blocked'}>
       <DialogTitle>Discard changes?</DialogTitle>
       <DialogContent>
-        <DialogContentText>
+        <DialogContentText sx={{marginBottom: 2}}>
           Are you sure you want to leave this record?
-          You have unsaved changes that will be lost if you navigate away.
+        </DialogContentText>
+        <DialogContentText sx={{marginBottom: 2}}>
+          There are unsaved changes that will be lost if you leave this page without pressing Enter.
         </DialogContentText>
         <DialogActions>
-          <Button onClick={()=>{blocker.reset()}}>Continue editing this record</Button>
+          <Button autoFocus onClick={()=>{blocker.reset()}}>Continue editing</Button>
           <Button onClick={()=>{blocker.proceed()}}>Discard changes</Button>
         </DialogActions>
       </DialogContent>
