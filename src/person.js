@@ -10,7 +10,8 @@ import OtherData from './otherdata';
 import OtherServices from './otherservices';
 import PersonTable from './persontable';
 import ServiceReconciler from './servicereconciler';
-import PersonControlPanel from './personcontrolpanel';
+import NewPersonControlPanel from './newpersoncontrolpanel';
+import ExistingPersonControlPanel from './existingpersoncontrolpanel';
 import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
 import { useDirty, useDirtyBlocker } from './dirty';
@@ -80,6 +81,10 @@ export default function Person() {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
   else {
+    const controlPanel = isNew(nameId) ?
+      <NewPersonControlPanel data={personTableData} onChange={setPersonTableData}/>
+      :
+      <ExistingPersonControlPanel data={personTableData} onChange={setPersonTableData}/>;
     return (
       <LoadingContext value={mainPersonQueryStatus === 'pending'}>
         <BlockNavigationDialog blocker={blocker}/>
@@ -102,10 +107,7 @@ export default function Person() {
                       />
                   }
                 </Stack>
-                <PersonControlPanel
-                  data={personTableData}
-                  onChange={setPersonTableData}
-                />
+                {controlPanel}
               </Stack>
               <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
                 {sailorType === 'rating' && <Tab value='main' label='Services'/>}
