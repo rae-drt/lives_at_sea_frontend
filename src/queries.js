@@ -16,18 +16,16 @@ function fetchData(params) {
 
 function mainPersonQF({queryKey}) {
   const [, {sailorType, nameId}] = queryKey;
-  return new Promise((resolve, reject) => {
-    if(nameId === '0') {
-      resolve(init_data(sailorType));
-    }
-    else if(typeof(nameId) === 'undefined') {
-      reject(new Error());
-    }
-    else {
-      if(sailorType === 'rating') {
-        fetchData('name?nameid=' + nameId).then((d)=>resolve(d), (e)=>reject(e));
-      }
-      else if(sailorType === 'officer') {
+  if(typeof(nameId) === 'undefined') {
+    return new Promise((resolve, reject) => reject(new Error()));
+  }
+  else if(nameId === 0) {
+    return new Promise((resolve) => resolve(init_data(sailorType)));
+  }
+  else {
+    if(sailorType === 'rating') return fetchData('name?nameid=' + nameId);
+    else if(sailorType === 'officer') {
+      return new Promise((resolve, reject) => {
         const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
         socket.onerror = (e) => { reject(e); };
         socket.onmessage = (e) => {
@@ -38,12 +36,12 @@ function mainPersonQF({queryKey}) {
           socket.close();
         };
         socket.onopen = () => { socket.send('L@S:Officer:' + nameId) };
-      }
-      else {
-        reject(new Error('Bad sailor type' + sailorType));
-      }
+      });
     }
-  });
+    else {
+      return new Promise((resolve, reject) => reject(new Error('Bad sailor type' + sailorType)));
+    }
+  }
 }
 
 function pieceQF({queryKey}) {
