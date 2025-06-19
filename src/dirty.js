@@ -40,7 +40,7 @@ export function useDirtyBlocker() {
     //If the only dirty data is in the person table and we are switching tabs then we should not block, no dirty data will be lost
     //Tab switch should change the :dataType parameter only (or alternatively, not change the other parameters)
 
-    const dirtyTabs = dirty.services | dirty.otherdata | dirty.otherservices;
+    const dirtyTabs = dirty.services || dirty.otherdata || dirty.otherservices;
 
     const current = getMatchParams(currentLocation); //is from current location, so should always match for current contexts
     const next = getMatchParams(nextLocation); //may be null if we are navigating away
@@ -53,7 +53,7 @@ export function useDirtyBlocker() {
       }
     }
     //Block other forms of navigation if there is any dirty data
-    return (dirty.person | dirtyTabs);
+    return (dirty.person || dirtyTabs);
   }
 
   const blocker = useBlocker(block);
