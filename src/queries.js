@@ -20,7 +20,31 @@ function mainPersonQF({queryKey}) {
     return new Promise((resolve, reject) => reject(new Error()));
   }
   else if(nameId === 0) {
-    return new Promise((resolve) => resolve(init_data(sailorType)));
+    if(sailorType === 'officer') { //TODO: Remove this when the API provides the information
+      return new Promise((resolve) => resolve(init_data(sailorType)));
+    }
+    else if(sailorType === 'rating') {
+      const promises = [];
+      for(const schema of ['name', 'service']) {
+        promises.push(fetchData('schema/' + schema));
+      }
+      const promise = Promise.all(promises);
+      return promise.then((schemata) => {
+        const [name, services] = schemata;
+        for(const key in name) {
+          if(name[key] === 0) { name[key] = '';}
+        }
+        return {
+          name: name,
+          service_history: [structuredClone(services[0]), services[0]], //TODO: This is a workaround until the UI understands records with a single service history
+          status: {"status_code": 0, "description": "Not Started"}, //TODO: Update if the API starts providing this information (but does it need to?)
+          other_data: [], //TODO: Update if the API starts providing this information (but does it need to?)
+          service_other: [], //TODO: Update if the API starts providing this information (but does it need to?)
+      }});
+    }
+    else {
+      return new Promise((resolve, reject) => reject(new Error('Bad sailor type' + sailorType)));
+    }
   }
   else {
     if(sailorType === 'rating') return fetchData('name?nameid=' + nameId);
