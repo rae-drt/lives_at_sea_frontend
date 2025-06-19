@@ -1,5 +1,19 @@
 import { init_data, status_reconciled, status_encode } from './data_utils';
 
+function fetchData(params) {
+  const api = process.env.REACT_APP_API_ROOT + params;
+  return new Promise((resolve, reject) => {
+    const fetchData = async() => {
+      const response = await(fetch(api));
+      if(!response.ok) {
+        reject(new Error('Bad response: ' + response.status));
+      }
+      resolve(response.json());
+    }
+    fetchData();
+  });
+}
+
 function mainPersonQF({queryKey}) {
   const [, {sailorType, nameId}] = queryKey;
   return new Promise((resolve, reject) => {
@@ -11,14 +25,7 @@ function mainPersonQF({queryKey}) {
     }
     else {
       if(sailorType === 'rating') {
-        const fetchData = async() => {
-          const response = await(fetch(process.env.REACT_APP_API_ROOT + 'name?nameid=' + nameId));
-          if(!response.ok) {
-            throw new Error('Bad response: ' + response.status);
-          }
-          return response.json();
-        }
-        resolve(fetchData());
+        fetchData('name?nameid=' + nameId).then((d)=>resolve(d), (e)=>reject(e));
       }
       else if(sailorType === 'officer') {
         const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
@@ -41,16 +48,7 @@ function mainPersonQF({queryKey}) {
 
 function pieceQF({queryKey}) {
   const [, piece] = queryKey;
-  return new Promise((resolve, reject) => {
-    const fetchData = async() => {
-      const response = await(fetch(process.env.REACT_APP_API_ROOT + 'status/piece_summary?piece_number=' + piece));
-      if(!response.ok) {
-        reject(new Error('Bad response: ' + response.status));
-      }
-      return response.json();
-    }
-    resolve(fetchData());
-  });
+  return fetchData('status/piece_summary?piece_number=' + piece);
 }
 
 function piecesQF() {
