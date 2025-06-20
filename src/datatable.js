@@ -135,6 +135,7 @@ export default function DataTable(props) {
         finalOnChange(rows.map((e) => e[primary] === rowId ? structuredClone(updatedRow) : structuredClone(e)));
         return updatedRow;
       }}
+      hideFooter={!(rows)}
       onProcessRowUpdateError={(e)=>{alert(e);}}
       disableColumnSorting={positionalPrimary}
       disableColumnMenu={positionalPrimary}
