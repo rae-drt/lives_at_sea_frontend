@@ -48,7 +48,6 @@ export function useDirtyBlocker() {
     if(next !== null) {
       if(current.sailorType === next.sailorType &&
          current.nameId === next.nameId) {
-        console.log('Just checking tabs');
         return dirtyTabs;
       }
     }

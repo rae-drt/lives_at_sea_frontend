@@ -5,16 +5,12 @@ import PersonControlPanel from './personcontrolpanel';
 
 import Stack from '@mui/material/Stack';
 import Popover from '@mui/material/Popover';
-import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
 
 import WestIcon from '@mui/icons-material/ArrowBack'
 import EastIcon from '@mui/icons-material/ArrowForward';
-
-import { Button } from '@mui/material';
 
 export function RecordNavigator() {
   const { sailorType, nameId } = useParams();
