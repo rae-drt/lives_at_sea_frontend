@@ -64,5 +64,5 @@ export default function OtherData() {
     },
   ];
 
-  return (<Other query={otherDataQuery} mutate={otherDataMutate} tag='otherdata' columns={columns} columnGroupingModel={columnGroupingModel}/>);
+  return (<Other query={otherDataQuery} mutate={otherDataMutate} tag='data_other' columns={columns} columnGroupingModel={columnGroupingModel}/>);
 }
