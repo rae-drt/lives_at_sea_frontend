@@ -15,7 +15,7 @@ const XCHECKED    = 32;
 const MISSING     = 64;
 
 const SQUARE_SIZE = 30;
-const SQUARE_GAP = 0.15;
+const SQUARE_GAP = 0.2;
 
 function color(set, state) {
   if(state & XCHECKED)    return 'lightgreen';
@@ -109,7 +109,7 @@ function key() {
 }
 
 function rowWidth(rowBoxes) {
-  const gapSum = Math.max(0, SQUARE_SIZE * SQUARE_GAP * (rowBoxes / 5 - 1));
+  const gapSum = Math.max(0, SQUARE_SIZE * SQUARE_GAP * ((rowBoxes / 5 + rowBoxes / 10)));
   const squareSum = SQUARE_SIZE * (rowBoxes + 1);
   return gapSum + squareSum + 1; // +1 to cover possibility of rounding errors
 }
@@ -123,6 +123,7 @@ function statusRow(data) {
     const identifier = data.row.nameid + i;
     offset += 1;
     if(i % 5 === 0) offset += SQUARE_GAP;
+    if(i %10 === 0) offset += SQUARE_GAP; //larger gap every 10 cells
     states.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
         <Link to={(state & MISSING) ? '#' : '/rating/' + identifier}>
@@ -185,7 +186,7 @@ function chunk(data, rowBoxes) {
 
 export default function RatingsIndex() {
   const { piece } = useParams();
-  const [ searchParams, ] = useSearchParams({rowBoxes: 30});
+  const [ searchParams, ] = useSearchParams({rowBoxes: 20});
   const { data: queryData, status: queryStatus } = useQuery({...pieceQuery(piece), select: (x) => ({
     ranges: x.piece_ranges,
     states: x.records.map((record) => {
@@ -228,7 +229,7 @@ export default function RatingsIndex() {
     {
       field: 'range',
       headerName: 'Range',
-      width: 160,
+      width: 180,
       align: 'right',
     },
     {
@@ -247,7 +248,7 @@ export default function RatingsIndex() {
         {/* outermost stack: progress view on left, key on right */}
         <Stack direction='row' spacing={8}>
           {/* progress view */}
-          <Stack spacing={2}>
+          <Stack spacing={0}>
             {/* progress view header (catref, width controls) */}
             <Stack direction='row' alignItems='center' justifyContent='space-between'>
               {/* catref control */}
@@ -270,7 +271,10 @@ export default function RatingsIndex() {
             <DataGrid
               loading={queryStatus !== 'success'}
               density='compact'
-              sx={{width: columns.reduce((acc, cur)=>(acc += cur.width), 1 + SQUARE_SIZE/10 /*needs this small increment to avoid horizontal scrollbar*/)}}
+              sx={{
+                width: columns.reduce((acc, cur)=>(acc += cur.width), 1 + SQUARE_SIZE/10 /*needs this small increment to avoid horizontal scrollbar*/),
+                '& .MuiDataGrid-cell': {border: 'none', height: SQUARE_SIZE},
+              }}
               getRowId={(row) => {return row.nameid}}
               rows={chunks}
               columns={columns}
@@ -278,7 +282,7 @@ export default function RatingsIndex() {
               disableColumnMenu
               disableRowSelectionOnClick
               pageSizeOptions={[PAGE_ROWS]}
-              getRowHeight={()=>(SQUARE_SIZE + SQUARE_GAP + 2)}
+              getRowHeight={()=>(SQUARE_SIZE)}
               hideFooter={chunks.length <= PAGE_ROWS}
               localeText={{
                 MuiTablePagination: {
