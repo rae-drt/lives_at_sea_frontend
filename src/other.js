@@ -35,7 +35,7 @@ export default function Other({query, mutate, tag, columns, columnGroupingModel}
   else {
     return(
       <LoadingContext value={queryStatus === 'pending'}>
-        <Stack>
+        <Stack width='140em'>
           <Stack direction='row' justifyContent='flex-end'>
             <Button disabled={!dirty} onClick={()=>{mutate(queryClient, sailorType, nameId, data);}}>Enter</Button>
           </Stack>

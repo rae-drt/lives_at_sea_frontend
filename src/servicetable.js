@@ -39,60 +39,61 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
   const columns: GridColDef[] = [
     {
       field: primary,
-      headerName: 'Row',
-      width: 50,
+      headerName: '#',
+      width: 40,
+      minWidth: 40,
       align: 'right',
     },
     {
       field: 'ship',
       headerName: 'Ship',
-      width: 200,
+      flex: 20,
       editable: true,
     },
     {
       field: 'rating',
       headerName: 'Rating',
-      width: 100,
+      flex: 8,
       editable: true,
     },
     {
       field: 'fromday',
       headerName: 'D',
-      width: 40,
+      flex: 4,
       minWidth: 40,
       editable: true,
     },
     {
       field: 'frommonth',
       headerName: 'M',
-      width: 30,
+      flex: 4,
       minWidth: 40,
       editable: true,
     },
     {
       field: 'fromyear',
       headerName: 'Y',
-      width: 50,
+      flex: 6,
       editable: true,
     },
     {
       field: 'today',
       headerName: 'D',
-      width: 40,
+      flex: 4,
       minWidth: 40,
       editable: true,
     },
     {
       field: 'tomonth',
       headerName: 'M',
-      width: 40,
+      flex: 4,
       minWidth: 40,
       editable: true,
     },
     {
       field: 'toyear',
       headerName: 'Y',
-      width: 50,
+      flex: 6,
       editable: true,
     },
   ];
@@ -100,7 +101,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
   return (
     <Card>
       <CardContent>
-        <Box>
+        <Box sx={{width: '70em'}}>
           <Stack direction='row' justifyContent='space-between'>
             <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading}/>
             {cloneButton}
