@@ -19,8 +19,6 @@ import BlockNavigationDialog from './blocknavigationdialog';
 import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
 import { mainPersonQuery, mainPersonMutate } from './queries';
 
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-
 const _ = require('lodash');
 
 function isNew(id) {
@@ -54,11 +52,6 @@ export default function Person() {
     }
     else { throw new Error(); }
   }, [mainPersonQueryData, mainPersonQueryStatus, nameId, sailorType]);
-  const theme = createTheme({
-    typography: {
-      fontSize: 12,
-    }
-  });
   useEffect(() => {
     if(_.isEqual(personTableData, mainPersonQueryData)) {
       setClean('person');
@@ -89,36 +82,34 @@ export default function Person() {
       <LoadingContext value={mainPersonQueryStatus === 'pending'}>
         <BlockNavigationDialog blocker={blocker}/>
         <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
-          <ThemeProvider theme={theme}>
-            <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
-              <Stack direction='row' width={0.7} alignItems='flex-start'>
-                <Stack>
-                  <PersonTableControlPanel data={personTableData} onChange={(()=>{
-                    mainPersonMutate(queryClient, sailorType, nameId, personTableData);
-                  })}/>
-                  {
-                      <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
-                        rows={sailorType === 'officer' ?
-                          OFFICER_LAYOUT :
-                          isNew(nameId) ?
-                            [{labels: {'ADM': 2}, fields :{series: 1, piece: 1, nameid: 1}}, ...RATING_LAYOUT] :
-                            RATING_LAYOUT
-                        }
-                      />
-                  }
-                </Stack>
-                {controlPanel}
+          <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
+            <Stack direction='row' width={0.7} alignItems='flex-start'>
+              <Stack>
+                <PersonTableControlPanel data={personTableData} onChange={(()=>{
+                  mainPersonMutate(queryClient, sailorType, nameId, personTableData);
+                })}/>
+                {
+                  <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
+                    rows={sailorType === 'officer' ?
+                      OFFICER_LAYOUT :
+                      isNew(nameId) ?
+                        [{labels: {'ADM': 2}, fields :{series: 1, piece: 1, nameid: 1}}, ...RATING_LAYOUT] :
+                        RATING_LAYOUT
+                    }
+                  />
+                }
               </Stack>
-              <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
-                {sailorType === 'rating' && <Tab value='main' label='Services'/>}
-                <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
-                <Tab value='otherdata' label='Data'/>
-              </Tabs>
-              {dataType === 'main' &&          <ServiceReconciler/>}
-              {dataType === 'otherservices' && <OtherServices/>}
-              {dataType === 'otherdata' &&     <OtherData/>}
+              {controlPanel}
             </Stack>
-          </ThemeProvider>
+            <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
+              {sailorType === 'rating' && <Tab value='main' label='Services'/>}
+              <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
+              <Tab value='otherdata' label='Data'/>
+            </Tabs>
+            {dataType === 'main' &&          <ServiceReconciler/>}
+            {dataType === 'otherservices' && <OtherServices/>}
+            {dataType === 'otherdata' &&     <OtherData/>}
+          </Stack>
         </Stack>
       </LoadingContext>
     );

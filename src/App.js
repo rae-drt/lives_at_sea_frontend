@@ -9,6 +9,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const queryClientOptions = process.env.REACT_APP_PERSIST_CACHE ?
   {
@@ -61,24 +62,33 @@ const routes = (
 );
 
 function App() {
+  const theme = createTheme({
+    typography: {
+      fontSize: 12,
+    }
+  });
   if(process.env.REACT_APP_PERSIST_CACHE) {
     console.log("Enabled cache state persistence (changes made will survive refresh)");
     return (
       <div className="App">
-        <PersistQueryClientProvider client={queryClient} persistOptions={{persister: createSyncStoragePersister({storage: window.localStorage})}}>
-          <ReactQueryDevtools initialIsOpen={false} />
-          {routes}
-        </PersistQueryClientProvider>
+        <ThemeProvider theme={theme}>
+          <PersistQueryClientProvider client={queryClient} persistOptions={{persister: createSyncStoragePersister({storage: window.localStorage})}}>
+            <ReactQueryDevtools initialIsOpen={false} />
+            {routes}
+          </PersistQueryClientProvider>
+        </ThemeProvider>
       </div>
     );
   }
   else {
     return (
       <div className="App">
-        <QueryClientProvider client={queryClient}>
-          <ReactQueryDevtools initialIsOpen={false} />
-          {routes}
-        </QueryClientProvider>
+        <ThemeProvider theme={theme}>
+          <QueryClientProvider client={queryClient}>
+            <ReactQueryDevtools initialIsOpen={false} />
+            {routes}
+          </QueryClientProvider>
+        </ThemeProvider>
       </div>
     );
   }
