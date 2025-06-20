@@ -3,6 +3,7 @@ import Person from './person';
 import OfficerIndex from './officerindex';
 import RatingsIndex from './ratingsindex';
 import SimpleEditor from './simpleeditor';
+import LaSAppBar from './lasappbar';
 import { Routes, Route, Navigate} from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -72,6 +73,7 @@ function App() {
     return (
       <div className="App">
         <ThemeProvider theme={theme}>
+          <LaSAppBar/>
           <PersistQueryClientProvider client={queryClient} persistOptions={{persister: createSyncStoragePersister({storage: window.localStorage})}}>
             <ReactQueryDevtools initialIsOpen={false} />
             {routes}
@@ -84,6 +86,7 @@ function App() {
     return (
       <div className="App">
         <ThemeProvider theme={theme}>
+          <LaSAppBar/>
           <QueryClientProvider client={queryClient}>
             <ReactQueryDevtools initialIsOpen={false} />
             {routes}
