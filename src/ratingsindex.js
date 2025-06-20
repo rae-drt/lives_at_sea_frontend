@@ -14,7 +14,7 @@ const COMPLETED_2 = 16;
 const XCHECKED    = 32;
 const MISSING     = 64;
 
-const SQUARE_SIZE = 22;
+const SQUARE_SIZE = 30;
 const SQUARE_GAP = 0.15;
 
 function color(set, state) {
@@ -185,7 +185,7 @@ function chunk(data, rowBoxes) {
 
 export default function RatingsIndex() {
   const { piece } = useParams();
-  const [ searchParams, ] = useSearchParams({rowBoxes: 20});
+  const [ searchParams, ] = useSearchParams({rowBoxes: 30});
   const { data: queryData, status: queryStatus } = useQuery({...pieceQuery(piece), select: (x) => ({
     ranges: x.piece_ranges,
     states: x.records.map((record) => {
