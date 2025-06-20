@@ -69,7 +69,7 @@ function key() {
   function keyItem(thing, label) {
     return(
       <Stack direction='row' spacing={1}>
-        <svg  sx={{minWidth: SQUARE_SIZE * 2}} width={SQUARE_SIZE} height={SQUARE_SIZE}>
+        <svg  sx={{minWidth: SQUARE_SIZE * 2}} width={SQUARE_SIZE} height={SQUARE_SIZE + 1}>
           {thing}
           {box(0)}
         </svg>
