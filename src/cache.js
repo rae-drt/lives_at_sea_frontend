@@ -9,27 +9,22 @@ import { queries } from './queries';
 //(But the JIT-ish cache filling might be efficient)
 //Either way, I may be able to hide everything behind the useQuery interface (but I don't have to)
 
-function hash(sailorType, nameId, selection) {
-  return `${sailorType}:${nameId}:${selection}`;
-}
-
 const RECORDS = new Map();
 
 function getRecord(sailorType, nameId, selection, query) {
-  const { data: queryData, status: queryStatus } = query; //if it is possible to do this without hooks, could be more efficient to do the lookup inside the conditional
-
-  if(!RECORDS.has(hash(sailorType, nameId, selection))) {
-    if(queryStatus === 'success') {
-      RECORDS.set(hash(sailorType, nameId, selection),
+  const key = `${sailorType}:${nameId}:${selection}`;
+  if(!RECORDS.has(key)) {
+    if(query.status === 'success') {
+      RECORDS.set(key,
                   createStore((set) => ({
-                    [selection]: queryData,
+                    [selection]: query.data,
                     update: (value) => set({[selection]: value}),
                   })));
     }
   }
   return {
-    data: RECORDS.get(hash(sailorType, nameId, selection)) || createStore(() => ({[selection]: null})),
-    status: queryStatus,
+    data: RECORDS.get(key) || createStore(() => ({[selection]: null})),
+    status: query.status,
   };
 }
 
