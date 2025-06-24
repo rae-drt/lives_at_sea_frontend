@@ -8,15 +8,15 @@ import { DirtySailorContext } from './dirty';
 
 export default function Other({mutate, tag, columns, columnGroupingModel}) {
   const { sailorType, nameId } = useParams();
-  const { data, setData, mutateData, status } = useRecord(sailorType, nameId, tag);
+  const { data, setData, mutateData, status: queryStatus } = useRecord(sailorType, nameId, tag);
   const dirty = useContext(DirtySailorContext)[tag];
 
-  if(status === 'error') {
+  if(queryStatus === 'error') {
     return (<Alert severity='error'>Error fetching data</Alert>);
   }
   else {
     return(
-      <LoadingContext value={status === 'pending'}>
+      <LoadingContext value={queryStatus === 'pending'}>
         <Stack width='140em'>
           <Stack direction='row' justifyContent='flex-end'>
             <Button disabled={!dirty} onClick={()=>{mutateData(data);}}>Enter</Button>
