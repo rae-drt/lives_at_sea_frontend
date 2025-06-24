@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useDirtySailor, DirtySailorContext } from './dirty';
+import { DirtySailorContext } from './dirty';
 import { useParams } from 'react-router';
 import Stack from '@mui/material/Stack';
 import FormControlLabel from '@mui/material/FormControlLabel';

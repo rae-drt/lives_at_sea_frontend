@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';

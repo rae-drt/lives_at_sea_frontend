@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -66,7 +66,7 @@ export default function ServiceReconciler() {
   const {sailorType, nameId} = useParams();
   const [searchParams,] = useSearchParams();
   const queryClient = useQueryClient();
-  const { data: serviceRecords, setData: setServiceRecords, status: queryStatus } = useRecord(sailorType, nameId, 'service');
+  const { data: serviceRecords, setData: setServiceRecords } = useRecord(sailorType, nameId, 'service');
   const dirty = useContext(DirtySailorContext).service;
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
