@@ -9,7 +9,7 @@ import { queries } from './queries';
 //(But the JIT-ish cache filling might be efficient)
 //Either way, I may be able to hide everything behind the useQuery interface (but I don't have to)
 
-const RECORDS = new Map();
+const RECORDS = new Map(); //TODO: Is this a global singleton?
 
 function getRecord(sailorType, nameId, selection, query) {
   const key = `${sailorType}:${nameId}:${selection}`;
