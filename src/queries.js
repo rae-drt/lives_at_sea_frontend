@@ -84,12 +84,7 @@ function piecesQF() {
 export async function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = await queryClient.fetchQuery({queryKey: key});
-  if(sailorType === 'rating') {
-    queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
-  }
-  else {
-    queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, data);
-  }
+  queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
 }
 
 export async function serviceRecordsMutate(queryClient, nameId, data) {
@@ -114,7 +109,7 @@ export async function otherServicesMutate(queryClient, sailorType, nameId, data)
 export const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
-  select: (x) => ( sailorType === 'rating' ? x.name : x),
+  select: (x) => x.name,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
