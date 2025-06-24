@@ -210,13 +210,25 @@ export const queries = {
   data_other: otherDataQuery,
 }
 
-const RECORDS = new Map(); //TODO: Is this a global singleton?
+//following https://stackoverflow.com/a/1479341
+const RECORDS = (function() { //TODO: Is this a global singleton?
+  //private
+  const map = new Map();
+  function _key(sailorType, nameId, selection) { return `${sailorType}:${nameId}:${selection}` };
+
+  //public
+  return {
+    has:    function(sailorType, nameId, selection) { return map.has       (_key(sailorType, nameId, selection)) },
+    get:    function(sailorType, nameId, selection) { return map.get       (_key(sailorType, nameId, selection)) },
+    delete: function(sailorType, nameId, selection) { return map.delete    (_key(sailorType, nameId, selection)) },
+    set:    function(sailorType, nameId, selection, value) { return map.set(_key(sailorType, nameId, selection), value) },
+  }
+})();
 
 function getRecord(sailorType, nameId, selection, query) {
-  const key = `${sailorType}:${nameId}:${selection}`;
-  if(!RECORDS.has(key)) {
+  if(!RECORDS.has(sailorType, nameId, selection)) {
     if(query.status === 'success') {
-      RECORDS.set(key,
+      RECORDS.set(sailorType, nameId, selection,
                   createStore((set) => ({
                     [selection]: query.data,
                     update: (value) => set({[selection]: value}),
@@ -224,7 +236,7 @@ function getRecord(sailorType, nameId, selection, query) {
     }
   }
   return [
-    RECORDS.get(key) || createStore(() => ({[selection]: null})),
+    RECORDS.get(sailorType, nameId, selection) || createStore(() => ({[selection]: null})),
     query.status,
   ];
 }
