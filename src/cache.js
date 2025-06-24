@@ -17,30 +17,18 @@ const RECORDS = new Map();
 
 function getRecord(sailorType, nameId, selection, query) {
   const { data: queryData, status: queryStatus } = query; //if it is possible to do this without hooks, could be more efficient to do the lookup inside the conditional
-  let record = null;
 
-  if(RECORDS.has(hash(sailorType, nameId, selection))) {
-    record = RECORDS.get(hash(sailorType, nameId, selection));
-  }
-  else if(queryStatus === 'success') {
-    record = createStore((set) => ({
-      [selection]: queryData,
-      update: (value) => set({[selection]: value}),
-    }));
-    RECORDS.set(hash(sailorType, nameId, selection), record);
-  }
-
-  if(record === null) {
-    return {
-      data: createStore((set) => ({
-        [selection]: null,
-        update: (value) => set({[selection]: value}),
-      })),
-      status: queryStatus,
-    };
+  if(!RECORDS.has(hash(sailorType, nameId, selection))) {
+    if(queryStatus === 'success') {
+      RECORDS.set(hash(sailorType, nameId, selection),
+                  createStore((set) => ({
+                    [selection]: queryData,
+                    update: (value) => set({[selection]: value}),
+                  })));
+    }
   }
   return {
-    data: record,
+    data: RECORDS.get(hash(sailorType, nameId, selection)) || createStore(() => ({[selection]: null})),
     status: queryStatus,
   };
 }
