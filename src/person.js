@@ -17,8 +17,7 @@ import { LoadingContext } from './loadingcontext';
 import { useDirty, useDirtyBlocker } from './dirty';
 import BlockNavigationDialog from './blocknavigationdialog';
 import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
-import { mainPersonQuery, mainPersonMutate } from './queries';
-import { useRecord } from './cache';
+import { useRecord, mainPersonMutate } from './queries';
 
 const _ = require('lodash');
 

@@ -1,6 +1,6 @@
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRecord } from './cache';
+import { useRecord } from './queries';
 import { Alert, Button, Stack } from '@mui/material';
 import { LoadingContext } from './loadingcontext';
 import DataTable from './datatable';

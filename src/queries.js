@@ -1,4 +1,6 @@
+import { createStore, useStore } from 'zustand';
 import { init_data, status_reconciled, status_encode } from './data_utils';
+import { useQuery } from '@tanstack/react-query';
 
 function fetchData(params) {
   const api = process.env.REACT_APP_API_ROOT + params;
@@ -206,4 +208,32 @@ export const queries = {
   service: serviceRecordsQuery,
   service_other: otherServicesQuery,
   data_other: otherDataQuery,
+}
+
+const RECORDS = new Map(); //TODO: Is this a global singleton?
+
+function getRecord(sailorType, nameId, selection, query) {
+  const key = `${sailorType}:${nameId}:${selection}`;
+  if(!RECORDS.has(key)) {
+    if(query.status === 'success') {
+      RECORDS.set(key,
+                  createStore((set) => ({
+                    [selection]: query.data,
+                    update: (value) => set({[selection]: value}),
+                  })));
+    }
+  }
+  return [
+    RECORDS.get(key) || createStore(() => ({[selection]: null})),
+    query.status,
+  ];
+}
+
+export function useRecord(sailorType, nameId, selection) {
+  const [record, queryStatus] = getRecord(sailorType, nameId, selection, useQuery(queries[selection](sailorType, nameId)));
+  return {
+    data: useStore(record, (state)=>state[selection]),
+    setData: useStore(record, (state)=>state.update),
+    status: queryStatus,
+  };
 }

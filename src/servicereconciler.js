@@ -8,9 +8,8 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
 import { SERVICE_FIELDS } from './data_utils';
-import { serviceRecordsQuery, serviceRecordsMutate } from './queries';
+import { useRecord, serviceRecordsMutate } from './queries';
 import { useDirty } from './dirty';
-import { useRecord } from './cache';
 
 import IconButton from '@mui/material/IconButton';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
