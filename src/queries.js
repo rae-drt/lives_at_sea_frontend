@@ -87,6 +87,7 @@ export async function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = await queryClient.getQueryData(key);
   queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
+  RECORDS.delete(sailorType, nameId, 'name');
 }
 
 export async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
@@ -94,18 +95,21 @@ export async function serviceRecordsMutate(queryClient, sailorType, nameId, data
   const currentData = queryClient.getQueryData(key);
   const newData = {service_history: data.services, status: status_encode(data)}
   queryClient.setQueryData(key, {...currentData, ...newData});
+  RECORDS.delete(sailorType, nameId, 'service');
 }
 
 export async function otherDataMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, other_data: data});
+  RECORDS.delete(sailorType, nameId, 'data_other');
 }
 
 export async function otherServicesMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, service_other: data});
+  RECORDS.delete(sailorType, nameId, 'service_other');
 }
 
 export const fullRecordQuery = (sailorType, nameId) => ({
