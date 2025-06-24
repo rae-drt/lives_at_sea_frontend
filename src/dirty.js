@@ -1,25 +1,51 @@
-import { create } from 'zustand';
 import { useBlocker, matchRoutes } from 'react-router';
+import { useRecord } from './queries';
+import { createContext } from 'react';
 
-export const useDirty = create((set)=> ({
-  person: false,
-  services: false,
-  otherdata: false,
-  otherservices: false,
-  setDirty: (key) => set(()=>({[key]: true})),
-  setClean: (key) => set(()=>({[key]: false})),
-}));
+const _ = require('lodash');
 
-export function useDirtyBlocker() {
-  const dirty = useDirty();
+class Dirty {
+  any() {
+    return Object.values(this).some((x)=>x);
+  }
+}
+
+class DirtySailor extends Dirty {
+  constructor(name, service, service_other, data_other) {
+    super();
+    this.name = name;
+    this.service = service;
+    this.service_other = service_other;
+    this.data_other = data_other;
+  }
+}
+
+
+export const DirtySailorContext = createContext(new DirtySailor(false, false, false, false));
+
+export function useDirtySailor(sailorType, nameId) {
+  const {data: nameRecord, query: nameQuery } = useRecord(sailorType, nameId, 'name');
+  const {data: servicesRecord, query: servicesQuery } = useRecord(sailorType, nameId, 'service');
+  const {data: otherServicesRecord, query: otherServicesQuery } = useRecord(sailorType, nameId, 'service_other');
+  const {data: otherDataRecord, query: otherDataQuery} = useRecord(sailorType, nameId, 'data_other');
+  return new DirtySailor(
+    !(_.isEqual(nameRecord, nameQuery.data)),
+    !(_.isEqual(servicesRecord, servicesQuery.data)),
+    !(_.isEqual(otherServicesRecord, otherServicesQuery.data)),
+    !(_.isEqual(otherDataRecord, otherDataQuery.data)),
+  );
+}
+
+//Block if we are navigating away from the current sailor's record and there is any dirty data
+export function useDirtySailorBlocker(dirty) {
   function block({currentLocation, historyAction, nextLocation}) {
     function getMatchParams(loc) {
       const matches = matchRoutes([
-        {path: ':sailorType/:nameId/:dataType'},
+        {path: ':sailorType/:nameId'},
       ], loc);
 
       //no matches
-      if(matches === null || matches.length === 0) return null;
+      if(matches === null || matches.length === 0) return new Error(); //Should not be able to happen
 
       //react-router documentation is awful. This function returns an array, I presume in case we match more than one of the given routes.
       if(matches.length > 1) throw new Error('Too many matches'); //Just blow up if the return is surprising
@@ -28,19 +54,13 @@ export function useDirtyBlocker() {
       //throw an error if my assumptions break
       //(breakage here is on me, not on the bad react-router documentation)
       const keys = Object.keys(params);
-      if(!(keys.length === 3 &&
+      if(!(keys.length === 2 &&
            keys.includes('sailorType') &&
-           keys.includes('nameId') &&
-           keys.includes('dataType'))) {
+           keys.includes('nameId'))) {
         throw new Error('Bad params: ' + JSON.stringify(params));
       }
       return params;
     }
-
-    //If the only dirty data is in the person table and we are switching tabs then we should not block, no dirty data will be lost
-    //Tab switch should change the :dataType parameter only (or alternatively, not change the other parameters)
-
-    const dirtyTabs = dirty.services || dirty.otherdata || dirty.otherservices;
 
     const current = getMatchParams(currentLocation); //is from current location, so should always match for current contexts
     const next = getMatchParams(nextLocation); //may be null if we are navigating away
@@ -48,13 +68,11 @@ export function useDirtyBlocker() {
     if(next !== null) {
       if(current.sailorType === next.sailorType &&
          current.nameId === next.nameId) {
-        return dirtyTabs;
+        return false;
       }
     }
-    //Block other forms of navigation if there is any dirty data
-    return (dirty.person || dirtyTabs);
+    return dirty.any();
   }
 
-  const blocker = useBlocker(block);
-  return blocker;
+  return(useBlocker(block));
 }

@@ -9,7 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
 import { SERVICE_FIELDS } from './data_utils';
 import { useRecord, serviceRecordsMutate } from './queries';
-import { useDirty } from './dirty';
+import { DirtySailorContext } from './dirty';
 
 import IconButton from '@mui/material/IconButton';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -67,7 +67,7 @@ export default function ServiceReconciler() {
   const [searchParams,] = useSearchParams();
   const queryClient = useQueryClient();
   const { data: serviceRecords, setData: setServiceRecords, status: queryStatus } = useRecord(sailorType, nameId, 'service');
-  const dirty = false;
+  const dirty = useContext(DirtySailorContext).service;
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index

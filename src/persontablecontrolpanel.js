@@ -1,4 +1,5 @@
-import { useDirty } from './dirty';
+import { useContext } from 'react';
+import { useDirtySailor, DirtySailorContext } from './dirty';
 import { useParams } from 'react-router';
 import Stack from '@mui/material/Stack';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -7,11 +8,11 @@ import CardContent from '@mui/material/CardContent';
 import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { catref, officerref } from './data_utils'
+import { catref, officerref } from './data_utils';
 
 export default function PersonTableControlPanel({data, onChange}) {
   const {sailorType} = useParams();
-  const dirty = useDirty((state)=>state.person);
+  const dirty = useContext(DirtySailorContext).name;
   return (
     <Card>
       <CardContent>

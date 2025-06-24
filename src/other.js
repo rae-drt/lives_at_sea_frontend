@@ -1,16 +1,17 @@
+import { useContext } from 'react';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRecord } from './queries';
 import { Alert, Button, Stack } from '@mui/material';
 import { LoadingContext } from './loadingcontext';
 import DataTable from './datatable';
-import { useDirty } from './dirty';
+import { DirtySailorContext } from './dirty';
 
 export default function Other({query, mutate, tag, columns, columnGroupingModel}) {
   const { sailorType, nameId } = useParams();
   const queryClient = useQueryClient();
   const { data, setData, status } = useRecord(sailorType, nameId, tag);
-  const dirty = useDirty((state)=>state[tag]);
+  const dirty = useContext(DirtySailorContext)[tag];
 
   if(status === 'error') {
     return (<Alert severity='error'>Error fetching data</Alert>);

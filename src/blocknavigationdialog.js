@@ -3,17 +3,17 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 export default function BlockNavigationDialog({blocker}) {
   return (
     <Dialog open={blocker.state === 'blocked'}>
-      <DialogTitle>Discard changes?</DialogTitle>
+      <DialogTitle>Unsaved changes</DialogTitle>
       <DialogContent>
         <DialogContentText sx={{marginBottom: 2}}>
-          Are you sure you want to leave this record?
+          This record contains unsaved changes. Are you sure you want to leave without saving?
         </DialogContentText>
         <DialogContentText sx={{marginBottom: 2}}>
-          There are unsaved changes that will be lost if you leave this page without pressing Enter.
+          Unsaved changes will be kept for the remainder of this session.
         </DialogContentText>
         <DialogActions>
-          <Button autoFocus onClick={()=>{blocker.reset()}}>Continue editing</Button>
-          <Button onClick={()=>{blocker.proceed()}}>Discard changes</Button>
+          <Button autoFocus onClick={()=>{blocker.reset()}}>Remain on this page</Button>
+          <Button onClick={()=>{blocker.proceed()}}>Leave this page</Button>
         </DialogActions>
       </DialogContent>
     </Dialog>

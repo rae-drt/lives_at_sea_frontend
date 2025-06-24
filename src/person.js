@@ -14,12 +14,10 @@ import NewPersonControlPanel from './newpersoncontrolpanel';
 import ExistingPersonControlPanel from './existingpersoncontrolpanel';
 import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
-import { useDirty, useDirtyBlocker } from './dirty';
+import { DirtySailorContext, useDirtySailor, useDirtySailorBlocker } from './dirty';
 import BlockNavigationDialog from './blocknavigationdialog';
 import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
 import { useRecord, mainPersonMutate } from './queries';
-
-const _ = require('lodash');
 
 function isNew(id) {
   return id === '0';
@@ -29,22 +27,10 @@ export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const setDirty = useDirty((state) => state.setDirty);
-  const setClean = useDirty((state) => state.setClean);
-  const blocker = useDirtyBlocker();
   const { data: personTableData, setData: setPersonTableData, status: mainPersonQueryStatus } = useRecord(sailorType, nameId, 'name');
   const queryClient = useQueryClient();
-  /*
-  useEffect(() => {
-    if(_.isEqual(personTableData, mainPersonQueryData)) {
-      setClean('person');
-    }
-    else {
-      setDirty('person');
-    }
-  }, [personTableData, mainPersonQueryData, setClean, setDirty]);
-  */
-  //setClean('person');
+  const dirty = useDirtySailor(sailorType, nameId);
+  const blocker = useDirtySailorBlocker(dirty);
 
   if(isNew(nameId)) document.title = 'New ' + sailorType;
   else if(personTableData) {
@@ -73,37 +59,39 @@ export default function Person() {
       <ExistingPersonControlPanel data={personTableData} onChange={setPersonTableData}/>;
     return (
       <LoadingContext value={mainPersonQueryStatus === 'pending'}>
-        <BlockNavigationDialog blocker={blocker}/>
-        <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
-          <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
-            <Stack direction='row' width={0.7} alignItems='flex-start'>
-              <Stack>
-                <PersonTableControlPanel data={personTableData} onChange={(()=>{
-                  mainPersonMutate(queryClient, sailorType, nameId, personTableData);
-                })}/>
-                {
-                  <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
-                    rows={sailorType === 'officer' ?
-                      OFFICER_LAYOUT :
-                      isNew(nameId) ?
-                        [{labels: {'ADM': 2}, fields :{series: 1, piece: 1, nameid: 1}}, ...RATING_LAYOUT] :
-                        RATING_LAYOUT
-                    }
-                  />
-                }
+        <DirtySailorContext value={dirty}>
+          <BlockNavigationDialog blocker={blocker}/>
+          <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
+            <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
+              <Stack direction='row' width={0.7} alignItems='flex-start'>
+                <Stack>
+                  <PersonTableControlPanel data={personTableData} onChange={(()=>{
+                    mainPersonMutate(queryClient, sailorType, nameId, personTableData);
+                  })}/>
+                  {
+                    <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
+                      rows={sailorType === 'officer' ?
+                        OFFICER_LAYOUT :
+                        isNew(nameId) ?
+                          [{labels: {'ADM': 2}, fields :{series: 1, piece: 1, nameid: 1}}, ...RATING_LAYOUT] :
+                          RATING_LAYOUT
+                      }
+                    />
+                  }
+                </Stack>
+                {controlPanel}
               </Stack>
-              {controlPanel}
+              <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
+                {sailorType === 'rating' && <Tab value='main' label='Services'/>}
+                <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
+                <Tab value='otherdata' label='Data'/>
+              </Tabs>
+              {dataType === 'main' &&          <ServiceReconciler/>}
+              {dataType === 'otherservices' && <OtherServices/>}
+              {dataType === 'otherdata' &&     <OtherData/>}
             </Stack>
-            <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
-              {sailorType === 'rating' && <Tab value='main' label='Services'/>}
-              <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
-              <Tab value='otherdata' label='Data'/>
-            </Tabs>
-            {dataType === 'main' &&          <ServiceReconciler/>}
-            {dataType === 'otherservices' && <OtherServices/>}
-            {dataType === 'otherdata' &&     <OtherData/>}
           </Stack>
-        </Stack>
+        </DirtySailorContext>
       </LoadingContext>
     );
   }
