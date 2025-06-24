@@ -64,7 +64,7 @@ function XCheck({ready, checked, onChange}) {
 export default function ServiceReconciler() {
   const {sailorType, nameId} = useParams();
   const [searchParams,] = useSearchParams();
-  const { data: serviceRecords, setData: setServiceRecords, mutateData: serviceRecordsMutate } = useRecord(sailorType, nameId, 'service');
+  const { data: serviceRecords, setData: setServiceRecords, mutateData: mutateServiceRecords } = useRecord(sailorType, nameId, 'service');
   const dirty = useContext(DirtySailorContext).service;
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
@@ -239,7 +239,7 @@ export default function ServiceReconciler() {
            clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
            clone.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
             //TODO: This is async and slow, need to suspense or something
-            serviceRecordsMutate(clone);
+            mutateServiceRecords(clone);
         }}>Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
