@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -10,6 +10,7 @@ import ServiceTable from './servicetable';
 import { SERVICE_FIELDS } from './data_utils';
 import { serviceRecordsQuery, serviceRecordsMutate } from './queries';
 import { useDirty } from './dirty';
+import { useRecord } from './cache';
 
 import IconButton from '@mui/material/IconButton';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -62,39 +63,12 @@ function XCheck({ready, checked, onChange}) {
   );
 }
 
-const EMPTY_SERVICE_HISTORY = {
-  reconciled: false,
-  services: [
-    { userid:0, complete:0, records:[] },
-    { userid:0, complete:0, records:[] },
-  ]
-};
-
 export default function ServiceReconciler() {
-  const {nameId} = useParams();
+  const {sailorType, nameId} = useParams();
   const [searchParams,] = useSearchParams();
   const queryClient = useQueryClient();
-  const [serviceRecords, setServiceRecords] = useState(EMPTY_SERVICE_HISTORY);
-  const {data: queryData, status: queryStatus} = useQuery(serviceRecordsQuery(nameId));
-  useEffect(() => {
-    if(queryStatus === 'success') {
-      setServiceRecords(queryData);
-    }
-    else {
-      setServiceRecords(EMPTY_SERVICE_HISTORY);
-    }
-  }, [queryData, queryStatus]);
-  const setDirty = useDirty((state)=>state.setDirty);
-  const setClean = useDirty((state)=>state.setClean);
-  const dirty = useDirty((state)=>state['services']);
-  useEffect(() => {
-    if(_.isEqual(serviceRecords, queryData)) {
-      setClean('services');
-    }
-    else {
-      setDirty('services');
-    }
-  }, [serviceRecords, queryData, setClean, setDirty]);
+  const { data: serviceRecords, setData: setServiceRecords, status: queryStatus } = useRecord(sailorType, nameId, 'service');
+  const dirty = false;
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index

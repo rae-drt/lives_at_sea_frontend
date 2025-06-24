@@ -125,8 +125,8 @@ export const mainPersonQuery = (sailorType, nameId) => ({
   staleTime: Infinity,
 });
 
-export const serviceRecordsQuery = (nameId) => ({
-  queryKey: ['mainPersonData', {sailorType: 'rating', nameId: Number(nameId)}],
+export const serviceRecordsQuery = (sailorType, nameId) => ({
+  queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
   select: (x) => ( {reconciled: status_reconciled(x.status.status_code), services: x.service_history} ),
   refetchOnMount: false,
@@ -203,6 +203,7 @@ export const simpleTableQuery = (table) => ({
 export const queries = {
   full: fullRecordQuery,
   name: mainPersonQuery,
+  service: serviceRecordsQuery,
   service_other: otherServicesQuery,
   data_other: otherDataQuery,
 }
