@@ -25,6 +25,7 @@ function getRecord(sailorType, nameId, selection, query) {
   else if(queryStatus === 'success') {
     record = createStore((set) => ({
       [selection]: queryData,
+      update: (value) => set({[selection]: value}),
     }));
     RECORDS.set(hash(sailorType, nameId, selection), record);
   }
@@ -33,25 +34,18 @@ function getRecord(sailorType, nameId, selection, query) {
     return {
       data: createStore((set) => ({
         [selection]: null,
+        update: (value) => set({[selection]: value}),
       })),
-      setData: null,
       status: queryStatus,
     };
   }
   return {
     data: record,
-    setData: (value) => {
-      record.setState((prev) => {
-        const newRecord = structuredClone(prev);
-        newRecord[selection] = value;
-        return newRecord;
-      });
-    },
     status: queryStatus,
   };
 }
 
 export function useRecord(sailorType, nameId, selection) {
   const inner = getRecord(sailorType, nameId, selection, useQuery(queries[selection](sailorType, nameId)));
-  return {data: useStore(inner.data, (state)=>state[selection]), setData: inner.setData, status: inner.status};
+  return {data: useStore(inner.data, (state)=>state[selection]), setData: useStore(inner.data, (state)=>state.update), status: inner.status};
 }
