@@ -83,26 +83,26 @@ function piecesQF() {
 
 export async function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = await queryClient.fetchQuery({queryKey: key});
+  const currentData = await queryClient.getQueryData(key);
   queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
 }
 
 export async function serviceRecordsMutate(queryClient, nameId, data) {
   const key = mainPersonQuery('rating', nameId).queryKey;
-  const currentData = await queryClient.fetchQuery({queryKey: key});
+  const currentData = queryClient.getQueryData(key);
   const newData = {service_history: data.services, status: status_encode(data)}
   queryClient.setQueryData(key, {...currentData, ...newData});
 }
 
 export async function otherDataMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = await queryClient.fetchQuery({queryKey: key});
+  const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, other_data: data});
 }
 
 export async function otherServicesMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = await queryClient.fetchQuery({queryKey: key});
+  const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, service_other: data});
 }
 
