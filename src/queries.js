@@ -230,10 +230,12 @@ function getRecord(sailorType, nameId, selection, query) {
 }
 
 export function useRecord(sailorType, nameId, selection) {
-  const [record, queryStatus] = getRecord(sailorType, nameId, selection, useQuery(queries[selection](sailorType, nameId)));
+  const query = useQuery(queries[selection](sailorType, nameId));
+  const [record, queryStatus] = getRecord(sailorType, nameId, selection, query);
   return {
     data: useStore(record, (state)=>state[selection]),
     setData: useStore(record, (state)=>state.update),
+    query: query,
     status: queryStatus,
   };
 }
