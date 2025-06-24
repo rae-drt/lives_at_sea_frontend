@@ -1,4 +1,4 @@
-import { otherDataQuery, otherDataMutate } from './queries';
+import { otherDataMutate } from './queries';
 import Other from './other';
 
 export default function OtherData() {
@@ -64,5 +64,5 @@ export default function OtherData() {
     },
   ];
 
-  return (<Other query={otherDataQuery} mutate={otherDataMutate} tag='data_other' columns={columns} columnGroupingModel={columnGroupingModel}/>);
+  return (<Other mutate={otherDataMutate} tag='data_other' columns={columns} columnGroupingModel={columnGroupingModel}/>);
 }

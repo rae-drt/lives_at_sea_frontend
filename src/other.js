@@ -7,7 +7,7 @@ import { LoadingContext } from './loadingcontext';
 import DataTable from './datatable';
 import { DirtySailorContext } from './dirty';
 
-export default function Other({query, mutate, tag, columns, columnGroupingModel}) {
+export default function Other({mutate, tag, columns, columnGroupingModel}) {
   const { sailorType, nameId } = useParams();
   const queryClient = useQueryClient();
   const { data, setData, status } = useRecord(sailorType, nameId, tag);
