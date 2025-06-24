@@ -143,15 +143,6 @@ export async function otherServicesMutate(queryClient, sailorType, nameId, data)
   RECORDS.delete(sailorType, nameId, 'service_other');
 }
 
-export const fullRecordQuery = (sailorType, nameId) => ({
-  queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
-  queryFn: mainPersonQF,
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
-  refetchOnReconnect: false,
-  staleTime: Infinity,
-});
-
 export const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
@@ -238,7 +229,6 @@ export const simpleTableQuery = (table) => ({
 });
 
 export const queries = {
-  full: fullRecordQuery,
   name: mainPersonQuery,
   service: serviceRecordsQuery,
   service_other: otherServicesQuery,
