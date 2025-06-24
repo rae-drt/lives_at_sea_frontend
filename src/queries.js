@@ -2,6 +2,37 @@ import { createStore, useStore } from 'zustand';
 import { init_data, status_reconciled, status_encode } from './data_utils';
 import { useQuery } from '@tanstack/react-query';
 
+//following https://stackoverflow.com/a/1479341
+const RECORDS = (function() { //TODO: Is this a global singleton?
+  //private
+  const map = new Map();
+  function _key(sailorType, nameId, selection) { return `${sailorType}:${nameId}:${selection}` };
+
+  //public
+  return {
+    has:    function(sailorType, nameId, selection) { return map.has       (_key(sailorType, nameId, selection)) },
+    get:    function(sailorType, nameId, selection) { return map.get       (_key(sailorType, nameId, selection)) },
+    delete: function(sailorType, nameId, selection) { return map.delete    (_key(sailorType, nameId, selection)) },
+    set:    function(sailorType, nameId, selection, value) { return map.set(_key(sailorType, nameId, selection), value) },
+  }
+})();
+
+function getRecord(sailorType, nameId, selection, query) {
+  if(!RECORDS.has(sailorType, nameId, selection)) {
+    if(query.status === 'success') {
+      RECORDS.set(sailorType, nameId, selection,
+                  createStore((set) => ({
+                    [selection]: query.data,
+                    update: (value) => set({[selection]: value}),
+                  })));
+    }
+  }
+  return [
+    RECORDS.get(sailorType, nameId, selection) || createStore(() => ({[selection]: null})),
+    query.status,
+  ];
+}
+
 function fetchData(params) {
   const api = process.env.REACT_APP_API_ROOT + params;
   return new Promise((resolve, reject) => {
@@ -212,37 +243,6 @@ export const queries = {
   service: serviceRecordsQuery,
   service_other: otherServicesQuery,
   data_other: otherDataQuery,
-}
-
-//following https://stackoverflow.com/a/1479341
-const RECORDS = (function() { //TODO: Is this a global singleton?
-  //private
-  const map = new Map();
-  function _key(sailorType, nameId, selection) { return `${sailorType}:${nameId}:${selection}` };
-
-  //public
-  return {
-    has:    function(sailorType, nameId, selection) { return map.has       (_key(sailorType, nameId, selection)) },
-    get:    function(sailorType, nameId, selection) { return map.get       (_key(sailorType, nameId, selection)) },
-    delete: function(sailorType, nameId, selection) { return map.delete    (_key(sailorType, nameId, selection)) },
-    set:    function(sailorType, nameId, selection, value) { return map.set(_key(sailorType, nameId, selection), value) },
-  }
-})();
-
-function getRecord(sailorType, nameId, selection, query) {
-  if(!RECORDS.has(sailorType, nameId, selection)) {
-    if(query.status === 'success') {
-      RECORDS.set(sailorType, nameId, selection,
-                  createStore((set) => ({
-                    [selection]: query.data,
-                    update: (value) => set({[selection]: value}),
-                  })));
-    }
-  }
-  return [
-    RECORDS.get(sailorType, nameId, selection) || createStore(() => ({[selection]: null})),
-    query.status,
-  ];
 }
 
 export function useRecord(sailorType, nameId, selection) {
