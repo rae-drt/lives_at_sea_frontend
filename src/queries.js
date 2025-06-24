@@ -199,3 +199,10 @@ export const simpleTableQuery = (table) => ({
     refetchOnReconnect: false,
     staleTime: Infinity,
 });
+
+export const queries = {
+  full: fullRecordQuery,
+  name: mainPersonQuery,
+  service_other: otherServicesQuery,
+  data_other: otherDataQuery,
+}

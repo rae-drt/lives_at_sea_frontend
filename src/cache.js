@@ -1,6 +1,6 @@
 import { createStore, useStore } from 'zustand';
 import { useQuery } from '@tanstack/react-query';
-import { fullRecordQuery } from './queries';
+import { queries } from './queries';
 
 //TODO
 //Perhaps I should merge this into queries
@@ -9,8 +9,8 @@ import { fullRecordQuery } from './queries';
 //(But the JIT-ish cache filling might be efficient)
 //Either way, I may be able to hide everything behind the useQuery interface (but I don't have to)
 
-function hash(sailorType, nameId) {
-  return `${sailorType}:${nameId}`;
+function hash(sailorType, nameId, selection) {
+  return `${sailorType}:${nameId}:${selection}`;
 }
 
 const RECORDS = new Map();
@@ -19,23 +19,20 @@ function getRecord(sailorType, nameId, selection, query) {
   const { data: queryData, status: queryStatus } = query; //if it is possible to do this without hooks, could be more efficient to do the lookup inside the conditional
   let record = null;
 
-  if(RECORDS.has(hash(sailorType, nameId))) {
-    record = RECORDS.get(hash(sailorType, nameId));
+  if(RECORDS.has(hash(sailorType, nameId, selection))) {
+    record = RECORDS.get(hash(sailorType, nameId, selection));
   }
   else if(queryStatus === 'success') {
     record = createStore((set) => ({
-      record: queryData,
-      selection: selection,
+      [selection]: queryData,
     }));
-    RECORDS.set(hash(sailorType, nameId), record);
-    console.log('QUERIED', record);
+    RECORDS.set(hash(sailorType, nameId, selection), record);
   }
 
   if(record === null) {
     return {
       data: createStore((set) => ({
-        record: { [selection]: null },
-        selection: selection,
+        [selection]: null,
       })),
       setData: null,
       status: queryStatus,
@@ -46,7 +43,7 @@ function getRecord(sailorType, nameId, selection, query) {
     setData: (value) => {
       record.setState((prev) => {
         const newRecord = structuredClone(prev);
-        newRecord.record[selection] = value;
+        newRecord[selection] = value;
         return newRecord;
       });
     },
@@ -55,6 +52,6 @@ function getRecord(sailorType, nameId, selection, query) {
 }
 
 export function useRecord(sailorType, nameId, selection) {
-  const inner = getRecord(sailorType, nameId, selection, useQuery(fullRecordQuery(sailorType, nameId)));
-  return {data: useStore(inner.data, (state)=>state.record[selection]), setData: inner.setData, status: inner.status};
+  const inner = getRecord(sailorType, nameId, selection, useQuery(queries[selection](sailorType, nameId)));
+  return {data: useStore(inner.data, (state)=>state[selection]), setData: inner.setData, status: inner.status};
 }
