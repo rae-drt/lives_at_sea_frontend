@@ -241,7 +241,7 @@ export default function ServiceReconciler() {
            clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
            clone.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
             //TODO: This is async and slow, need to suspense or something
-            serviceRecordsMutate(queryClient, nameId, clone);
+            serviceRecordsMutate(queryClient, sailorType, nameId, clone);
         }}>Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
