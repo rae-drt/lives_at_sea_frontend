@@ -22,13 +22,17 @@ function getRecord(sailorType, nameId, selection, query) {
                   })));
     }
   }
-  return {
-    data: RECORDS.get(key) || createStore(() => ({[selection]: null})),
-    status: query.status,
-  };
+  return [
+    RECORDS.get(key) || createStore(() => ({[selection]: null})),
+    query.status,
+  ];
 }
 
 export function useRecord(sailorType, nameId, selection) {
-  const inner = getRecord(sailorType, nameId, selection, useQuery(queries[selection](sailorType, nameId)));
-  return {data: useStore(inner.data, (state)=>state[selection]), setData: useStore(inner.data, (state)=>state.update), status: inner.status};
+  const [record, queryStatus] = getRecord(sailorType, nameId, selection, useQuery(queries[selection](sailorType, nameId)));
+  return {
+    data: useStore(record, (state)=>state[selection]),
+    setData: useStore(record, (state)=>state.update),
+    status: queryStatus,
+  };
 }
