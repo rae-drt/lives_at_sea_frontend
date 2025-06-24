@@ -18,6 +18,7 @@ import { useDirty, useDirtyBlocker } from './dirty';
 import BlockNavigationDialog from './blocknavigationdialog';
 import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
 import { mainPersonQuery, mainPersonMutate } from './queries';
+import { useRecord } from './cache';
 
 const _ = require('lodash');
 
@@ -32,26 +33,9 @@ export default function Person() {
   const setDirty = useDirty((state) => state.setDirty);
   const setClean = useDirty((state) => state.setClean);
   const blocker = useDirtyBlocker();
-  const [personTableData, setPersonTableData] = useState();
-  const {data: mainPersonQueryData, status: mainPersonQueryStatus} = useQuery(mainPersonQuery(sailorType, nameId));
+  const { data: personTableData, setData: setPersonTableData, status: mainPersonQueryStatus } = useRecord(sailorType, nameId, 'name');
   const queryClient = useQueryClient();
-  useEffect(() => {
-    if(mainPersonQueryStatus !== 'success') return;
-    if(isNew(nameId)) {
-      document.title = 'New ' + sailorType;
-      setPersonTableData(mainPersonQueryData);
-      return;
-    }
-    if(sailorType === 'rating') {
-      setPersonTableData(mainPersonQueryData);
-      document.title = catref(mainPersonQueryData);
-    }
-    else if(sailorType === 'officer') {
-      setPersonTableData(mainPersonQueryData);
-      document.title = 'Officer #' + officerref(mainPersonQueryData);
-    }
-    else { throw new Error(); }
-  }, [mainPersonQueryData, mainPersonQueryStatus, nameId, sailorType]);
+  /*
   useEffect(() => {
     if(_.isEqual(personTableData, mainPersonQueryData)) {
       setClean('person');
@@ -60,6 +44,16 @@ export default function Person() {
       setDirty('person');
     }
   }, [personTableData, mainPersonQueryData, setClean, setDirty]);
+  */
+  //setClean('person');
+
+  if(isNew(nameId)) document.title = 'New ' + sailorType;
+  else if(personTableData) {
+    if(sailorType === 'rating') document.title = catref(personTableData);
+    else if(sailorType === 'officer') document.title = 'Officer #' + officerref(personTableData);
+    else throw new Error(); //this should never happen
+  }
+  else document.title = 'Fetching ' + sailorType + ' ' + nameId;
 
   if(
     (sailorType !== 'rating' && sailorType !== 'officer') ||
@@ -70,7 +64,7 @@ export default function Person() {
   else if(mainPersonQueryStatus === 'error') {
     return (<Alert severity='error'>Error fetching data</Alert>);
   }
-  else if(typeof(personTableData) === 'undefined') {
+  else if(mainPersonQueryStatus === 'pending') {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
   else {
