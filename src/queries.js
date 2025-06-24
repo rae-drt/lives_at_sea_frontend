@@ -143,7 +143,7 @@ export async function otherServicesMutate(queryClient, sailorType, nameId, data)
   RECORDS.delete(sailorType, nameId, 'service_other');
 }
 
-export const mainPersonQuery = (sailorType, nameId) => ({
+const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
   select: (x) => x.name,
@@ -153,7 +153,7 @@ export const mainPersonQuery = (sailorType, nameId) => ({
   staleTime: Infinity,
 });
 
-export const serviceRecordsQuery = (sailorType, nameId) => ({
+const serviceRecordsQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
   select: (x) => ( {reconciled: status_reconciled(x.status.status_code), services: x.service_history} ),
@@ -163,7 +163,7 @@ export const serviceRecordsQuery = (sailorType, nameId) => ({
   staleTime: Infinity,
 });
 
-export const otherServicesQuery = (sailorType, nameId) => ({
+const otherServicesQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
   select: (x) => ( x.service_other ),
@@ -173,7 +173,7 @@ export const otherServicesQuery = (sailorType, nameId) => ({
   staleTime: Infinity,
 });
 
-export const otherDataQuery = (sailorType, nameId) => ({
+const otherDataQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
   select: (x) => ( x.other_data ),
@@ -228,14 +228,14 @@ export const simpleTableQuery = (table) => ({
     staleTime: Infinity,
 });
 
-export const queries = {
-  name: mainPersonQuery,
-  service: serviceRecordsQuery,
-  service_other: otherServicesQuery,
-  data_other: otherDataQuery,
-}
-
 export function useRecord(sailorType, nameId, selection) {
+  const queries = {
+    name: mainPersonQuery,
+    service: serviceRecordsQuery,
+    service_other: otherServicesQuery,
+    data_other: otherDataQuery,
+  }
+
   const query = useQuery(queries[selection](sailorType, nameId));
   const [record, queryStatus] = getRecord(sailorType, nameId, selection, query);
   return {
