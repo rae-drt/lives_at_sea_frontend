@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import { useParams } from 'react-router';
-import { useQueryClient } from '@tanstack/react-query';
 import { useRecord } from './queries';
 import { Alert, Button, Stack } from '@mui/material';
 import { LoadingContext } from './loadingcontext';
@@ -9,8 +8,7 @@ import { DirtySailorContext } from './dirty';
 
 export default function Other({mutate, tag, columns, columnGroupingModel}) {
   const { sailorType, nameId } = useParams();
-  const queryClient = useQueryClient();
-  const { data, setData, status } = useRecord(sailorType, nameId, tag);
+  const { data, setData, mutateData, status } = useRecord(sailorType, nameId, tag);
   const dirty = useContext(DirtySailorContext)[tag];
 
   if(status === 'error') {
@@ -21,7 +19,7 @@ export default function Other({mutate, tag, columns, columnGroupingModel}) {
       <LoadingContext value={status === 'pending'}>
         <Stack width='140em'>
           <Stack direction='row' justifyContent='flex-end'>
-            <Button disabled={!dirty} onClick={()=>{mutate(queryClient, sailorType, nameId, data);}}>Enter</Button>
+            <Button disabled={!dirty} onClick={()=>{mutateData(data);}}>Enter</Button>
           </Stack>
           <DataTable
             rows={data}

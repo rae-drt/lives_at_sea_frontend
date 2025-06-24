@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import { useParams, useSearchParams } from 'react-router';
-import { useQueryClient } from '@tanstack/react-query';
 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -8,7 +7,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
 import { SERVICE_FIELDS } from './data_utils';
-import { useRecord, serviceRecordsMutate } from './queries';
+import { useRecord } from './queries';
 import { DirtySailorContext } from './dirty';
 
 import IconButton from '@mui/material/IconButton';
@@ -65,8 +64,7 @@ function XCheck({ready, checked, onChange}) {
 export default function ServiceReconciler() {
   const {sailorType, nameId} = useParams();
   const [searchParams,] = useSearchParams();
-  const queryClient = useQueryClient();
-  const { data: serviceRecords, setData: setServiceRecords } = useRecord(sailorType, nameId, 'service');
+  const { data: serviceRecords, setData: setServiceRecords, mutateData: serviceRecordsMutate } = useRecord(sailorType, nameId, 'service');
   const dirty = useContext(DirtySailorContext).service;
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
@@ -241,7 +239,7 @@ export default function ServiceReconciler() {
            clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
            clone.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
             //TODO: This is async and slow, need to suspense or something
-            serviceRecordsMutate(queryClient, sailorType, nameId, clone);
+            serviceRecordsMutate(clone);
         }}>Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>

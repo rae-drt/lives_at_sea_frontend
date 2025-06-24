@@ -1,5 +1,4 @@
 import { useParams, useLocation, useNavigate } from 'react-router';
-import { useQueryClient } from '@tanstack/react-query';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
@@ -16,7 +15,7 @@ import { LoadingContext } from './loadingcontext';
 import { DirtySailorContext, useDirtySailor, useDirtySailorBlocker } from './dirty';
 import BlockNavigationDialog from './blocknavigationdialog';
 import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
-import { useRecord, mainPersonMutate } from './queries';
+import { useRecord } from './queries';
 
 function isNew(id) {
   return id === '0';
@@ -26,8 +25,7 @@ export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { data: personTableData, setData: setPersonTableData, status: mainPersonQueryStatus } = useRecord(sailorType, nameId, 'name');
-  const queryClient = useQueryClient();
+  const { data: personTableData, setData: setPersonTableData, mutateData: mutatePersonTableData, status: mainPersonQueryStatus } = useRecord(sailorType, nameId, 'name');
   const dirty = useDirtySailor(sailorType, nameId);
   const blocker = useDirtySailorBlocker(dirty);
 
@@ -65,7 +63,7 @@ export default function Person() {
               <Stack direction='row' width={0.7} alignItems='flex-start'>
                 <Stack>
                   <PersonTableControlPanel data={personTableData} onChange={(()=>{
-                    mainPersonMutate(queryClient, sailorType, nameId, personTableData);
+                    mutatePersonTableData(personTableData);
                   })}/>
                   {
                     <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}

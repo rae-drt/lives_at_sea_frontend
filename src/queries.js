@@ -1,6 +1,6 @@
 import { createStore, useStore } from 'zustand';
 import { init_data, status_reconciled, status_encode } from './data_utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 //following https://stackoverflow.com/a/1479341
 const RECORDS = (function() { //TODO: Is this a global singleton?
@@ -114,14 +114,15 @@ function piecesQF() {
   });
 }
 
-export async function mainPersonMutate(queryClient, sailorType, nameId, data) {
+async function mainPersonMutate(queryClient, sailorType, nameId, data) {
+  console.log(queryClient, sailorType, nameId, data);
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = await queryClient.getQueryData(key);
   queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
   RECORDS.delete(sailorType, nameId, 'name');
 }
 
-export async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
+async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = queryClient.getQueryData(key);
   const newData = {service_history: data.services, status: status_encode(data)}
@@ -129,14 +130,14 @@ export async function serviceRecordsMutate(queryClient, sailorType, nameId, data
   RECORDS.delete(sailorType, nameId, 'service');
 }
 
-export async function otherDataMutate(queryClient, sailorType, nameId, data) {
+async function otherDataMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, other_data: data});
   RECORDS.delete(sailorType, nameId, 'data_other');
 }
 
-export async function otherServicesMutate(queryClient, sailorType, nameId, data) {
+async function otherServicesMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, service_other: data});
@@ -235,12 +236,20 @@ export function useRecord(sailorType, nameId, selection) {
     service_other: otherServicesQuery,
     data_other: otherDataQuery,
   }
+  const mutations = {
+    name: mainPersonMutate,
+    service: serviceRecordsMutate,
+    service_other: otherServicesMutate,
+    data_other: otherDataMutate,
+  }
 
   const query = useQuery(queries[selection](sailorType, nameId));
+  const queryClient = useQueryClient();
   const [record, queryStatus] = getRecord(sailorType, nameId, selection, query);
   return {
     data: useStore(record, (state)=>state[selection]),
     setData: useStore(record, (state)=>state.update),
+    mutateData: (value) => mutations[selection](queryClient, sailorType, nameId, value),
     query: query,
     status: queryStatus,
   };
