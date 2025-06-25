@@ -126,8 +126,8 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
             }}
             sx={{
               [`.${gridClasses.cell}.differs`]: {
-                backgroundColor: '#ff943975',
-                color: '#1a3e72',
+                backgroundColor: 'color-mix(in srgb, pink 25%, transparent)',
+                fontWeight: 'bold',
               },
             }}
           />
