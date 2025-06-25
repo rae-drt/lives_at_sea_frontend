@@ -1,6 +1,8 @@
 import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
 
+import style from './style';
+
 import { GridColDef, GridColumnGroupingModel, gridClasses } from '@mui/x-data-grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -124,12 +126,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
                 }
               }
             }}
-            sx={{
-              [`.${gridClasses.cell}.differs`]: {
-                backgroundColor: 'color-mix(in srgb, pink 25%, transparent)',
-                fontWeight: 'bold',
-              },
-            }}
+            sx={{ [`.${gridClasses.cell}.differs`]: style.different }}
           />
         </Box>
       </CardContent>

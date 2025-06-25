@@ -79,9 +79,9 @@ export default function Person() {
                 {controlPanel}
               </Stack>
               <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
-                {sailorType === 'rating' && <Tab value='main' label='Services'/>}
-                <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}/>
-                <Tab value='otherdata' label='Data'/>
+                {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
+                <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
+                <Tab value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
               </Tabs>
               {dataType === 'main' &&          <ServiceReconciler/>}
               {dataType === 'otherservices' && <OtherServices/>}

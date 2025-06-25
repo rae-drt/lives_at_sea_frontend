@@ -1,6 +1,8 @@
 import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
 
+import style from './style';
+
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid';
@@ -61,7 +63,7 @@ export default function PersonTable({data, onChange, rows, rowCells}) {
 
   return (
     <Grid container alignItems='flex-end' columns={7}>
-      <Card sx={{background: data.error ? '#ff943975' : '#ffffffff'}}>
+      <Card sx={data.error ? style.different : null}>
         <CardContent>
           <Stack direction='row' spacing={2}>
             <Grid container columns={rowCells} alignItems='center' justifyContent='flex-start'>
