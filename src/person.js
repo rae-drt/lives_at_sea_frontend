@@ -1,4 +1,5 @@
 import { useParams, useLocation, useNavigate } from 'react-router';
+import Card from '@mui/material/Card';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
@@ -59,9 +60,9 @@ export default function Person() {
         <DirtySailorContext value={dirty}>
           <BlockNavigationDialog blocker={blocker}/>
           <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
-            <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={2}>
+            <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={4}>
               <Stack direction='row' width={0.7} alignItems='flex-start'>
-                <Stack>
+                <Card variant='outlined'>
                   <PersonTableControlPanel data={personTableData} onChange={(()=>{
                     mutatePersonTableData(personTableData);
                   })}/>
@@ -75,17 +76,21 @@ export default function Person() {
                       }
                     />
                   }
-                </Stack>
+                </Card>
                 {controlPanel}
               </Stack>
-              <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
-                {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
-                <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
-                <Tab value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
-              </Tabs>
-              {dataType === 'main' &&          <ServiceReconciler/>}
-              {dataType === 'otherservices' && <OtherServices/>}
-              {dataType === 'otherdata' &&     <OtherData/>}
+              <Stack alignItems='center' spacing={2}>
+                <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
+                  {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
+                  <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
+                  <Tab value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
+                </Tabs>
+                <Card variant='outlined'>
+                  {dataType === 'main' &&          <ServiceReconciler/>}
+                  {dataType === 'otherservices' && <OtherServices/>}
+                  {dataType === 'otherdata' &&     <OtherData/>}
+                </Card>
+              </Stack>
             </Stack>
           </Stack>
         </DirtySailorContext>

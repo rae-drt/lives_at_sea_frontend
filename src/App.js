@@ -11,6 +11,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { Stack } from '@mui/material';
 import { DialogsProvider } from '@toolpad/core/useDialogs';
 
 const queryClientOptions = process.env.REACT_APP_PERSIST_CACHE ?
@@ -86,10 +87,12 @@ function App() {
         <DialogsProvider>
           <ThemeProvider theme={theme}>
             <LaSAppBar/>
-            <PersistQueryClientProvider client={queryClient} persistOptions={{persister: createSyncStoragePersister({storage: window.localStorage})}}>
-              <ReactQueryDevtools initialIsOpen={false} />
-              {routes}
-            </PersistQueryClientProvider>
+            <Stack sx={{paddingTop: '20px'}}>
+              <PersistQueryClientProvider client={queryClient} persistOptions={{persister: createSyncStoragePersister({storage: window.localStorage})}}>
+                <ReactQueryDevtools initialIsOpen={false} />
+                {routes}
+              </PersistQueryClientProvider>
+            </Stack>
           </ThemeProvider>
         </DialogsProvider>
       </div>
@@ -101,10 +104,12 @@ function App() {
         <DialogsProvider>
           <ThemeProvider theme={theme}>
             <LaSAppBar/>
-            <QueryClientProvider client={queryClient}>
-              <ReactQueryDevtools initialIsOpen={false} />
-              {routes}
-            </QueryClientProvider>
+            <Stack sx={{paddingTop: '20px'}}>
+              <QueryClientProvider client={queryClient}>
+                <ReactQueryDevtools initialIsOpen={false} />
+                {routes}
+              </QueryClientProvider>
+            </Stack>
           </ThemeProvider>
         </DialogsProvider>
       </div>
