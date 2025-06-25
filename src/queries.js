@@ -115,7 +115,6 @@ function piecesQF() {
 }
 
 async function mainPersonMutate(queryClient, sailorType, nameId, data) {
-  console.log(queryClient, sailorType, nameId, data);
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = await queryClient.getQueryData(key);
   queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});

@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { useParams, useSearchParams } from 'react-router';
+import { useDialogs } from '@toolpad/core/useDialogs';
 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
@@ -66,6 +67,7 @@ export default function ServiceReconciler() {
   const [searchParams,] = useSearchParams();
   const { data: serviceRecords, setData: setServiceRecords, mutateData: mutateServiceRecords } = useRecord(sailorType, nameId, 'service');
   const dirty = useContext(DirtySailorContext).service;
+  const dialogs = useDialogs();
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index
@@ -104,32 +106,18 @@ export default function ServiceReconciler() {
     }
   }
 
-  function deleteEmptyServiceRows(services) {
-    const newRows = structuredClone(services);
-
-    //identify the empty rows
-    const emptyRows = [];
-    outer:
-    for(const row of newRows) {
-      for(const field of SERVICE_FIELDS) {
-        if(row[field]) { //Anything truthy here means that the row has some real content somewhere
-          continue outer;
+  function emptyServiceRows(services) {
+    for(const transcription of services) {
+      nextRow: for(const row of transcription.records) {
+        for(const field of SERVICE_FIELDS) {
+          if(row[field]) { //Anything truthy here means that the row has some real content somewhere
+            continue nextRow;
+          }
         }
+        return true;
       }
-      emptyRows.push(row[ROW_PRIMARY])
+      return false;
     }
-
-    //delete the empty rows -- go backwards so that the indices continue to work
-    for(const emptyRow of emptyRows.reverse()) {
-      newRows.splice(emptyRow - 1, 1);
-    }
-
-    //renumber the remaining rows
-    for(let i = 0; i < newRows.length; i++) {
-      newRows[i][ROW_PRIMARY] = i + 1;
-    }
-
-    return newRows;
   }
 
   function getTable(thisTable, thatTable) {
@@ -234,12 +222,16 @@ export default function ServiceReconciler() {
             setServiceRecords(clone);
           }}/>
          <Button disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
-                 onClick={()=>{
-           const clone = structuredClone(serviceRecords);
-           clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
-           clone.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
+                 onClick={async ()=>{
+            if(emptyServiceRows(serviceRecords.services)) {
+              if(!await dialogs.confirm('This record contains empty rows. Save anyway?', {
+                title: 'Empty rows',
+                okText: 'Save',
+                cancelText: 'Cancel',
+              })) return;
+            }
             //TODO: This is async and slow, need to suspense or something
-            mutateServiceRecords(clone);
+            mutateServiceRecords(structuredClone(serviceRecords));
         }}>Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>

@@ -11,6 +11,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { DialogsProvider } from '@toolpad/core/useDialogs';
 
 const queryClientOptions = process.env.REACT_APP_PERSIST_CACHE ?
   {
@@ -82,26 +83,30 @@ function App() {
     console.log("Enabled cache state persistence (changes made will survive refresh)");
     return (
       <div className="App">
-        <ThemeProvider theme={theme}>
-          <LaSAppBar/>
-          <PersistQueryClientProvider client={queryClient} persistOptions={{persister: createSyncStoragePersister({storage: window.localStorage})}}>
-            <ReactQueryDevtools initialIsOpen={false} />
-            {routes}
-          </PersistQueryClientProvider>
-        </ThemeProvider>
+        <DialogsProvider>
+          <ThemeProvider theme={theme}>
+            <LaSAppBar/>
+            <PersistQueryClientProvider client={queryClient} persistOptions={{persister: createSyncStoragePersister({storage: window.localStorage})}}>
+              <ReactQueryDevtools initialIsOpen={false} />
+              {routes}
+            </PersistQueryClientProvider>
+          </ThemeProvider>
+        </DialogsProvider>
       </div>
     );
   }
   else {
     return (
       <div className="App">
-        <ThemeProvider theme={theme}>
-          <LaSAppBar/>
-          <QueryClientProvider client={queryClient}>
-            <ReactQueryDevtools initialIsOpen={false} />
-            {routes}
-          </QueryClientProvider>
-        </ThemeProvider>
+        <DialogsProvider>
+          <ThemeProvider theme={theme}>
+            <LaSAppBar/>
+            <QueryClientProvider client={queryClient}>
+              <ReactQueryDevtools initialIsOpen={false} />
+              {routes}
+            </QueryClientProvider>
+          </ThemeProvider>
+        </DialogsProvider>
       </div>
     );
   }
