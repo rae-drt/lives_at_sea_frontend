@@ -249,7 +249,7 @@ export function useRecord(sailorType, nameId, selection) {
     data: useStore(record, (state)=>state[selection]),
     setData: useStore(record, (state)=>state.update),
     mutateData: (value) => mutations[selection](queryClient, sailorType, nameId, value),
-    query: query,
+    queryData: query.data,
     status: queryStatus,
   };
 }

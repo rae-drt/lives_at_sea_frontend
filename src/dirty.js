@@ -24,15 +24,15 @@ class DirtySailor extends Dirty {
 export const DirtySailorContext = createContext(new DirtySailor(false, false, false, false));
 
 export function useDirtySailor(sailorType, nameId) {
-  const {data: nameRecord, query: nameQuery } = useRecord(sailorType, nameId, 'name');
-  const {data: servicesRecord, query: servicesQuery } = useRecord(sailorType, nameId, 'service');
-  const {data: otherServicesRecord, query: otherServicesQuery } = useRecord(sailorType, nameId, 'service_other');
-  const {data: otherDataRecord, query: otherDataQuery} = useRecord(sailorType, nameId, 'data_other');
+  const {data: nameRecord, queryData: nameQuery } = useRecord(sailorType, nameId, 'name');
+  const {data: servicesRecord, queryData: servicesQuery } = useRecord(sailorType, nameId, 'service');
+  const {data: otherServicesRecord, queryData: otherServicesQuery } = useRecord(sailorType, nameId, 'service_other');
+  const {data: otherDataRecord, queryData: otherDataQuery} = useRecord(sailorType, nameId, 'data_other');
   return new DirtySailor(
-    !(_.isEqual(nameRecord, nameQuery.data)),
-    !(_.isEqual(servicesRecord, servicesQuery.data)),
-    !(_.isEqual(otherServicesRecord, otherServicesQuery.data)),
-    !(_.isEqual(otherDataRecord, otherDataQuery.data)),
+    !(_.isEqual(nameRecord, nameQuery)),
+    !(_.isEqual(servicesRecord, servicesQuery)),
+    !(_.isEqual(otherServicesRecord, otherServicesQuery)),
+    !(_.isEqual(otherDataRecord, otherDataQuery)),
   );
 }
 
