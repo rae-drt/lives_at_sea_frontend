@@ -234,7 +234,7 @@ export default function ServiceReconciler() {
             setServiceRecords(clone);
           }}/>
          <Button disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
-                 onClick={()=>{//TODO -- this will need fixing, but may change into a single top-level Enter button, which would also allow me to remove the nameid param here (but on the other hand there is something to be said for being tightly tied to the xcheck button)
+                 onClick={()=>{
            const clone = structuredClone(serviceRecords);
            clone.services[0].records = deleteEmptyServiceRows(serviceRecords.services[0].records);
            clone.services[1].records = deleteEmptyServiceRows(serviceRecords.services[1].records);
