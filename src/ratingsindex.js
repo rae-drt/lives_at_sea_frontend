@@ -126,7 +126,7 @@ function statusRow(data) {
     if(i %10 === 0) offset += SQUARE_GAP; //larger gap every 10 cells
     states.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
-        <Link to={(state & MISSING) ? '#' : '/rating/' + identifier}>
+        <Link to={(state & MISSING) ? '#' : process.env.PUBLIC_URL + '/rating/' + identifier}>
           {triangle1(offset, state)}
           {triangle2(offset, state)}
           {(state & NOT_WW1) && dot(offset)}

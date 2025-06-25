@@ -9,7 +9,7 @@ export function NewRecordButton() {
   return (
     <Stack direction='row' sx={{alignItems: 'center'}}>
       <Typography>New</Typography>
-      <Link to='/rating/0'>
+      <Link to={process.env.PUBLIC_URL + '/rating/0'}>
         <Tooltip title='Create another new record' sx={{fontSize:'large'}}>
           <IconButton>
             <NoteAddIcon color='primary' fontSize='large'/>
