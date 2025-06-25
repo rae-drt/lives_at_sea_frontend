@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import DataTable from './datatable';
+import { DataTable } from './datatable';
 import { simpleTableQuery } from './queries';
 import { LoadingContext } from './loadingcontext';
 import { Alert, CircularProgress, Stack } from '@mui/material';

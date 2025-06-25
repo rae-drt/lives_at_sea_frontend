@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { useDialogs } from '@toolpad/core/useDialogs';
 import { LoadingContext } from './loadingcontext';
 
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
@@ -20,7 +21,37 @@ function checkPrimary(cols, primary) {
   if(cols.length) throw new Error('Primary key ' + primary + ' not defined in columns');
 }
 
-export default function DataTable(props) {
+//Tables of rows because of the ServiceReconciler use case, where we have two rows but only want to pop up one dialog
+export function useEmptyRowOK(tables_of_rows, primary) {
+  const dialogs = useDialogs();
+
+  function hasEmptyRow(rows, primary) {
+    outer: for(const row of rows) {
+      for(const [k, v] of Object.entries(row)) {
+        if(k === primary) continue;
+        if(v) continue outer;
+      }
+      return true; //this row had no values in any non-primary key
+    }
+    return false; //all rows had at least one "real" value
+  }
+
+  //return of true meaning "ok to save" -- either there are no empty rows, or the user has asked to save them
+  return async () => {
+    if(tables_of_rows.some((rows) => hasEmptyRow(rows, primary))) {
+      return dialogs.confirm('This record contains empty rows. Save anyway?', {
+        title: 'Empty rows',
+        okText: 'Save',
+        cancelText: 'Cancel',
+      });
+    }
+    else {
+      return true;
+    }
+  }
+}
+
+export function DataTable(props) {
   const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
 

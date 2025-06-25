@@ -1,15 +1,14 @@
 import { useContext } from 'react';
 import { useParams, useSearchParams } from 'react-router';
-import { useDialogs } from '@toolpad/core/useDialogs';
 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
-import { SERVICE_FIELDS } from './data_utils';
 import { useRecord } from './queries';
 import { DirtySailorContext } from './dirty';
+import { useEmptyRowOK } from './datatable';
 
 import IconButton from '@mui/material/IconButton';
 import OverwriteThatIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -67,7 +66,7 @@ export default function ServiceReconciler() {
   const [searchParams,] = useSearchParams();
   const { data: serviceRecords, setData: setServiceRecords, mutateData: mutateServiceRecords } = useRecord(sailorType, nameId, 'service');
   const dirty = useContext(DirtySailorContext).service;
-  const dialogs = useDialogs();
+  const emptyOK = useEmptyRowOK(serviceRecords.services.map((x)=>x.records), ROW_PRIMARY);
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index
@@ -103,20 +102,6 @@ export default function ServiceReconciler() {
   for(const records of serviceRecords.services) {
     if(!valid_rows(records.records)) {
       return(<Alert severity='error'>Rows do not start at 1 and/or are not consecutive.</Alert>);
-    }
-  }
-
-  function emptyServiceRows(services) {
-    for(const transcription of services) {
-      nextRow: for(const row of transcription.records) {
-        for(const field of SERVICE_FIELDS) {
-          if(row[field]) { //Anything truthy here means that the row has some real content somewhere
-            continue nextRow;
-          }
-        }
-        return true;
-      }
-      return false;
     }
   }
 
@@ -222,17 +207,8 @@ export default function ServiceReconciler() {
             setServiceRecords(clone);
           }}/>
          <Button disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
-                 onClick={async ()=>{
-            if(emptyServiceRows(serviceRecords.services)) {
-              if(!await dialogs.confirm('This record contains empty rows. Save anyway?', {
-                title: 'Empty rows',
-                okText: 'Save',
-                cancelText: 'Cancel',
-              })) return;
-            }
-            //TODO: This is async and slow, need to suspense or something
-            mutateServiceRecords(structuredClone(serviceRecords));
-        }}>Enter</Button>
+                 onClick={async ()=>{(await emptyOK()) && mutateServiceRecords(structuredClone(serviceRecords))}}
+         >Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
         {getTable(0, 1)}

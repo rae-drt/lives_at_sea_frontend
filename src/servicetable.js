@@ -10,7 +10,7 @@ import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import DataTable from './datatable';
+import { DataTable } from './datatable';
 
 const columnGroupingModel: GridColumnGroupingModel = [
   {

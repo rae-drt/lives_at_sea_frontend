@@ -3,13 +3,14 @@ import { useParams } from 'react-router';
 import { useRecord } from './queries';
 import { Alert, Button, Stack } from '@mui/material';
 import { LoadingContext } from './loadingcontext';
-import DataTable from './datatable';
+import { useEmptyRowOK , DataTable } from './datatable';
 import { DirtySailorContext } from './dirty';
 
 export default function Other({mutate, tag, columns, columnGroupingModel}) {
   const { sailorType, nameId } = useParams();
   const { data, setData, mutateData, status: queryStatus } = useRecord(sailorType, nameId, tag);
   const dirty = useContext(DirtySailorContext)[tag];
+  const emptyOK = useEmptyRowOK([data], 'row');
 
   if(queryStatus === 'error') {
     return (<Alert severity='error'>Error fetching data</Alert>);
@@ -19,7 +20,7 @@ export default function Other({mutate, tag, columns, columnGroupingModel}) {
       <LoadingContext value={queryStatus === 'pending'}>
         <Stack width='140em'>
           <Stack direction='row' justifyContent='flex-end'>
-            <Button disabled={!dirty} onClick={()=>{mutateData(data);}}>Enter</Button>
+            <Button disabled={!dirty} onClick={async ()=>{(await emptyOK()) && mutateData(data)}}>Enter</Button>
           </Stack>
           <DataTable
             rows={data}

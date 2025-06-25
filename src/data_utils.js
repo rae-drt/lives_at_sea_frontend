@@ -42,17 +42,6 @@ export const RATING_LAYOUT = [
     {labels: {'Discharge date, reason': 2}, fields: {dischargeday: 1, dischargemonth: 1, dischargeyear: 1, dischargereason: 3}}
 ];
 
-export const SERVICE_FIELDS = [
-  'ship',
-  'rating',
-  'fromday',
-  'frommonth',
-  'fromyear',
-  'today',
-  'tomonth',
-  'toyear',
-];
-
 export const OFFICER_LAYOUT = [RATING_LAYOUT[0], RATING_LAYOUT[2], RATING_LAYOUT[3]];
 
 export function init_data(type) {
