@@ -199,18 +199,19 @@ export default function ServiceReconciler() {
                       serviceRecords.services[1].complete &&
                       sameServices
   return (
-    <Stack>
-      <Stack direction='row' justifyContent='flex-end' spacing={4}>
+    <Stack sx={{padding: 2}}>
+      <Stack direction='row' justifyContent='flex-end' spacing={4} sx={{paddingBottom: 2}}>
         <XCheck ready={xCheckReady} checked={serviceRecords.reconciled} onChange={() => {
             const clone = structuredClone(serviceRecords);
             clone.reconciled = !(serviceRecords.reconciled);
             setServiceRecords(clone);
           }}/>
-         <Button disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
+         <Button variant='outlined'
+                 disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
                  onClick={async ()=>{(await emptyOK()) && mutateServiceRecords(structuredClone(serviceRecords))}}
          >Enter</Button>
       </Stack>
-      <Stack direction='row' sx={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
+      <Stack direction='row' sx={{justifyContent: 'space-between', alignItems: 'space-between'}} spacing={2}>
         {getTable(0, 1)}
         {getTable(1, 0)}
       </Stack>
