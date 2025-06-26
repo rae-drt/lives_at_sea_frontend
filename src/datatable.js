@@ -185,6 +185,7 @@ export function DataTable(props) {
         '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
         '& .MuiDataGrid-columnSeparator': { display: 'none' },
         '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
+        '&& .MuiDataGrid-editInputCell input': { padding: 0 },
       }}
       {...otherProps}
     />);
