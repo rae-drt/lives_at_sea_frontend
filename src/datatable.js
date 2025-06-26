@@ -10,6 +10,7 @@ import InsertAboveIcon from '@mui/icons-material/Publish';
 import InsertBelowIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/DeleteForever';
 import { Button, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 function checkPrimary(cols, primary) {
   for(const col of cols) {
@@ -52,9 +53,9 @@ export function useEmptyRowOK(tables_of_rows, primary) {
 }
 
 export function DataTable(props) {
-  const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, sx, ...otherProps} = props;
+  const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, controlCount, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
-
+  const theme = useTheme();
   function addButton() {
     return (
       <Stack alignItems='center'>
@@ -95,14 +96,14 @@ export function DataTable(props) {
         insertionButtons = (<>
           <Tooltip title='Insert row above' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} color='primary' onClick={()=>{finalOnChange(insert(row[primary]))}}>
+              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{finalOnChange(insert(row[primary]))}}>
                 <InsertAboveIcon/>
               </IconButton>
             </span>
           </Tooltip>
           <Tooltip title='Insert row below' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} color='primary' onClick={()=>{finalOnChange(insert(row[primary] + 1))}}>
+              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{finalOnChange(insert(row[primary] + 1))}}>
                 <InsertBelowIcon/>
               </IconButton>
             </span>
@@ -114,7 +115,7 @@ export function DataTable(props) {
         {insertionButtons}
         <Tooltip title='Delete row' placement='top' followCursor arrow>
           <span>
-            <IconButton sx={sx} color='primary' onClick={()=>{
+            <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
               const newRows = [];
               for(const x of rows) {
                 if(x[primary] === row[primary]) continue;
@@ -155,7 +156,8 @@ export function DataTable(props) {
       columns={[...columns, {
           field: 'row_controls',
           headerName: '',
-          width: 200,
+          width: theme.typography.fontSize * 2.2 * (controlCount ? controlCount : 3),
+          minWidth: theme.typography.fontSize * 2.2 * (controlCount ? controlCount : 3),
           renderCell: baseRowControls,
         },
       ]}

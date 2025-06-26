@@ -118,7 +118,7 @@ export default function ServiceReconciler() {
         <>
           <Tooltip title={'Overwrite row in ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} color='primary' onClick={()=>{
+              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
                   newTable.push(structuredClone(row));
                   newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY])));
@@ -132,7 +132,7 @@ export default function ServiceReconciler() {
           </Tooltip>
           <Tooltip title={'Insert row into ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} color='primary' onClick={()=>{
+              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
                   newTable.push({...row, [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
                   newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY] - 1)));
@@ -184,6 +184,7 @@ export default function ServiceReconciler() {
         }}
         difference={differenceMap}
         extraRowControls={rowControls}
+        controlCount={5}
       />
     );
   }

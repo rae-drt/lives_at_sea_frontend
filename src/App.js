@@ -65,21 +65,7 @@ const routes = (
 );
 
 function App() {
-  const theme = createTheme({
-    typography: {
-      fontSize: 20,
-
-    },
-    components: {
-      MuiTooltip: {
-        styleOverrides: {
-          tooltip: {
-            fontSize: 24,
-          }
-        }
-      }
-    },
-  });
+  const theme = createTheme();
   if(process.env.REACT_APP_PERSIST_CACHE) {
     console.log("Enabled cache state persistence (changes made will survive refresh)");
     return (

@@ -11,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { useTheme } from '@mui/material/styles';
 
 import { DataTable } from './datatable';
 
@@ -35,67 +36,78 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
   );
 }
 
-export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, extraRowControls, primary}) {
+export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, controlCount, extraRowControls, primary}) {
   const loading = useContext(LoadingContext);
-
+  const theme = useTheme();
   const columns: GridColDef[] = [
     {
       field: primary,
       headerName: '#',
-      width: 40,
-      minWidth: 40,
+      //width: 3 * theme.typography.fontSize,
+      flex: 1,
+      minWidth: 3 * theme.typography.fontSize,
       align: 'right',
     },
     {
       field: 'ship',
       headerName: 'Ship',
-      flex: 20,
+      flex: 8,
+      //width: 15 * theme.typography.fontsize,
       editable: true,
     },
     {
       field: 'rating',
       headerName: 'Rating',
-      flex: 8,
+      flex: 4,
+      //width: 6 * theme.typography.fontSize,
       editable: true,
     },
     {
       field: 'fromday',
       headerName: 'D',
-      flex: 4,
-      minWidth: 40,
+      flex: 1,
+      minWidth: 2.5 * theme.typography.fontSize,
+      align: 'right',
       editable: true,
     },
     {
       field: 'frommonth',
       headerName: 'M',
-      flex: 4,
-      minWidth: 40,
+      flex: 1,
+      minWidth: 2.5 * theme.typography.fontSize,
+      align: 'right',
       editable: true,
     },
     {
       field: 'fromyear',
       headerName: 'Y',
-      flex: 6,
+      flex: 2,
+      minWidth: 4 * theme.typography.fontSize,
+      align: 'right',
       editable: true,
     },
     {
       field: 'today',
       headerName: 'D',
-      flex: 4,
-      minWidth: 40,
+      flex: 1,
+      minWidth: 2.5 * theme.typography.fontSize,
+      align: 'right',
       editable: true,
     },
     {
       field: 'tomonth',
       headerName: 'M',
-      flex: 4,
-      minWidth: 40,
+      flex: 1,
+      minWidth: 2.5 * theme.typography.fontSize,
+      align: 'right',
       editable: true,
     },
     {
       field: 'toyear',
       headerName: 'Y',
-      flex: 6,
+      flex: 2,
+      minWidth: 4 * theme.typography.fontSize,
+      align: 'right',
       editable: true,
     },
   ];
@@ -127,6 +139,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
               }
             }}
             sx={{ [`.${gridClasses.cell}.differs`]: style.different }}
+            controlCount={controlCount}
           />
         </Box>
       </CardContent>
