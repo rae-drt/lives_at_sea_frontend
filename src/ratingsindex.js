@@ -1,4 +1,4 @@
-import { useParams, useSearchParams, Link } from 'react-router';
+import { useParams, useSearchParams, Link, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { DataGrid } from '@mui/x-data-grid';
 import { Alert, Card, CardContent, Stack, Typography, Tooltip, IconButton } from '@mui/material';
@@ -186,6 +186,7 @@ function chunk(data, rowBoxes) {
 
 export default function RatingsIndex() {
   const { piece } = useParams();
+  const navigate = useNavigate();
   const [ searchParams, ] = useSearchParams({rowBoxes: 20});
   const { data: queryData, status: queryStatus } = useQuery({...pieceQuery(piece), select: (x) => ({
     ranges: x.piece_ranges,
@@ -260,7 +261,7 @@ export default function RatingsIndex() {
                   <div>
                     <IconButton color='primary'
                                 disabled={unreconciled.length === 0}
-                                href={process.env.PUBLIC_URL + '/rating/' + unreconciled[0]}
+                                onClick={()=>navigate(process.env.PUBLIC_URL + '/rating/' + unreconciled[0])}
                     >
                       <ElectricBolt/>
                     </IconButton>

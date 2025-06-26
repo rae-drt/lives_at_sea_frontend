@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, Link } from 'react-router';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import List from '@mui/material/List';
-import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import ListItem from '@mui/material/ListItem';
@@ -38,7 +37,7 @@ export default function OfficerIndex() {
   const list = [];
   if(data !== null) {
     for(const datum of data) {
-      list.push(<ListItem key={datum.nameid}><Link href={process.env.PUBLIC_URL + '/officer/' + datum.nameid + '/otherservices'}>{surname_officerref(datum)}</Link></ListItem>);
+      list.push(<ListItem key={datum.nameid}><Link to={process.env.PUBLIC_URL + '/officer/' + datum.nameid + '/otherservices'}>{surname_officerref(datum)}</Link></ListItem>);
     }
   }
   return (
@@ -74,7 +73,7 @@ export default function OfficerIndex() {
             <Tab sx={{minWidth: '2em', paddingInline: '1em'}} value='Z' label='Z'/>
             <Tab sx={{minWidth: '2em', paddingInline: '1em'}} value='null' label='null'/>
           </Tabs>
-          <Button variant='outlined' size='small' href={process.env.PUBLIC_URL + '/officer/0/otherservices'}>New Officer</Button>
+          <Button variant='outlined' size='small' onClick={navigate(process.env.PUBLIC_URL + '/officer/0/otherservices')}>New Officer</Button>
         </Stack>
         { data === null ?
             <CircularProgress size='50vh'/> :
