@@ -274,6 +274,7 @@ export default function RatingsIndex() {
               sx={{
                 width: columns.reduce((acc, cur)=>(acc += cur.width), 1 + SQUARE_SIZE/10 /*needs this small increment to avoid horizontal scrollbar*/),
                 '& .MuiDataGrid-cell': {border: 'none', height: SQUARE_SIZE},
+                "& .MuiDataGrid-row:hover": { backgroundColor: 'inherit' },
               }}
               getRowId={(row) => {return row.nameid}}
               rows={chunks}
@@ -281,6 +282,7 @@ export default function RatingsIndex() {
               disableColumnSorting
               disableColumnMenu
               disableRowSelectionOnClick
+              isRowSelectable={()=>false}
               pageSizeOptions={[PAGE_ROWS]}
               getRowHeight={()=>(SQUARE_SIZE)}
               hideFooter={chunks.length <= PAGE_ROWS}
