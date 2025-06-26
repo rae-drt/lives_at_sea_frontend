@@ -114,11 +114,37 @@ function piecesQF() {
   });
 }
 
+//TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
+async function updatePieceCache(queryClient, sailorType, nameId) {
+  const nNameId = Number(nameId);
+  const mainData = queryClient.getQueryData(['mainPersonData', { sailorType: sailorType, nameId: nNameId}]);
+  const qKey = pieceQuery('' + mainData.name.piece).queryKey;
+  const pieceData = queryClient.getQueryData(qKey) ?
+                    structuredClone(queryClient.getQueryData(qKey)) :
+                    structuredClone(await queryClient.fetchQuery(pieceQuery('' + mainData.name.piece)));
+
+  const index = nNameId - pieceData.piece_ranges.this_piece.start_item;
+  if(pieceData.records[index].nameid !== nNameId) throw Error(); //maybe this can happen sometimes. good thing this is a temp hack.
+  const newStatus = {
+    complete1:  mainData.service_history[0].complete,
+    complete2:  mainData.service_history[1].complete,
+    has_tr1:    mainData.service_history[0].userid,
+    has_tr2:    mainData.service_history[1].userid,
+    reconciled: status_reconciled(mainData.status.status_code),
+    nameid: nNameId,
+    notww1: mainData.name.notww1,
+  };
+  pieceData.records[index] = newStatus;
+  queryClient.setQueryData(qKey, pieceData);
+}
+
 async function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = await queryClient.getQueryData(key);
   queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
   RECORDS.delete(sailorType, nameId, 'name');
+
+  updatePieceCache(queryClient, sailorType, nameId); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
 }
 
 async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
@@ -127,6 +153,8 @@ async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const newData = {service_history: data.services, status: status_encode(data)}
   queryClient.setQueryData(key, {...currentData, ...newData});
   RECORDS.delete(sailorType, nameId, 'service');
+
+  updatePieceCache(queryClient, sailorType, nameId); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
 }
 
 async function otherDataMutate(queryClient, sailorType, nameId, data) {
