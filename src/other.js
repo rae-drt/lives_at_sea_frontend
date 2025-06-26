@@ -18,7 +18,7 @@ export default function Other({mutate, tag, columns, columnGroupingModel}) {
   else {
     return(
       <LoadingContext value={queryStatus === 'pending'}>
-        <Stack width='140em' justifyContent='space-between' spacing={2} sx={{padding: 2}}>
+        <Stack width='90vw' justifyContent='space-between' spacing={2} sx={{padding: 2}}>
           <Stack direction='row' justifyContent='flex-end'>
             <Button variant='outlined' disabled={!dirty} onClick={async ()=>{(await emptyOK()) && mutateData(data)}}>Enter</Button>
           </Stack>

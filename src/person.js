@@ -61,7 +61,7 @@ export default function Person() {
           <BlockNavigationDialog blocker={blocker}/>
           <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
             <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={4}>
-              <Stack direction='row' width={0.7} alignItems='flex-start'>
+              <Stack direction='row' width={0.9} alignItems='flex-start'>
                 <Card variant='outlined'>
                   <PersonTableControlPanel data={personTableData} onChange={(()=>{
                     mutatePersonTableData(personTableData);
@@ -79,7 +79,7 @@ export default function Person() {
                 </Card>
                 {controlPanel}
               </Stack>
-              <Stack alignItems='center' spacing={2}>
+              <Stack alignItems='center' spacing={2} width='95vw'>
                 <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
                   {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
                   <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>

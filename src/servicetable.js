@@ -115,7 +115,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
   return (
     <Card>
       <CardContent>
-        <Box sx={{width: '70em'}}>
+        <Box sx={{width: '45vw'}}>
           <Stack direction='row' justifyContent='space-between'>
             <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading}/>
             {cloneButton}
