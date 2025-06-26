@@ -274,8 +274,11 @@ export default function RatingsIndex() {
               density='compact'
               sx={{
                 width: columns.reduce((acc, cur)=>(acc += cur.width), 1 + SQUARE_SIZE/10 /*needs this small increment to avoid horizontal scrollbar*/),
-                '& .MuiDataGrid-cell': {border: 'none', height: SQUARE_SIZE, fontSize: 18},
-                "& .MuiDataGrid-row:hover": { backgroundColor: 'inherit' },
+                '& .MuiDataGrid-cell': {border: 'none', height: SQUARE_SIZE, fontSize: 18, outline: 'transparent'},
+                '& .MuiDataGrid-cell:focus-within': { outline: 'none' },
+                '& .MuiDataGrid-columnHeader': { outline: 'transparent' },
+                '& .MuiDataGrid-columnHeader:focus-within': { outline: 'none' },
+                '& .MuiDataGrid-row:hover': { backgroundColor: 'inherit' },
               }}
               getRowId={(row) => {return row.nameid}}
               rows={chunks}
