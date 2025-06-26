@@ -68,7 +68,7 @@ function box(pos) {
 function key() {
   function keyItem(thing, label) {
     return(
-      <Stack direction='row' spacing={1}>
+      <Stack direction='row' spacing={1} alignItems='center'>
         <svg  sx={{minWidth: SQUARE_SIZE * 2}} width={SQUARE_SIZE} height={SQUARE_SIZE + 1}>
           {thing}
           {box(0)}
@@ -91,13 +91,13 @@ function key() {
     <Stack direction='row' spacing={6}>
       <Stack spacing={1}>
         {keyItem(squareThing(ALLOCATED_1, ALLOCATED_2), 'Both allocated')}
-        {keyItem(triangle1(0, ALLOCATED_1), 'Set 1 allocated')}
-        {keyItem(triangle2(0, ALLOCATED_2), 'Set 2 allocated')}
+        {keyItem(triangle1(0, ALLOCATED_1), '#1 allocated')}
+        {keyItem(triangle2(0, ALLOCATED_2), '#2 allocated')}
       </Stack>
       <Stack spacing={1}>
         {keyItem(squareThing(COMPLETED_1, COMPLETED_2), 'Both completed')}
-        {keyItem(triangle1(0, COMPLETED_1), 'Set 1 completed')}
-        {keyItem(triangle2(0, COMPLETED_2), 'Set 2 completed')}
+        {keyItem(triangle1(0, COMPLETED_1), '#1 completed')}
+        {keyItem(triangle2(0, COMPLETED_2), '#2 completed')}
       </Stack>
       <Stack spacing={1}>
         {keyItem(squareThing(XCHECKED, XCHECKED), 'Cross-checked')}
@@ -273,7 +273,7 @@ export default function RatingsIndex() {
               density='compact'
               sx={{
                 width: columns.reduce((acc, cur)=>(acc += cur.width), 1 + SQUARE_SIZE/10 /*needs this small increment to avoid horizontal scrollbar*/),
-                '& .MuiDataGrid-cell': {border: 'none', height: SQUARE_SIZE},
+                '& .MuiDataGrid-cell': {border: 'none', height: SQUARE_SIZE, fontSize: 18},
                 "& .MuiDataGrid-row:hover": { backgroundColor: 'inherit' },
               }}
               getRowId={(row) => {return row.nameid}}
