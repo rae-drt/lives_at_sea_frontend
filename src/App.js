@@ -65,7 +65,17 @@ const routes = (
 );
 
 function App() {
-  const theme = createTheme();
+  const theme = createTheme({
+    components: {
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: {
+            fontSize: 18, //TODO: This really should be relative to (a bit bigger than) "base" font size
+          }
+        }
+      }
+    }
+  });
   if(process.env.REACT_APP_PERSIST_CACHE) {
     console.log("Enabled cache state persistence (changes made will survive refresh)");
     return (
