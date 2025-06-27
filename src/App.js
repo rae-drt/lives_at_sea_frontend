@@ -4,6 +4,7 @@ import OfficerIndex from './officerindex';
 import RatingsIndex from './ratingsindex';
 import SimpleEditor from './simpleeditor';
 import LaSAppBar from './lasappbar';
+import { useEffect } from 'react';
 import { Routes, Route, Navigate} from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -65,6 +66,16 @@ const routes = (
 );
 
 function App() {
+  useEffect(()=> {
+    const preventUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', preventUnload);
+    return () => {
+      window.removeEventListener('beforeunload', preventUnload);
+    };
+  }, []);
   const theme = createTheme({
     components: {
       MuiTooltip: {
