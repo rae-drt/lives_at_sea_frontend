@@ -63,7 +63,7 @@ export default function PersonTable({data, onChange, rows, rowCells}) {
 
   return (
     <Grid container alignItems='flex-end' columns={7}>
-      <Card sx={data.error ? style.different : null}>
+      <Card sx={data.error ? style.differentCell : null}>
         <CardContent>
           <Stack direction='row' spacing={2}>
             <Grid container columns={rowCells} alignItems='center' justifyContent='flex-start'>

@@ -138,7 +138,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
                 }
               }
             }}
-            sx={{ [`.${gridClasses.cell}.differs`]: style.different }}
+            sx={{ [`.${gridClasses.cell}.differs`]: style.differentCell }}
             controlCount={controlCount}
           />
         </Box>
