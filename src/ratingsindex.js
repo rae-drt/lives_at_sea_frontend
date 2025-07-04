@@ -277,7 +277,7 @@ export default function RatingsIndex() {
     <Card>
       <CardContent>
         {/* outermost stack: progress view on left, key on right */}
-        <Stack direction='row' spacing={8}>
+        <Stack direction='row' spacing={8} justifyContent='space-between'>
           {/* progress view */}
           <Stack spacing={0}>
             {/* progress view header (catref, width controls) */}
