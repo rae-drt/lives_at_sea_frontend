@@ -47,6 +47,18 @@ function triangle2(pos, state) {
   );
 }
 
+function one(pos) {
+  return(
+    <text x={pos * SQUARE_SIZE + 0.5 * SQUARE_SIZE} y={2 + 0.5 * SQUARE_SIZE} text-anchor='middle' dominant-baseline='middle' textLength={0.8 * SQUARE_SIZE} lengthAdjust='spacingAndGlyphs' font-weight='bold' font-family='serif'>WWI</text>
+  );
+ /* //An alternative representation
+  return(
+    <text x={pos * SQUARE_SIZE + 0.5 * SQUARE_SIZE} y={2 + 0.5 * SQUARE_SIZE} text-anchor='middle' dominant-baseline='middle' textLength={0.4 * SQUARE_SIZE} lengthAdjust='spacingAndGlyphs' font-weight='bold' font-family='serif' stroke='black'>I</text>
+  );
+  }
+  */
+}
+
 function dot(pos) {
   return(
     <circle cx={pos * SQUARE_SIZE + 0.5 * SQUARE_SIZE} cy={0.5 * SQUARE_SIZE} r={0.2 * SQUARE_SIZE}/>
@@ -129,7 +141,7 @@ function statusRow(data) {
         <Link to={(state & MISSING) ? '#' : process.env.PUBLIC_URL + '/rating/' + identifier}>
           {triangle1(offset, state)}
           {triangle2(offset, state)}
-          {(state & NOT_WW1) && dot(offset)}
+          {(state & NOT_WW1) ? dot(offset) : ((state & XCHECKED) && one(offset))}
           {box(offset)}
         </Link>
       </Tooltip>
