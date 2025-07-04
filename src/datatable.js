@@ -10,7 +10,8 @@ import InsertAboveIcon from '@mui/icons-material/Publish';
 import InsertBelowIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/DeleteForever';
 import { Button, Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useTheme, alpha } from '@mui/material/styles';
+import style from './style';
 
 function checkPrimary(cols, primary) {
   for(const col of cols) {
@@ -182,7 +183,12 @@ export function DataTable(props) {
           pl: '3px',
           pr: '3px',
         },
+        //N.B. The source is really helpful for finding the way through this:
+        //https://github.com/mui/mui-x/blob/af50a4a9974f14afc09ce7639da4f326909c7270/packages/grid/_modules_/grid/components/containers/GridRootStyles.ts#L218-L228
         '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },
+        '& .MuiDataGrid-cell:focus': style.selectedCell, //re https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/issues/1293#issuecomment-1133818615
+        '& .MuiDataGrid-row.Mui-selected': { background: 'rgba(0, 0, 0, 0)'},
+        '& .MuiDataGrid-row.Mui-selected:hover': { background: alpha(theme.palette.action.hover, 0.05) },
         '& .MuiDataGrid-columnSeparator': { display: 'none' },
         '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' },
         '& .MuiDataGrid-editInputCell input': { padding: 0 }, /* re https://stackoverflow.com/q/72281184 */
