@@ -83,7 +83,6 @@ function key() {
       <Stack direction='row' spacing={1} alignItems='center'>
         <svg  sx={{minWidth: SQUARE_SIZE * 2}} width={SQUARE_SIZE} height={SQUARE_SIZE + 1}>
           {thing}
-          {box(0)}
         </svg>
         <Typography>{label}</Typography>
       </Stack>
@@ -95,26 +94,45 @@ function key() {
       <>
         {triangle1(0, state1 | state2)}
         {triangle2(0, state1 | state2)}
+        {box(0)}
       </>
     );
   }
 
+  //an invisible triangle will do as a spacer
+  const spacer = keyItem(triangle1(0,0),'');
+
+  const ww1 = (
+    <>
+      {squareThing(XCHECKED, XCHECKED)}
+      {one(0)}
+    </>
+  );
+
   return(
     <Stack direction='row' spacing={6}>
       <Stack spacing={1}>
+        {keyItem(squareThing(0, 0), 'Neither allocated')}
         {keyItem(squareThing(ALLOCATED_1, ALLOCATED_2), 'Both allocated')}
-        {keyItem(triangle1(0, ALLOCATED_1), '#1 allocated')}
-        {keyItem(triangle2(0, ALLOCATED_2), '#2 allocated')}
-      </Stack>
-      <Stack spacing={1}>
         {keyItem(squareThing(COMPLETED_1, COMPLETED_2), 'Both completed')}
-        {keyItem(triangle1(0, COMPLETED_1), '#1 completed')}
-        {keyItem(triangle2(0, COMPLETED_2), '#2 completed')}
+        {spacer}
+        {keyItem(squareThing(XCHECKED, XCHECKED), 'Cross-checked')}
+        {spacer}
+        {keyItem(ww1, 'WW1')}
       </Stack>
       <Stack spacing={1}>
-        {keyItem(squareThing(XCHECKED, XCHECKED), 'Cross-checked')}
+        {keyItem(triangle1(0, COMPLETED_2), '#1 not allocated')}
+        {keyItem(triangle1(0, ALLOCATED_1), '#1 allocated')}
+        {keyItem(triangle1(0, COMPLETED_1), '#1 completed')}
+        {spacer}
         {keyItem(squareThing(MISSING, MISSING), 'Mising/not used')}
+        {spacer}
         {keyItem(dot(0), 'Not WW1')}
+      </Stack>
+      <Stack spacing={1}>
+        {keyItem(triangle2(0, COMPLETED_1), '#2 not allocated')}
+        {keyItem(triangle2(0, ALLOCATED_2), '#2 allocated')}
+        {keyItem(triangle2(0, COMPLETED_2), '#2 completed')}
       </Stack>
     </Stack>
   );
