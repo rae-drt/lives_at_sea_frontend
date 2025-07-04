@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { useDialogs } from '@toolpad/core/useDialogs';
 import { LoadingContext } from './loadingcontext';
 
-import { DataGrid, gridClasses } from '@mui/x-data-grid';
+import { DataGrid, gridClasses, useGridApiRef } from '@mui/x-data-grid';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
@@ -57,6 +57,7 @@ export function DataTable(props) {
   const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, controlCount, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
   const theme = useTheme();
+  const apiRef = useGridApiRef();
   function addButton() {
     return (
       <Stack alignItems='center'>
@@ -149,8 +150,49 @@ export function DataTable(props) {
     }
   }
 
+  //Following https://github.com/mui/mui-x/issues/3016#issuecomment-955079280
+  const handleCellKeyDown = (params, evt) => {
+    if(typeof(evt) === 'undefined') return;
+    if(evt.key !== 'Tab') return;
+
+    evt.preventDefault();
+    evt.defaultMuiPrevented = true;
+
+    const visibleCols = apiRef.current.getVisibleColumns();
+
+    let cellCol = apiRef.current.getColumnIndex(params.field);
+    let cellRow = params.row.rowid;
+    if(evt.shiftKey) {
+      if(cellCol <= 1) { //cannot go left if we are in the primary key col OR in the first editable col
+        if(cellRow === 1) { //cannot go up if we are in the top col (rowId always starts from 1)
+          return; //do nothing if we have run out of table
+        }
+        cellCol = columns.length - 1; //skip the buttons
+        cellRow -= 1;
+      }
+      else {
+        cellCol -= 1;
+      }
+    }
+    else {
+      if(cellCol + 1 >= columns.length) { //cannot go right if we are in the button col OR in the final editable col
+        if(cellRow === rows.length) {
+          return; //do nothing if we have run out of table
+        }
+        cellCol  = 1; //skip the primary key col
+        cellRow += 1; //our rows have consecutive ids
+      }
+      else {
+        cellCol += 1;
+      }
+    }
+    apiRef.current.setCellFocus(cellRow, visibleCols[cellCol].field);
+  };
+
   return(
     <DataGrid
+      apiRef={apiRef}
+      onCellKeyDown={handleCellKeyDown}
       loading={loading}
       density='compact'
       rows={rows}
