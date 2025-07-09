@@ -73,7 +73,7 @@ export default function OfficerIndex() {
             <Tab sx={{minWidth: '2em', paddingInline: '1em'}} value='Z' label='Z'/>
             <Tab sx={{minWidth: '2em', paddingInline: '1em'}} value='null' label='null'/>
           </Tabs>
-          <Button variant='outlined' size='small' onClick={navigate(process.env.PUBLIC_URL + '/officer/0/otherservices')}>New Officer</Button>
+          <Button variant='outlined' size='small' onClick={()=>navigate(process.env.PUBLIC_URL + '/officer/0/otherservices')}>New Officer</Button>
         </Stack>
         { data === null ?
             <CircularProgress size='50vh'/> :
