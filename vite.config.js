@@ -13,11 +13,23 @@ export default defineConfig(({command, mode}) => {
     }
   }
   else if(command === 'serve') {
-    return {
-      plugins: [react(), eslint()],
+    if(mode === 'test') {
+      return {
+        plugins: [react()],
+        test: {
+          environment: 'happy-dom',
+          globals: true,
+          setupFiles: './src/setupTests.js',
+          include: ['src/*.{test,spec}.?(c|m)[jt]s?(x)'],
+          pool: 'vmThreads',
+        },
+      }
+    }
+    else if(mode === 'development') {
+      return {
+        plugins: [react(), eslint()],
+      }
     }
   }
-  else {
-    throw Error('Check vite.config.js');
-  }
+  throw Error('Check vite.config.js.\n       Command:' + command + '\n       Mode: ' + mode);
 })

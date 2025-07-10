@@ -215,7 +215,7 @@ function chunk(data, rowBoxes) {
 }
 
 export default function RatingsIndex() {
-  const { piece } = useParams();
+  const { piece, ...otherParams } = useParams();
   const navigate = useNavigate();
   const [ searchParams, ] = useSearchParams({rowBoxes: 20});
   const { data: queryData, status: queryStatus } = useQuery({...pieceQuery(piece), select: (x) => ({
@@ -241,6 +241,7 @@ export default function RatingsIndex() {
   })});
 
   document.title = 'Ratings Progress: ADM 188/' + piece;
+  console.log(document.title, piece);
 
   if(queryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);

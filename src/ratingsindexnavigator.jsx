@@ -50,7 +50,9 @@ export default function RatingsIndexNavigator() {
             <div>
               <IconButton
                 disabled={pieces.at(-1) === Number(piece)}
-                onClick={()=>navigate('/ratings/' + (pieces[pieces.indexOf(Number(piece)) + 1]))}
+                onClick={()=>{
+                  navigate('/ratings/' + (pieces[pieces.indexOf(Number(piece)) + 1]));
+                }}
                 color='primary'
               >
                 <ArrowForwardIos/>
