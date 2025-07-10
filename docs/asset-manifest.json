@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/lives_at_sea_frontend/static/css/main.f855e6bc.css",
+    "main.js": "/lives_at_sea_frontend/static/js/main.2e8d8e43.js",
+    "static/js/488.f4449f96.chunk.js": "/lives_at_sea_frontend/static/js/488.f4449f96.chunk.js",
+    "index.html": "/lives_at_sea_frontend/index.html",
+    "main.f855e6bc.css.map": "/lives_at_sea_frontend/static/css/main.f855e6bc.css.map",
+    "main.2e8d8e43.js.map": "/lives_at_sea_frontend/static/js/main.2e8d8e43.js.map",
+    "488.f4449f96.chunk.js.map": "/lives_at_sea_frontend/static/js/488.f4449f96.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.2e8d8e43.js"
+  ]
+}
