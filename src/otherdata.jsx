@@ -1,7 +1,7 @@
 import Other from './other';
 
 export default function OtherData() {
-  const columnGroupingModel: GridColumnGroupingModel = [
+  const columnGroupingModel = [
     {
       groupId: 'date',
       headerName: 'Date',
@@ -9,7 +9,7 @@ export default function OtherData() {
     },
   ];
 
-  const columns: GridColDef[] = [
+  const columns = [
     {
       field: 'row',
       headerName: '#',

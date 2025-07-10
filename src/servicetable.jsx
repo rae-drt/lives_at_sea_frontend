@@ -15,7 +15,7 @@ import { useTheme } from '@mui/material/styles';
 
 import { DataTable } from './datatable';
 
-const columnGroupingModel: GridColumnGroupingModel = [
+const columnGroupingModel = [
   {
     groupId: 'fromDate',
     headerName: 'From',
@@ -39,7 +39,7 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
 export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, controlCount, extraRowControls, primary}) {
   const loading = useContext(LoadingContext);
   const theme = useTheme();
-  const columns: GridColDef[] = [
+  const columns = [
     {
       field: primary,
       headerName: '#',

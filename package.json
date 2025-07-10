@@ -19,6 +19,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@toolpad/core": "^0.16.0",
+    "@vitejs/plugin-react": "^4.6.0",
     "gh-pages": "^6.3.0",
     "jest-fixed-jsdom": "^0.0.9",
     "lodash": "^4.17.21",
@@ -28,13 +29,14 @@
     "react-dom": "^19.1.0",
     "react-router": "^7.6.2",
     "react-scripts": "5.0.1",
+    "vitest": "^3.2.4",
     "web-vitals": "^5.0.3",
     "zustand": "^5.0.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "vitest --printConsoleTrace=true --silent=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

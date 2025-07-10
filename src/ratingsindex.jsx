@@ -256,7 +256,7 @@ export default function RatingsIndex() {
     }
   }
 
-  const columns: GridColDef[] = [
+  const columns = [
     {
       field: 'range',
       headerName: 'Range',

@@ -31,7 +31,7 @@ export default function RatingsIndexNavigator() {
                       options={pieces.map((x)=>({label: '' + x}))}
                       renderInput={(params) => <TextField {...params} label="Piece"/>}
                       value={piece}
-                      onChange={(e, v, r)=>{if(r === 'selectOption') navigate(process.env.PUBLIC_URL + '/ratings/' + v.label)}}
+                      onChange={(e, v, r)=>{if(r === 'selectOption') navigate('/ratings/' + v.label)}}
         />
         {/* Nav forward, backward buttons */}
         <Stack direction='row' spacing={0}>
@@ -39,7 +39,7 @@ export default function RatingsIndexNavigator() {
             <div>
               <IconButton
                 disabled={pieces[0] === Number(piece)}
-                onClick={()=>navigate(process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(piece)) - 1]))}
+                onClick={()=>navigate('/ratings/' + (pieces[pieces.indexOf(Number(piece)) - 1]))}
                 color='primary'
               >
                 <ArrowForwardIos sx={{transform: 'rotate(180deg)'}}/>
@@ -50,7 +50,7 @@ export default function RatingsIndexNavigator() {
             <div>
               <IconButton
                 disabled={pieces.at(-1) === Number(piece)}
-                onClick={()=>navigate(process.env.PUBLIC_URL + '/ratings/' + (pieces[pieces.indexOf(Number(piece)) + 1]))}
+                onClick={()=>navigate('/ratings/' + (pieces[pieces.indexOf(Number(piece)) + 1]))}
                 color='primary'
               >
                 <ArrowForwardIos/>
