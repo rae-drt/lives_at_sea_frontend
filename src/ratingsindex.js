@@ -49,7 +49,7 @@ function triangle2(pos, state) {
 
 function one(pos) {
   return(
-    <text x={pos * SQUARE_SIZE + 0.5 * SQUARE_SIZE} y={2 + 0.5 * SQUARE_SIZE} text-anchor='middle' dominant-baseline='middle' textLength={0.8 * SQUARE_SIZE} lengthAdjust='spacingAndGlyphs' font-weight='bold' font-family='serif'>WWI</text>
+    <text x={pos * SQUARE_SIZE + 0.5 * SQUARE_SIZE} y={2 + 0.5 * SQUARE_SIZE} textAnchor='middle' dominantBaseline='middle' textLength={0.8 * SQUARE_SIZE} lengthAdjust='spacingAndGlyphs' fontWeight='bold' fontFamily='serif'>WWI</text>
   );
  /* //An alternative representation
   return(
