@@ -81,7 +81,7 @@ function key() {
   function keyItem(thing, label) {
     return(
       <Stack direction='row' spacing={1} alignItems='center'>
-        <svg  sx={{minWidth: SQUARE_SIZE * 2}} width={SQUARE_SIZE} height={SQUARE_SIZE + 1}>
+        <svg width={SQUARE_SIZE} height={SQUARE_SIZE + 1}>
           {thing}
         </svg>
         <Typography>{label}</Typography>
@@ -322,7 +322,7 @@ export default function RatingsIndex() {
               hideFooter={chunks.length <= PAGE_ROWS}
               localeText={{
                 MuiTablePagination: {
-                  labelDisplayedRows: ({ from, to, count, page }) => {
+                  labelDisplayedRows: ({ count, page }) => {
                     const highPage = Math.ceil(count / 100);
                     if(highPage) return `Page ${highPage ? page + 1 : 0}/${highPage}`;
                     else return '';

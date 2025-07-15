@@ -78,7 +78,7 @@ export default function OfficerIndex() {
         { data === null ?
             <CircularProgress size='50vh'/> :
             list.length === 0 ?
-              <Typography>No officer surnames for "{letter}"</Typography> :
+              <Typography>No officer surnames for &quot;{letter}&quot;</Typography> :
               <List sx={{columnWidth: '20em'}}>{list}</List>
         }
       </CardContent>

@@ -37,7 +37,7 @@ export function useDirtySailor(sailorType, nameId) {
 
 //Block if we are navigating away from the current sailor's record and there is any dirty data
 export function useDirtySailorBlocker(dirty) {
-  function block({currentLocation, historyAction, nextLocation}) {
+  function block({currentLocation, nextLocation}) {
     function getMatchParams(loc) {
       const matches = matchRoutes([
         {path: ':sailorType/:nameId'},

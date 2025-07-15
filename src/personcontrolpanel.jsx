@@ -10,7 +10,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 import WestIcon from '@mui/icons-material/ArrowBack'
 
-export default function PersonControlPanel({navigator, data, onChange, xCheckReady}) {
+export default function PersonControlPanel({navigator, data, onChange}) {
   const loading = useContext(LoadingContext);
   const {sailorType} = useParams();
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ export default function PersonControlPanel({navigator, data, onChange, xCheckRea
           navigate('/ratings/' + data.piece):
           navigate('/officers/' + (data.surname ? data.surname.charAt(0) : 'null'))}}/></IconButton></Stack>
       { sailorType === 'rating' &&
-        <FormControlLabel control={<Checkbox disabled={loading} checked={data.notww1} onChange={(e)=>{onChange({...data, notww1: !data.notww1})}}/>} label='Not WW1' labelPlacement='start'/>
+        <FormControlLabel control={<Checkbox disabled={loading} checked={data.notww1} onChange={()=>{onChange({...data, notww1: !data.notww1})}}/>} label='Not WW1' labelPlacement='start'/>
       }
     </Stack>
   );

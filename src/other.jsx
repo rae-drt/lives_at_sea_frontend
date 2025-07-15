@@ -6,7 +6,7 @@ import { LoadingContext } from './loadingcontext';
 import { useEmptyRowOK , DataTable } from './datatable';
 import { DirtySailorContext } from './dirty';
 
-export default function Other({mutate, tag, columns, columnGroupingModel}) {
+export default function Other({tag, columns, columnGroupingModel}) {
   const { sailorType, nameId } = useParams();
   const { data, setData, mutateData, status: queryStatus } = useRecord(sailorType, nameId, tag);
   const dirty = useContext(DirtySailorContext)[tag];
