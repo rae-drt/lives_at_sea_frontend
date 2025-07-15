@@ -3,7 +3,7 @@ import { LoadingContext } from './loadingcontext';
 
 import style from './style';
 
-import { GridColDef, GridColumnGroupingModel, gridClasses } from '@mui/x-data-grid';
+import { gridClasses } from '@mui/x-data-grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
@@ -15,7 +15,7 @@ import { useTheme } from '@mui/material/styles';
 
 import { DataTable } from './datatable';
 
-const columnGroupingModel: GridColumnGroupingModel = [
+const columnGroupingModel = [
   {
     groupId: 'fromDate',
     headerName: 'From',
@@ -39,7 +39,7 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
 export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, controlCount, extraRowControls, primary}) {
   const loading = useContext(LoadingContext);
   const theme = useTheme();
-  const columns: GridColDef[] = [
+  const columns = [
     {
       field: primary,
       headerName: '#',

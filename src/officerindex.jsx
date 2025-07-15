@@ -17,7 +17,7 @@ export default function OfficerIndex() {
   const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async() => {
-      const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+      const socket = new WebSocket('ws://' + import.meta.env.VITE_QUERYER_ADDR + ':' + import.meta.env.VITE_QUERYER_PORT);
       socket.onmessage = (e) => {
         if(e.data === 'NULL') {
           setData([]);
@@ -37,14 +37,14 @@ export default function OfficerIndex() {
   const list = [];
   if(data !== null) {
     for(const datum of data) {
-      list.push(<ListItem key={datum.nameid}><Link to={process.env.PUBLIC_URL + '/officer/' + datum.nameid + '/otherservices'}>{surname_officerref(datum)}</Link></ListItem>);
+      list.push(<ListItem key={datum.nameid}><Link to={'/officer/' + datum.nameid + '/otherservices'}>{surname_officerref(datum)}</Link></ListItem>);
     }
   }
   return (
     <Card>
       <CardContent>
         <Stack direction='row' justifyContent='space-between'>
-          <Tabs value={letter} onChange={(e,v) => {setData(null); navigate(process.env.PUBLIC_URL + '/officers/' + v)}}>
+          <Tabs value={letter} onChange={(e,v) => {setData(null); navigate('/officers/' + v)}}>
             <Tab sx={{minWidth: '2em', paddingInline: '1em'}} value='A' label='A'/>
             <Tab sx={{minWidth: '2em', paddingInline: '1em'}} value='B' label='B'/>
             <Tab sx={{minWidth: '2em', paddingInline: '1em'}} value='C' label='C'/>
@@ -73,7 +73,7 @@ export default function OfficerIndex() {
             <Tab sx={{minWidth: '2em', paddingInline: '1em'}} value='Z' label='Z'/>
             <Tab sx={{minWidth: '2em', paddingInline: '1em'}} value='null' label='null'/>
           </Tabs>
-          <Button variant='outlined' size='small' onClick={()=>navigate(process.env.PUBLIC_URL + '/officer/0/otherservices')}>New Officer</Button>
+          <Button variant='outlined' size='small' onClick={()=>navigate('/officer/0/otherservices')}>New Officer</Button>
         </Stack>
         { data === null ?
             <CircularProgress size='50vh'/> :

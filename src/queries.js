@@ -34,7 +34,7 @@ function getRecord(sailorType, nameId, selection, query) {
 }
 
 function fetchData(params) {
-  const api = process.env.REACT_APP_API_ROOT + params;
+  const api = import.meta.env.VITE_API_ROOT + params;
   return new Promise((resolve, reject) => {
     const fetchData = async() => {
       const response = await(fetch(api));
@@ -83,7 +83,7 @@ function mainPersonQF({queryKey}) {
     if(sailorType === 'rating') return fetchData('name?nameid=' + nameId);
     else if(sailorType === 'officer') {
       return new Promise((resolve, reject) => {
-        const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+        const socket = new WebSocket('ws://' + import.meta.env.VITE_QUERYER_ADDR + ':' + import.meta.env.VITE_QUERYER_PORT);
         socket.onerror = (e) => { reject(e); };
         socket.onmessage = (e) => {
           if(e.data === 'NULL') {
@@ -232,7 +232,7 @@ export const piecesQuery = {
 function simpleTableQueryFn({queryKey}) {
   const [, table] = queryKey;
   return new Promise((resolve, reject) => {
-    const socket = new WebSocket('ws://' + process.env.REACT_APP_QUERYER_ADDR + ':' + process.env.REACT_APP_QUERYER_PORT);
+    const socket = new WebSocket('ws://' + import.meta.env.VITE_QUERYER_ADDR + ':' + import.meta.env.VITE_QUERYER_PORT);
     socket.onerror = (e) => { reject(e); };
     socket.onmessage = (e) => {
       if(e.data === 'NULL') {

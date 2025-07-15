@@ -15,7 +15,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Stack } from '@mui/material';
 import { DialogsProvider } from '@toolpad/core/useDialogs';
 
-const queryClientOptions = process.env.REACT_APP_PERSIST_CACHE ?
+const queryClientOptions = import.meta.env.VITE_PERSIST_CACHE ?
   {
     defaultOptions: {
       queries: {
@@ -29,7 +29,7 @@ const queryClientOptions = process.env.REACT_APP_PERSIST_CACHE ?
 
 const queryClient = new QueryClient(queryClientOptions);
 
-if(process.env.REACT_APP_BROADCAST_CACHE) {
+if(import.meta.env.VITE_BROADCAST_CACHE) {
   console.log("Enabled cache state broadcast (changes made in one tab will be broadcast to others)");
   broadcastQueryClient({
     queryClient,
@@ -39,7 +39,7 @@ if(process.env.REACT_APP_BROADCAST_CACHE) {
 
 const routes = (
   <Routes>
-    <Route path={process.env.PUBLIC_URL}>
+    <Route path='/'>
       <Route path='' element={<Navigate to='ratings'/>}/>
       <Route path='officers' element={<Navigate to='A'/>}/>
       <Route path='officers/:letter' element={<OfficerIndex/>}/>
@@ -87,7 +87,7 @@ function App() {
       }
     }
   });
-  if(process.env.REACT_APP_PERSIST_CACHE) {
+  if(import.meta.env.VITE_PERSIST_CACHE) {
     console.log("Enabled cache state persistence (changes made will survive refresh)");
     return (
       <div className="App">

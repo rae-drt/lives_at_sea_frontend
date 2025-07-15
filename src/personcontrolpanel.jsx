@@ -24,8 +24,8 @@ export default function PersonControlPanel({navigator, data, onChange, xCheckRea
       {navigator}
       <Stack direction='row' alignItems='center'><Typography>{sailorType === 'rating' ? 'Progress' : 'Officers'}</Typography><IconButton><WestIcon color='primary' onClick={()=>{
         sailorType === 'rating' ?
-          navigate(process.env.PUBLIC_URL + '/ratings/' + data.piece):
-          navigate(process.env.PUBLIC_URL + '/officers/' + (data.surname ? data.surname.charAt(0) : 'null'))}}/></IconButton></Stack>
+          navigate('/ratings/' + data.piece):
+          navigate('/officers/' + (data.surname ? data.surname.charAt(0) : 'null'))}}/></IconButton></Stack>
       { sailorType === 'rating' &&
         <FormControlLabel control={<Checkbox disabled={loading} checked={data.notww1} onChange={(e)=>{onChange({...data, notww1: !data.notww1})}}/>} label='Not WW1' labelPlacement='start'/>
       }

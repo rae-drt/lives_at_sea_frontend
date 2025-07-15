@@ -1,8 +1,7 @@
 import { useBlocker, matchRoutes } from 'react-router';
 import { useRecord } from './queries';
 import { createContext } from 'react';
-
-const _ = require('lodash');
+import { isEqual } from 'lodash';
 
 class Dirty {
   any() {
@@ -29,10 +28,10 @@ export function useDirtySailor(sailorType, nameId) {
   const {data: otherServicesRecord, queryData: otherServicesQuery } = useRecord(sailorType, nameId, 'service_other');
   const {data: otherDataRecord, queryData: otherDataQuery} = useRecord(sailorType, nameId, 'data_other');
   return new DirtySailor(
-    !(_.isEqual(nameRecord, nameQuery)),
-    !(_.isEqual(servicesRecord, servicesQuery)),
-    !(_.isEqual(otherServicesRecord, otherServicesQuery)),
-    !(_.isEqual(otherDataRecord, otherDataQuery)),
+    !(isEqual(nameRecord, nameQuery)),
+    !(isEqual(servicesRecord, servicesQuery)),
+    !(isEqual(otherServicesRecord, otherServicesQuery)),
+    !(isEqual(otherDataRecord, otherDataQuery)),
   );
 }
 

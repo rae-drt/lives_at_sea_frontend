@@ -20,17 +20,17 @@ import HappyIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import SadIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import { LoadingContext } from './loadingcontext';
 
-const _ = require('lodash');
+import { isEqual, reduce } from 'lodash';
 
 const ROW_PRIMARY = 'rowid';
 
 function getDifferenceMap(table1, table2) {
   function _getDifferenceMap(outerTable, innerTable) {
-    return _.reduce(outerTable, (rowDifference, rowContent, rowIndex) => {
+    return reduce(outerTable, (rowDifference, rowContent, rowIndex) => {
       if(rowIndex in innerTable) { //check for this in case one table is longer than the other. will work out regardless of which is longer, as either way we get an array of less rows than the longer table.
         rowDifference.push(
-          _.reduce(rowContent, (cellDifference, cellContent, cellKey) => {
-            if(!_.isEqual(cellContent, innerTable[rowIndex][cellKey])) {
+          reduce(rowContent, (cellDifference, cellContent, cellKey) => {
+            if(!isEqual(cellContent, innerTable[rowIndex][cellKey])) {
               cellDifference[cellKey] = '';
             }
             return cellDifference;
@@ -189,11 +189,11 @@ export default function ServiceReconciler() {
     );
   }
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
-  const differenceMap = (serviceRecords.services.length === 0 || _.isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records)) ?
+  const differenceMap = (serviceRecords.services.length === 0 || isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records)) ?
     null : //null if the services are identical. If there is any difference, the array will be the same length as the shorter services table (potentially empty, making _all_ rows in the longer table "different").
            //TODO it may well be that if one table is empty, the API just doesn't return anything at all for it -- if so, I can make that work for me by passing an empty array in place of the missing entry
     getDifferenceMap(serviceRecords.services[0].records, serviceRecords.services[1].records);
-  const sameServices = serviceRecords.length === 0 ? true : _.isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records);
+  const sameServices = serviceRecords.length === 0 ? true : isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records);
   const xCheckReady = serviceRecords.services[0].userid > 0 &&
                       serviceRecords.services[1].userid > 0 &&
                       serviceRecords.services[0].complete &&

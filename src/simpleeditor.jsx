@@ -23,7 +23,7 @@ export default function SimpleEditor({table, primary}) {
   }, [queryData, queryStatus]);
 
   if(fields.length) {
-    const columns: GridColDef[] = fields.map((e) => ({
+    const columns = fields.map((e) => ({
       field: e,
       headerName: e[0].toUpperCase() + e.slice(1),
       editable: e !== primary,

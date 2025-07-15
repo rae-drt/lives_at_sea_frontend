@@ -80,7 +80,7 @@ export default function Person() {
                 {controlPanel}
               </Stack>
               <Stack alignItems='center' spacing={2} width='95vw'>
-                <Tabs value={dataType} onChange={(e,v) => {navigate(process.env.PUBLIC_URL + '/' + sailorType + '/' + nameId + '/' + v);}}>
+                <Tabs value={dataType} onChange={(e,v) => {navigate('/' + sailorType + '/' + nameId + '/' + v);}}>
                   {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
                   <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
                   <Tab value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
