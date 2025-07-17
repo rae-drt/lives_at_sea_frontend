@@ -3,6 +3,8 @@ backend:
   phases:
     build:
       commands:
+        - rm -rf node_modules
+        - rm -rf .npm
         - npm ci --cache .npm --prefer-offline
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
