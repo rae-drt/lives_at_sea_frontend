@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router';
 import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
 
 //Per https://stackoverflow.com/a/78608514
 const router = createBrowserRouter(createRoutesFromElements(<Route path='*' element={<App />} />));
