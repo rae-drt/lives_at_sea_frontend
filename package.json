@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.16.1",
+    "@aws-amplify/backend-cli": "^1.8.0",
     "@eslint/js": "^9.31.0",
     "@vitejs/plugin-react": "^4.6.0",
     "eslint": "^9.31.0",
