@@ -3,6 +3,7 @@ backend:
   phases:
     build:
       commands:
+        - rm -rf .npm
         - npm ci --cache .npm --prefer-offline
         - npm --version
         - node --version
