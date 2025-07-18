@@ -8,6 +8,7 @@ backend:
         - node --version
         - ls
         - cat package-lock.json
+        - npx ampx generate outputs --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
     build:
