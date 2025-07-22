@@ -7,13 +7,14 @@ backend:
         - npm i
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
         - ls
-        - env
-        - env | grep '^VITE_API_ROOT=' >> .env
-        - cat .env
 frontend:
   phases:
     build:
       commands:
+        - ls
+        - env
+        - env | grep '^VITE_API_ROOT=' >> .env
+        - cat .env
         - npm run build
   artifacts:
     baseDirectory: build
