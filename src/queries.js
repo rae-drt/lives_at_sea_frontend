@@ -37,6 +37,7 @@ function getRecord(sailorType, nameId, selection, query) {
 function fetchData(params) {
   //const api = secret(VITE_API_ROOT) + params;
   const api = process.env.VITE_API_ROOT + params;
+  console.log(api);
   return new Promise((resolve, reject) => {
     const fetchData = async() => {
       const response = await(fetch(api));

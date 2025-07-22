@@ -9,6 +9,7 @@ backend:
         - ls
         - env
         - env | grep '^VITE_API_ROOT=' >> .env
+        - cat .env
 frontend:
   phases:
     build:
