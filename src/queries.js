@@ -1,7 +1,7 @@
 import { createStore, useStore } from 'zustand';
 import { init_data, status_reconciled, status_encode } from './data_utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-//import { secret } from '@aws-amplify/backend';
+import { secret } from '@aws-amplify/backend';
 
 //following https://stackoverflow.com/a/1479341
 const RECORDS = (function() { //TODO: Is this a global singleton?
@@ -35,7 +35,7 @@ function getRecord(sailorType, nameId, selection, query) {
 }
 
 function fetchData(params) {
-  //const api = secret(VITE_API_ROOT) + params;
+  const api = secret(VITE_API_ROOT) + params;
   return new Promise((resolve, reject) => {
     const fetchData = async() => {
       const response = await(fetch(api));
