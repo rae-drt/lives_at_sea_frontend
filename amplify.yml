@@ -13,7 +13,7 @@ frontend:
       commands:
         - ls
         - env
-        - env | grep '^VITE_API_ROOT=' >> .env
+        #- env | grep '^VITE_API_ROOT=' >> .env
         - cat .env
         - npm run build
   artifacts:
