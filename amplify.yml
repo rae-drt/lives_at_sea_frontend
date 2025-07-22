@@ -14,7 +14,7 @@ frontend:
         - ls
         - env
         #- env | grep '^VITE_API_ROOT=' >> .env
-        - cat .env
+        #- cat .env
         - npm run build
   artifacts:
     baseDirectory: build
