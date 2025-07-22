@@ -8,6 +8,7 @@ backend:
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
         - ls
         - env
+        - env | grep '^VITE_API_ROOT=' >> .env
 frontend:
   phases:
     build:
