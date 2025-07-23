@@ -1,10 +1,6 @@
 version: 1
 backend:
   phases:
-    preBuild:
-      commands:
-        - nvm install #just one nvm install, as amplify always appears to run this step first
-        - diff <(node --version) .nvmrc
     build:
       commands:
         - diff <(node --version) .nvmrc
@@ -14,7 +10,6 @@ frontend:
   phases:
     build:
       commands:
-        # An 'nvm use' or 'nvm install' here would feel safer, but seems un-needed in practice
         - diff <(node --version) .nvmrc
         - npm run build
   artifacts:
