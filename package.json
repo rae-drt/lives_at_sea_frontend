@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
+    "@aws-amplify/ui-react": "^6.11.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.2.0",
@@ -14,6 +15,7 @@
     "@tanstack/react-query-devtools": "^5.83.0",
     "@tanstack/react-query-persist-client": "^5.83.0",
     "@toolpad/core": "^0.16.0",
+    "aws-amplify": "^6.15.3",
     "lodash": "^4.17.21",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -21,6 +23,8 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@aws-amplify/backend": "^1.16.1",
+    "@aws-amplify/backend-cli": "^1.8.0",
     "@eslint/js": "^9.31.0",
     "@vitejs/plugin-react": "^4.6.0",
     "eslint": "^9.31.0",
