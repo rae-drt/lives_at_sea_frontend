@@ -5,22 +5,15 @@ backend:
       commands:
         - node --version
         - nvm install #just one nvm install, as amplify always appears to run this step first
-        - node --version
-        - nvm use
-        - node --version
         - npm ci --cache .npm --prefer-offline
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
-        - ls
         - node --version
 frontend:
   phases:
     build:
       commands:
+        # An 'nvm use' or 'nvm install' here would feel safer, but seems un-needed in practice
         - node --version
-        - nvm use
-        - node --version
-        - ls
-        - env
         - npm run build
         - node --version
   artifacts:
