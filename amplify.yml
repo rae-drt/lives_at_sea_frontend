@@ -16,8 +16,6 @@ frontend:
         - node --version
         - ls
         - env
-        #- env | grep '^VITE_API_ROOT=' >> .env
-        #- cat .env
         - npm run build
         - node --version
   artifacts:
