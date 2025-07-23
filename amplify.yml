@@ -4,6 +4,8 @@ backend:
     build:
       commands:
         - node --version
+        - nvm install #just one nvm install, as amplify always appears to run this step first
+        - node --version
         - nvm use
         - node --version
         - npm ci --cache .npm --prefer-offline
