@@ -1,8 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen } from './testutils';
 import App from './App';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+describe('App', () => {
+  it('renders App component', async () => {
+    render(<App/>);
+
+    //beginning of testing that default routing is as we expect
+    expect(global.window.document.title).toBe('Ratings Progress: ADM 188/5');
+    expect(global.window.location.pathname).toBe('/ratings/5');
+    const dropdown = await screen.findByLabelText('Piece');
+    expect(dropdown.value).toBe("5");
+  });
 });
