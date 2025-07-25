@@ -17,7 +17,7 @@ export default defineConfig(({command, mode}) => {
       return {
         plugins: [react()],
         test: {
-          environment: 'happy-dom',
+          environment: 'jsdom',
           globals: true,
           setupFiles: './src/setupTests.js',
           include: ['src/*.{test,spec}.?(c|m)[jt]s?(x)'],
