@@ -62,14 +62,6 @@ const customRender = (ui, {route = '/', initialEntry = '/', ...options} = {}) =>
     wrapper: allProviders,
     ...options,
   });
-  //return {
-  //  user: userEvent.setup(),
-  //  ...render(ui, {
-  //    queries: allQueries,
-  //    wrapper: allProviders,
-  //   ...options
-  //  }),
-  ///};
 }
 
 // re-export with overrides
