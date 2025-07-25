@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import eslint from 'vite-plugin-eslint'
+import { fileURLToPath, URL } from 'url'
 
 // https://vite.dev/config/
 export default defineConfig(({command, mode}) => {
@@ -13,11 +14,28 @@ export default defineConfig(({command, mode}) => {
     }
   }
   else if(command === 'serve') {
-    return {
-      plugins: [react(), eslint()],
+    if(mode === 'test') {
+      return {
+        plugins: [react()],
+        test: {
+          environment: 'jsdom',
+          globals: true,
+          setupFiles: './src/test/config/setupTests.js',
+          include: ['src/test/*.?(c|m)[jt]s?(x)'],
+          pool: 'vmThreads',
+        },
+        resolve: {
+          alias: {
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
+          },
+        },
+      }
+    }
+    else if(mode === 'development') {
+      return {
+        plugins: [react(), eslint()],
+      }
     }
   }
-  else {
-    throw Error('Check vite.config.js');
-  }
+  throw Error('Check vite.config.js.\n       Command:' + command + '\n       Mode: ' + mode);
 })
