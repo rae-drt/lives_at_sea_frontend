@@ -40,21 +40,32 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const queryClient = new QueryClient();
 
 // redefine render
-import { createRoutesStub } from 'react-router';
-const customRender = (ui, {route = '/', initialEntry = '/', ...options} = {}) => {
+import { createRoutesStub, BrowserRouter } from 'react-router';
+const customRender = (ui, routing, options) => {
   const allProviders = ({children}) => {
-    const Stub = createRoutesStub([
-    {
-      path: route,
-      Component: () => (
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      ),
-    }]);
-    return (
-      <Stub initialEntries={[initialEntry]}/>
-    );
+    if(typeof(routing) === 'undefined') { //use default application routing (e.g. when rendering App, likely to test the routing itself)
+      return (
+        <BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </BrowserRouter>
+      );
+    }
+    else { //use custom routing (e.g. when rendering some component)
+      const Stub = createRoutesStub([
+      {
+        path: routing.route,
+        Component: () => (
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        ),
+      }]);
+      return (
+        <Stub initialEntries={[routing.initialEntry]}/>
+      );
+    }
   }
 
   return render(ui, {
