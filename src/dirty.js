@@ -22,11 +22,11 @@ class DirtySailor extends Dirty {
 
 export const DirtySailorContext = createContext(new DirtySailor(false, false, false, false));
 
-export function useDirtySailor(sailorType, nameId) {
-  const {data: nameRecord, queryData: nameQuery } = useRecord(sailorType, nameId, 'name');
-  const {data: servicesRecord, queryData: servicesQuery } = useRecord(sailorType, nameId, 'service');
-  const {data: otherServicesRecord, queryData: otherServicesQuery } = useRecord(sailorType, nameId, 'service_other');
-  const {data: otherDataRecord, queryData: otherDataQuery} = useRecord(sailorType, nameId, 'data_other');
+export function useDirtySailor(sailorType, piece, item) {
+  const {data: nameRecord, queryData: nameQuery } = useRecord(sailorType, piece, item, 'name');
+  const {data: servicesRecord, queryData: servicesQuery } = useRecord(sailorType, piece, item, 'service');
+  const {data: otherServicesRecord, queryData: otherServicesQuery } = useRecord(sailorType, piece, item, 'service_other');
+  const {data: otherDataRecord, queryData: otherDataQuery} = useRecord(sailorType, piece, item, 'data_other');
   return new DirtySailor(
     !(isEqual(nameRecord, nameQuery)),
     !(isEqual(servicesRecord, servicesQuery)),
@@ -40,7 +40,7 @@ export function useDirtySailorBlocker(dirty) {
   function block({currentLocation, nextLocation}) {
     function getMatchParams(loc) {
       const matches = matchRoutes([
-        {path: ':sailorType/:nameId'},
+        {path: ':sailorType/:piece/:item'},
       ], loc);
 
       //no matches
@@ -53,9 +53,10 @@ export function useDirtySailorBlocker(dirty) {
       //throw an error if my assumptions break
       //(breakage here is on me, not on the bad react-router documentation)
       const keys = Object.keys(params);
-      if(!(keys.length === 2 &&
+      if(!(keys.length === 3 &&
            keys.includes('sailorType') &&
-           keys.includes('nameId'))) {
+           keys.includes('piece') &&
+           keys.includes('item'))) {
         throw new Error('Bad params: ' + JSON.stringify(params));
       }
       return params;
@@ -66,7 +67,8 @@ export function useDirtySailorBlocker(dirty) {
 
     if(next !== null) {
       if(current.sailorType === next.sailorType &&
-         current.nameId === next.nameId) {
+         current.piece === next.piece &&
+         current.item === next.item) {
         return false;
       }
     }

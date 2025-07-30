@@ -62,9 +62,9 @@ function XCheck({ready, checked, onChange}) {
 }
 
 export default function ServiceReconciler() {
-  const {sailorType, nameId} = useParams();
+  const {sailorType, piece, item} = useParams();
   const [searchParams,] = useSearchParams();
-  const { data: serviceRecords, setData: setServiceRecords, mutateData: mutateServiceRecords } = useRecord(sailorType, nameId, 'service');
+  const { data: serviceRecords, setData: setServiceRecords, mutateData: mutateServiceRecords } = useRecord(sailorType, piece, item, 'service');
   const dirty = useContext(DirtySailorContext).service;
   const emptyOK = useEmptyRowOK(serviceRecords.services.map((x)=>x.records), ROW_PRIMARY);
 
@@ -189,6 +189,7 @@ export default function ServiceReconciler() {
     );
   }
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
+console.log(serviceRecords);
   const differenceMap = (serviceRecords.services.length === 0 || isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records)) ?
     null : //null if the services are identical. If there is any difference, the array will be the same length as the shorter services table (potentially empty, making _all_ rows in the longer table "different").
            //TODO it may well be that if one table is empty, the API just doesn't return anything at all for it -- if so, I can make that work for me by passing an empty array in place of the missing entry

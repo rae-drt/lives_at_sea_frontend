@@ -1,7 +1,3 @@
-export function catref(data) {
-  return 'ADM ' + data.series + '/' + data.piece + '/' + data.nameid;
-}
-
 export function officerref(data) {
   let retval = data.nameid;
   if(data.rating || data.forename || data.surname) {
@@ -90,7 +86,8 @@ export function status_label(status_code) {
 }
 
 export function status_reconciled(status_code) {
-  return status_code === 15;
+  console.log(status_code);
+  return true; //TODO
 }
 
 export function status_encode(service_record) {

@@ -6,21 +6,22 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 const RECORDS = (function() { //TODO: Is this a global singleton?
   //private
   const map = new Map();
-  function _key(sailorType, nameId, selection) { return `${sailorType}:${nameId}:${selection}` };
+  function _key(sailorType, piece, item, selection) { return `${sailorType}:${piece}:${item}:${selection}` };
 
   //public
   return {
-    has:    function(sailorType, nameId, selection) { return map.has       (_key(sailorType, nameId, selection)) },
-    get:    function(sailorType, nameId, selection) { return map.get       (_key(sailorType, nameId, selection)) },
-    delete: function(sailorType, nameId, selection) { return map.delete    (_key(sailorType, nameId, selection)) },
-    set:    function(sailorType, nameId, selection, value) { return map.set(_key(sailorType, nameId, selection), value) },
+    has:    function(sailorType, piece, item, selection) { return map.has       (_key(sailorType, piece, item, selection)) },
+    get:    function(sailorType, piece, item, selection) { return map.get       (_key(sailorType, piece, item, selection)) },
+    delete: function(sailorType, piece, item, selection) { return map.delete    (_key(sailorType, piece, item, selection)) },
+    set:    function(sailorType, piece, item, selection, value) { return map.set(_key(sailorType, piece, item, selection), value) },
   }
 })();
 
-function getRecord(sailorType, nameId, selection, query) {
-  if(!RECORDS.has(sailorType, nameId, selection)) {
+function getRecord(sailorType, piece, item, selection, query) {
+  console.log('getRecord', sailorType, piece, item, selection, query);
+  if(!RECORDS.has(sailorType, piece, item, selection)) {
     if(query.status === 'success') {
-      RECORDS.set(sailorType, nameId, selection,
+      RECORDS.set(sailorType, piece, item, selection,
                   createStore((set) => ({
                     [selection]: query.data,
                     update: (value) => set({[selection]: value}),
@@ -28,7 +29,7 @@ function getRecord(sailorType, nameId, selection, query) {
     }
   }
   return [
-    RECORDS.get(sailorType, nameId, selection) || createStore(() => ({[selection]: null})),
+    RECORDS.get(sailorType, piece, item, selection) || createStore(() => ({[selection]: null})),
     query.status,
   ];
 }
@@ -48,7 +49,10 @@ function fetchData(params) {
 }
 
 function mainPersonQF({queryKey}) {
-  const [, {sailorType, nameId}] = queryKey;
+  const [, {sailorType, piece, item}] = queryKey;
+
+  const nameId = 1; //TODO: delete
+
   if(typeof(nameId) === 'undefined') {
     return new Promise((resolve, reject) => reject(new Error()));
   }
@@ -80,7 +84,35 @@ function mainPersonQF({queryKey}) {
     }
   }
   else {
-    if(sailorType === 'rating') return fetchData('name?nameid=' + nameId);
+console.log('PIECE, ITEM', piece, item);
+console.log('TYPE', sailorType);
+    if(sailorType === 'rating') {
+      return fetchData(`person?sourcereference=ADM&sourcereference=188&sourcereference=${piece}&sourcereference=${item}`).then(
+        (data) => {
+          console.log('DATA_1', data);
+          data.service_history = data.service.MAIN;
+          if(data.service_history.length === 1) {
+            data.service_history.push(structuredClone(data.service_history[0]));
+          }
+          if(data.service_history.length !== 2) {
+            throw Error(`Unexpected nunber of service history transcriptions: ${data.service_history.length}`);
+          }
+          for(const x of data.service_history) {
+            x.records = x.rows === null ? []: x.rows;
+            for(const y of x.records) {
+              y.rowid = y.row_number;
+              delete y.row_number;
+            }
+            x.userid = x.user_id;
+            delete x.rows;
+            delete x.user_id;
+          }
+          delete data.service;
+          console.log('DATA_2', data);
+          return data;
+        }
+      );
+    }
     else if(sailorType === 'officer') {
       return new Promise((resolve, reject) => {
         const socket = new WebSocket('ws://' + import.meta.env.VITE_QUERYER_ADDR + ':' + import.meta.env.VITE_QUERYER_PORT);
@@ -115,84 +147,84 @@ function piecesQF() {
 }
 
 //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
-async function updatePieceCache(queryClient, sailorType, nameId) {
-  const nNameId = Number(nameId);
-  const mainData = queryClient.getQueryData(['mainPersonData', { sailorType: sailorType, nameId: nNameId}]);
+async function updatePieceCache(queryClient, sailorType, piece, item) {
+  const nItem = Number(item);
+  const mainData = queryClient.getQueryData(['mainPersonData', { sailorType: sailorType, piece: piece, item: item}]);
   const qKey = pieceQuery('' + mainData.name.piece).queryKey;
   const pieceData = queryClient.getQueryData(qKey) ?
                     structuredClone(queryClient.getQueryData(qKey)) :
                     structuredClone(await queryClient.fetchQuery(pieceQuery('' + mainData.name.piece)));
 
-  const index = nNameId - pieceData.piece_ranges.this_piece.start_item;
-  if(pieceData.records[index].nameid !== nNameId) throw Error(); //maybe this can happen sometimes. good thing this is a temp hack.
+  const index = nItem - pieceData.piece_ranges.this_piece.start_item;
+  if(pieceData.records[index].nameid !== nItem) throw Error(); //maybe this can happen sometimes. good thing this is a temp hack.
   const newStatus = {
     complete1:  mainData.service_history[0].complete,
     complete2:  mainData.service_history[1].complete,
     has_tr1:    mainData.service_history[0].userid,
     has_tr2:    mainData.service_history[1].userid,
     reconciled: status_reconciled(mainData.status.status_code),
-    nameid: nNameId,
+    nameid: nItem,
     notww1: mainData.name.notww1,
   };
   pieceData.records[index] = newStatus;
   queryClient.setQueryData(qKey, pieceData);
 }
 
-async function mainPersonMutate(queryClient, sailorType, nameId, data) {
-  const key = mainPersonQuery(sailorType, nameId).queryKey;
+async function mainPersonMutate(queryClient, sailorType, piece, item, data) {
+  const key = mainPersonQuery(sailorType, piece, item).queryKey;
   const currentData = await queryClient.getQueryData(key);
-  queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
-  RECORDS.delete(sailorType, nameId, 'name');
+  queryClient.setQueryData(mainPersonQuery(sailorType, piece, item).queryKey, {...currentData, name: data});
+  RECORDS.delete(sailorType, piece, item, 'name');
 
-  updatePieceCache(queryClient, sailorType, nameId); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
+  updatePieceCache(queryClient, sailorType, piece, item); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
 }
 
-async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
-  const key = mainPersonQuery(sailorType, nameId).queryKey;
+async function serviceRecordsMutate(queryClient, sailorType, piece, item, data) {
+  const key = mainPersonQuery(sailorType, piece, item).queryKey;
   const currentData = queryClient.getQueryData(key);
   const newData = {service_history: data.services, status: status_encode(data)}
   queryClient.setQueryData(key, {...currentData, ...newData});
-  RECORDS.delete(sailorType, nameId, 'service');
+  RECORDS.delete(sailorType, piece, item, 'service');
 
-  updatePieceCache(queryClient, sailorType, nameId); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
+  updatePieceCache(queryClient, sailorType, piece, item); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
 }
 
-async function otherDataMutate(queryClient, sailorType, nameId, data) {
-  const key = mainPersonQuery(sailorType, nameId).queryKey;
+async function otherDataMutate(queryClient, sailorType, piece, item, data) {
+  const key = mainPersonQuery(sailorType, piece, item).queryKey;
   const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, other_data: data});
-  RECORDS.delete(sailorType, nameId, 'data_other');
+  RECORDS.delete(sailorType, piece, item, 'data_other');
 }
 
-async function otherServicesMutate(queryClient, sailorType, nameId, data) {
-  const key = mainPersonQuery(sailorType, nameId).queryKey;
+async function otherServicesMutate(queryClient, sailorType, piece, item, data) {
+  const key = mainPersonQuery(sailorType, piece, item).queryKey;
   const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, service_other: data});
-  RECORDS.delete(sailorType, nameId, 'service_other');
+  RECORDS.delete(sailorType, piece, item, 'service_other');
 }
 
-const mainPersonQuery = (sailorType, nameId) => ({
-  queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
+const mainPersonQuery = (sailorType, piece, item) => ({
+  queryKey: ['mainPersonData', {sailorType: sailorType, piece: piece, item: item}],
   queryFn: mainPersonQF,
-  select: (x) => x.name,
+  select: (x) => x.person,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
   staleTime: Infinity,
 });
 
-const serviceRecordsQuery = (sailorType, nameId) => ({
-  queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
+const serviceRecordsQuery = (sailorType, piece, item) => ({
+  queryKey: ['mainPersonData', {sailorType: sailorType, piece: piece, item: item}],
   queryFn: mainPersonQF,
-  select: (x) => ( {reconciled: status_reconciled(x.status.status_code), services: x.service_history} ),
+  select: (x) => ( {reconciled: x.service_history.length === 1, services: x.service_history} ),
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
   staleTime: Infinity,
 });
 
-const otherServicesQuery = (sailorType, nameId) => ({
-  queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
+const otherServicesQuery = (sailorType, piece, item) => ({
+  queryKey: ['mainPersonData', {sailorType: sailorType, piece: piece, item: item}],
   queryFn: mainPersonQF,
   select: (x) => ( x.service_other ),
   refetchOnMount: false,
@@ -201,8 +233,8 @@ const otherServicesQuery = (sailorType, nameId) => ({
   staleTime: Infinity,
 });
 
-const otherDataQuery = (sailorType, nameId) => ({
-  queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
+const otherDataQuery = (sailorType, piece, item) => ({
+  queryKey: ['mainPersonData', {sailorType: sailorType, piece: piece, item: item}],
   queryFn: mainPersonQF,
   select: (x) => ( x.other_data ),
   refetchOnMount: false,
@@ -256,7 +288,8 @@ export const simpleTableQuery = (table) => ({
     staleTime: Infinity,
 });
 
-export function useRecord(sailorType, nameId, selection) {
+export function useRecord(sailorType, piece, item, selection) {
+  console.log('useRecord', sailorType, piece, item, selection);
   const queries = {
     name: mainPersonQuery,
     service: serviceRecordsQuery,
@@ -270,13 +303,14 @@ export function useRecord(sailorType, nameId, selection) {
     data_other: otherDataMutate,
   }
 
-  const query = useQuery(queries[selection](sailorType, nameId));
+  const query = useQuery(queries[selection](sailorType, piece, item));
   const queryClient = useQueryClient();
-  const [record, queryStatus] = getRecord(sailorType, nameId, selection, query);
+  const [record, queryStatus] = getRecord(sailorType, piece, item, selection, query);
+  console.log(record, queryStatus, selection);
   return {
     data: useStore(record, (state)=>state[selection]),
     setData: useStore(record, (state)=>state.update),
-    mutateData: (value) => mutations[selection](queryClient, sailorType, nameId, value),
+    mutateData: (value) => mutations[selection](queryClient, sailorType, piece, item, value),
     queryData: query.data,
     status: queryStatus,
   };

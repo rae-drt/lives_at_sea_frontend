@@ -12,11 +12,10 @@ export const routes = (
       <Route path='officers/:letter' element={<OfficerIndex/>}/>
       <Route path='ratings' element={<Navigate to='5'/>}/>{/* lowest piece */}
       <Route path='ratings/:piece' element={<RatingsIndex/>}/>
-      <Route path='rating' element={<Navigate to='40001'/>}/>{/* lowest rating */}
       <Route path='officer' element={<Navigate to='7'/>}/>{/* lowest officer number */}
-      <Route path='rating/:nameid' element={<Navigate to='main'/>}/>
+      <Route path='rating/:piece/:item' element={<Navigate to='main'/>}/>
       <Route path='officer/:nameid' element={<Navigate to='otherservices'/>}/>
-      <Route path=':sailorType/:nameId/:dataType' element={<Person/>}/>
+      <Route path=':sailorType/:piece/:item/:dataType' element={<Person/>}/>
       <Route path='sources' element={<SimpleEditor table='sources' primary='sourceid'/>}/>
       <Route path='ships' element={<SimpleEditor table='ships' primary='shipid'/>}/>
       <Route path='battles' element={<SimpleEditor table='battlehonours' primary='battleid'/>}/>

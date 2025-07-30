@@ -8,16 +8,16 @@ import CardContent from '@mui/material/CardContent';
 import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { catref, officerref } from './data_utils';
+import { officerref } from './data_utils';
 
 export default function PersonTableControlPanel({data, onChange}) {
-  const {sailorType} = useParams();
+  const {sailorType, piece, item} = useParams();
   const dirty = useContext(DirtySailorContext).name;
   return (
     <Card>
       <CardContent>
         <Stack direction='row' justifyContent='space-between' spacing={2}>
-          <Typography variant='h6'>{sailorType === 'officer' ? 'Officer #' + officerref(data) : catref(data)}</Typography>
+          <Typography variant='h6'>{sailorType === 'officer' ? 'Officer #' + officerref(data) : `ADM 188/${piece}/${item}`}</Typography>
           <Stack direction='row' spacing={2}>
             {'error' in data && <FormControlLabel control={<Checkbox checked={data.error} disabled={true}/>} label='Error?' labelPlacement='start'/>}
             <Button disabled={!dirty} variant='outlined' onClick={onChange}>Enter</Button>
