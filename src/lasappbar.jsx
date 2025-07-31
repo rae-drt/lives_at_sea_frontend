@@ -15,8 +15,6 @@ export default function LaSAppBar() {
           <MenuIcon onClick={(e) => {setMenuAnchorEl(e.currentTarget)}}/>
         </IconButton>
         <Menu anchorEl={menuAnchorEl} onClose={()=>setMenuAnchorEl(null)} onClick={()=>setMenuAnchorEl(null)} open={Boolean(menuAnchorEl)}>
-          <MenuItem>Placeholder 1</MenuItem>
-          <MenuItem>Placeholder 2</MenuItem>
           <MenuItem onClick={signOut}>Sign out</MenuItem>
         </Menu>
         <Typography variant='h6'>Lives at Sea</Typography>
