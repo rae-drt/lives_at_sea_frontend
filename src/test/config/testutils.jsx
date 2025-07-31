@@ -4,7 +4,7 @@ import { render, queries, within, screen } from '@testing-library/react';
 import * as customQueries from './testqueries';
 import { setupServer } from 'msw/node';
 import { handlers } from './testHandlers';
-import { createRoutesStub, BrowserRouter } from 'react-router';
+import { createRoutesStub, BrowserRouter, useRouteError } from 'react-router';
 
 //re https://mswjs.io/docs/faq#why-do-i-get-stale-responses-with-react-queryswrapolloetc
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -74,6 +74,7 @@ function routeRender(ui, route, path, options) {
             {children}
           </QueryClientProvider>
         ),
+        //ErrorBoundary: () => { console.error('ERROR BOUNDARY'); throw useRouteError() }
       }]);
       return (
         <Stub initialEntries={[path]}/>

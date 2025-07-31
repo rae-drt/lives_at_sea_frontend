@@ -13,3 +13,5 @@ Object.defineProperty(global, 'Request', {
   writable: false,
   value: RequestPolyfill,
 });
+
+import '@testing-library/jest-dom';
