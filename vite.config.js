@@ -48,7 +48,7 @@ export default defineConfig(({command, mode}) => {
         plugins: [react()],
         test: {
           environment: 'jsdom',
-          globals: true,
+          //globals: true,
           setupFiles: './src/test/config/setupTests.js',
           include: ['src/test/*.?(c|m)[jt]s?(x)'],
           pool: 'vmThreads',
