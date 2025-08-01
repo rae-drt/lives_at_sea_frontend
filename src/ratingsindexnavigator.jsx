@@ -16,6 +16,10 @@ export default function RatingsIndexNavigator() {
     return(<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
 
+  if((!Number.isSafeInteger(Number(piece))) || piece <= 0 || pieces[0] > Number(piece) || pieces.at(-1) < Number(piece)) {
+    throw new Error(`No such piece: ${piece}`);
+  }
+
   return (
     <Stack direction='row' alignItems='center' justifyContent='space-between'>
       {/* catref control */}
@@ -29,9 +33,10 @@ export default function RatingsIndexNavigator() {
                       disableClearable
                       autoHighlight
                       options={pieces.map((x)=>({label: '' + x}))}
-                      renderInput={(params) => <TextField {...params} label="Piece"/>}
+                      renderInput={(params) => <TextField {...params} label="Piece" data-testid='dropdownSelection'/>}
                       value={piece}
                       onChange={(e, v, r)=>{if(r === 'selectOption') navigate('/ratings/' + v.label)}}
+                      data-testid='dropdown'
         />
         {/* Nav forward, backward buttons */}
         <Stack direction='row' spacing={0}>
@@ -41,6 +46,7 @@ export default function RatingsIndexNavigator() {
                 disabled={pieces[0] === Number(piece)}
                 onClick={()=>navigate('/ratings/' + (pieces[pieces.indexOf(Number(piece)) - 1]))}
                 color='primary'
+                data-testid='backButton'
               >
                 <ArrowForwardIos sx={{transform: 'rotate(180deg)'}}/>
               </IconButton>
@@ -52,6 +58,7 @@ export default function RatingsIndexNavigator() {
                 disabled={pieces.at(-1) === Number(piece)}
                 onClick={()=>navigate('/ratings/' + (pieces[pieces.indexOf(Number(piece)) + 1]))}
                 color='primary'
+                data-testid='forwardButton'
               >
                 <ArrowForwardIos/>
               </IconButton>
