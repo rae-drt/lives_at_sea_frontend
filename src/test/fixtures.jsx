@@ -4,7 +4,7 @@ import { routeRender, within } from './config/testutils';
 import userEvent from '@testing-library/user-event';
 import { cleanup } from '@testing-library/react';
 import RatingsIndexNavigator from '@/ratingsindexnavigator';
-import { describe, test as baseTest, vi, it as realIt } from 'vitest';
+import { describe, test as baseTest, vi } from 'vitest';
 
 //Following tricks https://stackoverflow.com/a/72289488, http://pawelgoscicki.com/archives/2022/05/testing-usenavigate-navigate-from-react-router-v6/, https://mayashavin.com/articles/two-shades-of-mocking-vitest to spy on useParams
 import * as router from 'react-router';
