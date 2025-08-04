@@ -1,5 +1,5 @@
 import { createStore, useStore } from 'zustand';
-import { init_data, status_reconciled, status_encode } from './data_utils';
+import { init_data, status_encode } from './data_utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 //following https://stackoverflow.com/a/1479341
@@ -47,6 +47,92 @@ function fetchData(params) {
   });
 }
 
+//following https://stackoverflow.com/a/78205295
+//preserves order, optionally requires all expected properties to exist in propMap
+//SHALLOW copy permits quick operation.
+export function rename_properties(obj, propMap, strict = true) {
+  const newObj = {};
+  const mismatch = strict ? (k, v) => { console.log(`Unexpected property ${k}`); throw Error(`Unexpected property ${k}`); }
+                          : (k, v) => { obj[k] = v; }
+  for(const [k, v] of Object.entries(obj)) {
+    if(k in propMap) newObj[propMap[k]] = v;
+    else mismatch(k, v);
+  }
+  return newObj;
+}
+
+//An empty services entry, in the 'app' format.
+//In the API this is just an empty object.
+function EMPTY_APP_SERVICE(tableNo) {
+  return {
+    md5_hash: null,
+    userid: tableNo, //FIXME: This is a workaround to permit testing -- needed because XCheckReady checks for a valid userId. If we need a default userId then I guess it should be derived from login
+    step: 'TRANSCRIBE' + tableNo,
+    complete: false,
+    records: [],
+  };
+}
+
+function translateFromAPI(apiData) {
+  //within this function, it is safe to refer to (as opposed to have to copy) data in the object that we already have from the API
+  const appData = rename_properties(apiData, {
+    source_lookup: 'source_lookup',
+    person: 'name', //rename this key for app format
+    source: 'source',
+    service: 'services', //rename this key (alarmingly subtly) for app format
+    versions: 'versions',
+  });
+
+  //FIXME: Get the catalogue info in a robust fashion
+  //Order is not so important for these, they will get deleted before POST
+  [ appData.name.series, appData.name.piece, appData.name.item ] = appData.source[0].source_reference.split('^').slice(1,4);
+
+  //services need a lot of extra translation
+  const services = [];
+  if(Object.getOwnPropertyNames(apiData.service).length === 0) {
+    services.push(EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2));
+  }
+  else {
+    if(apiData.service.MAIN.length === 1) {
+      apiData.service.MAIN.push(structuredClone(apiData.service.MAIN[0]));
+    }
+    if(apiData.service.MAIN.length !== 2) {
+      throw Error(`Unexpected nunber of service history transcriptions: ${appData.services.length}`);
+    }
+    for(const x of apiData.service.MAIN) {
+      const currentServices = rename_properties(x, {
+        md5_hash: 'md5_hash',
+        user_id: 'userid',
+        step: 'step',
+        complete: 'complete',
+        rows: 'records',
+      });
+      currentServices.records = [];
+      if(x.rows !== null) {
+        for(const y of x.rows) {
+          currentServices.records.push(rename_properties(y, {
+            row_number: 'rowid',
+            ship: 'ship',
+            rating: 'rating',
+            officer: 'officer',
+            fromday: 'fromday',
+            frommonth: 'frommonth',
+            fromyear: 'fromyear',
+            today: 'today',
+            tomonth: 'tomonth',
+            toyear: 'toyear',
+            source_id: 'source_id',
+          }));
+        }
+      }
+      services.push(currentServices);
+    }
+  }
+  appData.services = services;
+
+  return appData;
+}
+
 function mainPersonQF({queryKey}) {
   const [, {sailorType, nameId}] = queryKey;
   if(typeof(nameId) === 'undefined') {
@@ -69,7 +155,7 @@ function mainPersonQF({queryKey}) {
         }
         return {
           name: name,
-          service_history: [structuredClone(services[0]), services[0]], //TODO: This is a workaround until the UI understands records with a single service history
+          services: [structuredClone(services[0]), services[0]], //TODO: This is a workaround until the UI understands records with a single service history
           status: {"status_code": 0, "description": "Not Started"}, //TODO: Update if the API starts providing this information (but does it need to?)
           other_data: [], //TODO: Update if the API starts providing this information (but does it need to?)
           service_other: [], //TODO: Update if the API starts providing this information (but does it need to?)
@@ -80,7 +166,7 @@ function mainPersonQF({queryKey}) {
     }
   }
   else {
-    if(sailorType === 'rating') return fetchData('name?nameid=' + nameId);
+    if(sailorType === 'rating') return fetchData('person?personid=' + nameId).then((apiData)=>translateFromAPI(apiData));
     else if(sailorType === 'officer') {
       return new Promise((resolve, reject) => {
         const socket = new WebSocket('ws://' + import.meta.env.VITE_QUERYER_ADDR + ':' + import.meta.env.VITE_QUERYER_PORT);
@@ -126,11 +212,11 @@ async function updatePieceCache(queryClient, sailorType, nameId) {
   const index = nNameId - pieceData.piece_ranges.this_piece.start_item;
   if(pieceData.records[index].nameid !== nNameId) throw Error(); //maybe this can happen sometimes. good thing this is a temp hack.
   const newStatus = {
-    complete1:  mainData.service_history[0].complete,
-    complete2:  mainData.service_history[1].complete,
-    has_tr1:    mainData.service_history[0].userid,
-    has_tr2:    mainData.service_history[1].userid,
-    reconciled: status_reconciled(mainData.status.status_code),
+    complete1:  mainData.services[0].complete,
+    complete2:  mainData.services[1].complete,
+    has_tr1:    mainData.services[0].userid,
+    has_tr2:    mainData.services[1].userid,
+    reconciled: mainData.status.status_code === 15,
     nameid: nNameId,
     notww1: mainData.name.notww1,
   };
@@ -184,7 +270,7 @@ const mainPersonQuery = (sailorType, nameId) => ({
 const serviceRecordsQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
-  select: (x) => ( {reconciled: status_reconciled(x.status.status_code), services: x.service_history} ),
+  select: (x) => { return {reconciled: x.services.every((y) => y.step === 'RECONCILE'), services: x.services}},
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,

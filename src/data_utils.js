@@ -1,5 +1,5 @@
 export function catref(data) {
-  return 'ADM ' + data.series + '/' + data.piece + '/' + data.nameid;
+  return 'ADM ' + data.series + '/' + data.piece + '/' + data.item;
 }
 
 export function officerref(data) {
@@ -87,10 +87,6 @@ export function status_label(status_code) {
     case 31: return 'Maintaining';
     default: return 'Process Error';
   }
-}
-
-export function status_reconciled(status_code) {
-  return status_code === 15;
 }
 
 export function status_encode(service_record) {
