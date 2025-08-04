@@ -1,5 +1,5 @@
 import { createStore, useStore } from 'zustand';
-import { init_data, status_reconciled, status_encode } from './data_utils';
+import { init_data, status_encode } from './data_utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 //following https://stackoverflow.com/a/1479341
@@ -80,7 +80,42 @@ function mainPersonQF({queryKey}) {
     }
   }
   else {
-    if(sailorType === 'rating') return fetchData('name?nameid=' + nameId);
+    if(sailorType === 'rating') return fetchData('person?personid=' + nameId).then(
+      (data) => {
+        if(Object.getOwnPropertyNames(data.service).length === 0) {
+          data.service_history = [
+            { records: [] },
+            { records: [] },
+          ];
+        }
+        else {
+          data.service_history = data.service.MAIN;
+          if(data.service_history.length === 1) {
+            data.service_history.push(structuredClone(data.service_history[0]));
+          }
+          if(data.service_history.length !== 2) {
+            throw Error(`Unexpected nunber of service history transcriptions: ${data.service_history.length}`);
+          }
+          for(const x of data.service_history) {
+            x.records = x.rows === null ? []: x.rows;
+            for(const y of x.records) {
+              y.rowid = y.row_number;
+              delete y.row_number;
+            }
+            x.userid = x.user_id;
+            delete x.rows;
+            delete x.user_id;
+          }
+        }
+        delete data.service;
+
+        //FIXME: Get the catalogue info in a robust fashion
+        if(Object.hasOwn(data.person, 'series') || Object.hasOwn(data.person, 'piece')) throw Error();
+        [ data.person.series, data.person.piece ] = data.source[0].source_reference.split('^').slice(1,3);
+
+        return data;
+      }
+    );
     else if(sailorType === 'officer') {
       return new Promise((resolve, reject) => {
         const socket = new WebSocket('ws://' + import.meta.env.VITE_QUERYER_ADDR + ':' + import.meta.env.VITE_QUERYER_PORT);
@@ -130,7 +165,7 @@ async function updatePieceCache(queryClient, sailorType, nameId) {
     complete2:  mainData.service_history[1].complete,
     has_tr1:    mainData.service_history[0].userid,
     has_tr2:    mainData.service_history[1].userid,
-    reconciled: status_reconciled(mainData.status.status_code),
+    reconciled: mainData.status.status_code === 15,
     nameid: nNameId,
     notww1: mainData.name.notww1,
   };
@@ -174,7 +209,7 @@ async function otherServicesMutate(queryClient, sailorType, nameId, data) {
 const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
-  select: (x) => x.name,
+  select: (x) => x.person,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
@@ -184,7 +219,7 @@ const mainPersonQuery = (sailorType, nameId) => ({
 const serviceRecordsQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
-  select: (x) => ( {reconciled: status_reconciled(x.status.status_code), services: x.service_history} ),
+  select: (x) => { return {reconciled: x.service_history.length === 1, services: x.service_history}},
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
