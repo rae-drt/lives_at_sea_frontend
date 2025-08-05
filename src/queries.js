@@ -1,6 +1,7 @@
 import { createStore, useStore } from 'zustand';
-import { init_data, status_encode } from './data_utils';
+import { init_data, status_encode, same_services } from './data_utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { isEqual } from 'lodash';
 
 //following https://stackoverflow.com/a/1479341
 const RECORDS = (function() { //TODO: Is this a global singleton?
@@ -47,6 +48,108 @@ function fetchData(params) {
   });
 }
 
+function postData(params, body) {
+  const api = import.meta.env.VITE_API_ROOT + params;
+console.log('pD1', api);
+console.log('pD2', JSON.stringify(body));
+return;
+/*
+  return new Promise((resolve, reject) => {
+    const fetchData = async() => {
+      const response = await(fetch(api), {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      if(!response.ok) {
+        reject(new Error('Bad response: ' + response.status));
+      }
+      resolve(response.json());
+    }
+    fetchData();
+  });
+*/}
+
+function translateFromAPI(apiData) {
+  //within this function, it is safe to transform the object that we already have from the API
+  const appData = apiData;
+
+  //check that fields I create do not already exist
+  if(Object.hasOwn(appData.person, 'series') ||
+     Object.hasOwn(appData.person, 'piece') ||
+     Object.hasOwn(appData.person, 'item') ||
+     Object.hasOwn(appData, 'services')) {
+    throw Error();
+  }
+
+  if(Object.getOwnPropertyNames(appData.service).length === 0) {
+    appData.services = [
+      { records: [] },
+      { records: [] },
+    ];
+  }
+  else {
+    appData.services = appData.service.MAIN;
+    if(appData.services.length === 1) {
+      appData.services.push(structuredClone(appData.services[0]));
+    }
+    if(appData.services.length !== 2) {
+      throw Error(`Unexpected nunber of service history transcriptions: ${appData.services.length}`);
+    }
+    for(const x of appData.services) {
+      x.records = x.rows === null ? []: x.rows;
+      for(const y of x.records) {
+        if(Object.hasOwn(y, 'rowid')) throw Error();
+        y.rowid = y.row_number;
+        delete y.row_number;
+      }
+      if(Object.hasOwn(x, 'userid')) throw Error();
+      x.userid = x.user_id;
+      delete x.rows;
+      delete x.user_id;
+    }
+  }
+  delete appData.service;
+
+  //FIXME: Get the catalogue info in a robust fashion
+  [ appData.person.series, appData.person.piece, appData.person.item ] = appData.source[0].source_reference.split('^').slice(1,4);
+
+  return appData;
+}
+
+function translateToAPI(appData) {
+  //expect to have been passed data that is safe to manipulate (i.e. cloned from, not referring to, cache)
+  const apiData = appData;
+
+  delete apiData.person.series;
+  delete apiData.person.piece;
+  delete apiData.person.item;
+  
+  apiData.service = {};
+  if(!isEqual(apiData.services, [{records:[]},{records:[]}])) { //if service data empty then nothing to write into apiData.service
+console.log(apiData);
+console.log(apiData.services);
+    if(same_services(apiData.services)) {
+      apiData.service.MAIN = [structuredClone(apiData.services[0])];
+    }
+    else {
+      apiData.service.MAIN = structuredClone(apiData.services);
+    }
+    for(const x of apiData.service.MAIN) {
+      x.rows = x.records;
+      for(const y of x.records) {
+        y.row_number = y.rowid;
+        delete y.rowid;
+      }
+      x.user_id = x.userid;
+      delete x.records;
+      delete x.user_id;
+    }
+  }
+  delete apiData.services;
+
+  return apiData;
+}
+
 function mainPersonQF({queryKey}) {
   const [, {sailorType, nameId}] = queryKey;
   if(typeof(nameId) === 'undefined') {
@@ -69,7 +172,7 @@ function mainPersonQF({queryKey}) {
         }
         return {
           name: name,
-          service_history: [structuredClone(services[0]), services[0]], //TODO: This is a workaround until the UI understands records with a single service history
+          services: [structuredClone(services[0]), services[0]], //TODO: This is a workaround until the UI understands records with a single service history
           status: {"status_code": 0, "description": "Not Started"}, //TODO: Update if the API starts providing this information (but does it need to?)
           other_data: [], //TODO: Update if the API starts providing this information (but does it need to?)
           service_other: [], //TODO: Update if the API starts providing this information (but does it need to?)
@@ -80,42 +183,7 @@ function mainPersonQF({queryKey}) {
     }
   }
   else {
-    if(sailorType === 'rating') return fetchData('person?personid=' + nameId).then(
-      (data) => {
-        if(Object.getOwnPropertyNames(data.service).length === 0) {
-          data.service_history = [
-            { records: [] },
-            { records: [] },
-          ];
-        }
-        else {
-          data.service_history = data.service.MAIN;
-          if(data.service_history.length === 1) {
-            data.service_history.push(structuredClone(data.service_history[0]));
-          }
-          if(data.service_history.length !== 2) {
-            throw Error(`Unexpected nunber of service history transcriptions: ${data.service_history.length}`);
-          }
-          for(const x of data.service_history) {
-            x.records = x.rows === null ? []: x.rows;
-            for(const y of x.records) {
-              y.rowid = y.row_number;
-              delete y.row_number;
-            }
-            x.userid = x.user_id;
-            delete x.rows;
-            delete x.user_id;
-          }
-        }
-        delete data.service;
-
-        //FIXME: Get the catalogue info in a robust fashion
-        if(Object.hasOwn(data.person, 'series') || Object.hasOwn(data.person, 'piece')) throw Error();
-        [ data.person.series, data.person.piece ] = data.source[0].source_reference.split('^').slice(1,3);
-
-        return data;
-      }
-    );
+    if(sailorType === 'rating') return fetchData('person?personid=' + nameId).then((apiData)=>translateFromAPI(apiData));
     else if(sailorType === 'officer') {
       return new Promise((resolve, reject) => {
         const socket = new WebSocket('ws://' + import.meta.env.VITE_QUERYER_ADDR + ':' + import.meta.env.VITE_QUERYER_PORT);
@@ -149,6 +217,7 @@ function piecesQF() {
   });
 }
 
+/*
 //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
 async function updatePieceCache(queryClient, sailorType, nameId) {
   const nNameId = Number(nameId);
@@ -161,10 +230,10 @@ async function updatePieceCache(queryClient, sailorType, nameId) {
   const index = nNameId - pieceData.piece_ranges.this_piece.start_item;
   if(pieceData.records[index].nameid !== nNameId) throw Error(); //maybe this can happen sometimes. good thing this is a temp hack.
   const newStatus = {
-    complete1:  mainData.service_history[0].complete,
-    complete2:  mainData.service_history[1].complete,
-    has_tr1:    mainData.service_history[0].userid,
-    has_tr2:    mainData.service_history[1].userid,
+    complete1:  mainData.services[0].complete,
+    complete2:  mainData.services[1].complete,
+    has_tr1:    mainData.services[0].userid,
+    has_tr2:    mainData.services[1].userid,
     reconciled: mainData.status.status_code === 15,
     nameid: nNameId,
     notww1: mainData.name.notww1,
@@ -172,38 +241,43 @@ async function updatePieceCache(queryClient, sailorType, nameId) {
   pieceData.records[index] = newStatus;
   queryClient.setQueryData(qKey, pieceData);
 }
+*/
 
-async function mainPersonMutate(queryClient, sailorType, nameId, data) {
+function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = await queryClient.getQueryData(key);
-  queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
+  const newClientData = structuredClone(queryClient.getQueryData(key));
+  newClientData.name = structuredClone(data);
+  queryClient.setQueryData(key, newClientData);
   RECORDS.delete(sailorType, nameId, 'name');
-
-  updatePieceCache(queryClient, sailorType, nameId); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
+  postData('person?personid=' + nameId, translateToAPI(structuredClone(queryClient.getQueryData(key))));
 }
 
-async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
+function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = queryClient.getQueryData(key);
-  const newData = {service_history: data.services, status: status_encode(data)}
-  queryClient.setQueryData(key, {...currentData, ...newData});
+  const newClientData = structuredClone(queryClient.getQueryData(key));
+  newClientData.services = structuredClone(data.services);
+  //TODO: Deal with status
+  queryClient.setQueryData(key, newClientData);
   RECORDS.delete(sailorType, nameId, 'service');
-
-  updatePieceCache(queryClient, sailorType, nameId); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
+  postData('person?personid=' + nameId, translateToAPI(structuredClone(queryClient.getQueryData(key))));
 }
 
 async function otherDataMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = queryClient.getQueryData(key);
-  queryClient.setQueryData(key, {...currentData, other_data: data});
+  const newClientData = structuredClone(queryClient.getQueryData(key));
+  newClientData.other_data = structuredClone(data);
+  queryClient.setQueryData(key, newClientData);
   RECORDS.delete(sailorType, nameId, 'data_other');
+  postData('person?personid=' + nameId, translateToAPI(structuredClone(queryClient.getQueryData(key))));
 }
 
 async function otherServicesMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = queryClient.getQueryData(key);
-  queryClient.setQueryData(key, {...currentData, service_other: data});
+  const newClientData = structuredClone(queryClient.getQueryData(key));
+  newClientData.service_other = structuredClone(data);
+  queryClient.setQueryData(key, newClientData);
   RECORDS.delete(sailorType, nameId, 'service_other');
+  postData('person?personid=' + nameId, translateToAPI(structuredClone(queryClient.getQueryData(key))));
 }
 
 const mainPersonQuery = (sailorType, nameId) => ({
@@ -219,7 +293,7 @@ const mainPersonQuery = (sailorType, nameId) => ({
 const serviceRecordsQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
-  select: (x) => { return {reconciled: x.service_history.length === 1, services: x.service_history}},
+  select: (x) => { return {reconciled: x.services.length === 1, services: x.services}},
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,

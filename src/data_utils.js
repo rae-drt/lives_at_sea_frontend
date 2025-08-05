@@ -1,7 +1,7 @@
 import { isEqual } from 'lodash';
 
 export function catref(data) {
-  return 'ADM ' + data.series + '/' + data.piece + '/' + data.nameid;
+  return 'ADM ' + data.series + '/' + data.piece + '/' + data.item;
 }
 
 export function officerref(data) {
@@ -91,8 +91,8 @@ export function status_label(status_code) {
   }
 }
 
-export function same_services(serviceRecords) {
-  return serviceRecords.length === 0 ? true : isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records);
+export function same_services(services) {
+  return isEqual(services[0].records, services[1].records);
 }
 
 export function status_encode(service_record) {

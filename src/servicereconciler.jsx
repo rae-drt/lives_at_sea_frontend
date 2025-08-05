@@ -194,11 +194,12 @@ export default function ServiceReconciler() {
     null : //null if the services are identical. If there is any difference, the array will be the same length as the shorter services table (potentially empty, making _all_ rows in the longer table "different").
            //TODO it may well be that if one table is empty, the API just doesn't return anything at all for it -- if so, I can make that work for me by passing an empty array in place of the missing entry
     getDifferenceMap(serviceRecords.services[0].records, serviceRecords.services[1].records);
+  console.log(serviceRecords);
   const xCheckReady = serviceRecords.services[0].userid > 0 &&
                       serviceRecords.services[1].userid > 0 &&
                       serviceRecords.services[0].complete &&
                       serviceRecords.services[1].complete &&
-                      same_services(serviceRecords);
+                      same_services(serviceRecords.services);
   return (
     <Stack sx={{padding: 2}}>
       <Stack direction='row' justifyContent='flex-end' spacing={4} sx={{paddingBottom: 2}}>
