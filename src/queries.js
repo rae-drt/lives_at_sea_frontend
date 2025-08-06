@@ -37,7 +37,7 @@ function fetchData(params) {
   const api = import.meta.env.VITE_API_ROOT + params;
   return new Promise((resolve, reject) => {
     const fetchData = async() => {
-      const response = await(fetch(api));
+      const response = await fetch(api);
       if(!response.ok) {
         reject(new Error('Bad response: ' + response.status));
       }
