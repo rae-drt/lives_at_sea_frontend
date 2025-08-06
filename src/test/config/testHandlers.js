@@ -42,12 +42,12 @@ export const handlers = [
           }
           else if(personid === '100124') {
             console.log('*** ' + personid);
-            delete postedJSON.service.MAIN[0].md5_hash;
             baseJSON.service = {
               MAIN: [
                 {
-                  user_id: 2,
-                  step: 'TRANSCRIBE0',
+                  md5_hash: null,
+                  user_id: 1,
+                  step: 'TRANSCRIBE1',
                   complete: true,
                   rows: [{
                     row_number: 1,
@@ -60,7 +60,24 @@ export const handlers = [
                     tomonth: 2,
                     toyear: 1874,
                   }],
-                }
+                },
+                {
+                  md5_hash: null,
+                  user_id: 2,
+                  step: 'TRANSCRIBE2',
+                  complete: true,
+                  rows: [{
+                    row_number: 1,
+                    ship: 'Indus',
+                    rating: 'Butch',
+                    fromday: 5,
+                    frommonth: 1,
+                    fromyear: 1869,
+                    today: 7,
+                    tomonth: 2,
+                    toyear: 1874,
+                  }],
+                },
               ]
             };
           }
