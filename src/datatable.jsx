@@ -73,7 +73,7 @@ export function DataTable(props) {
     return (
       <Stack alignItems='center'>
         <Typography variant='caption'>No rows</Typography>
-        <Button variant='outlined' onClick={()=>{
+        <Button data-testid='firstRowButton' variant='outlined' onClick={()=>{
           setLocked(true);
           setTimeout(()=>{
             onChange([{...emptyRow(columns), [primary]: 1}]);
