@@ -20,6 +20,43 @@ const [
   findByAriaLabel,
 ] = buildQueries(queryAllByAriaLabel, getMultipleError, getMissingError)
 
+
+const [
+  queryByClass,
+  getAllByClass,
+  getByClass,
+  finallAllByClass,
+  findByClass,
+] = buildQueries(
+  (...args) => queryHelpers.queryAllByAttribute('class', ...args),
+  (c, v) => `Found multiple elements with the class attribute of: ${v}`,
+  (c, v) => `Unable to find an element with the class attribute of: ${v}`);
+
+
+const [
+  queryByRowIndex,
+  getAllByRowIndex,
+  getByRowIndex,
+  finallAllByRowIndex,
+  findByRowIndex,
+] = buildQueries(
+  (...args) => queryHelpers.queryAllByAttribute('data-rowindex', ...args),
+  (c, v) => `Found multiple elements with the data-rowindex attribute of: ${v}`,
+  (c, v) => `Unable to find an element with the data-rowindex attribute of: ${v}`);
+
+
+const [
+  queryByField,
+  getAllByField,
+  getByField,
+  finallAllByField,
+  findByField,
+] = buildQueries(
+  (...args) => queryHelpers.queryAllByAttribute('data-field', ...args),
+  (c, v) => `Found multiple elements with the data-field attribute of: ${v}`,
+  (c, v) => `Unable to find an element with the data-field attribute of: ${v}`);
+
+
 export {
   queryByAriaLabel,
   queryAllByAriaLabel,
@@ -27,4 +64,19 @@ export {
   getAllByAriaLabel,
   findAllByAriaLabel,
   findByAriaLabel,
+  queryByClass,
+  getAllByClass,
+  getByClass,
+  finallAllByClass,
+  findByClass,
+  queryByRowIndex,
+  getAllByRowIndex,
+  getByRowIndex,
+  finallAllByRowIndex,
+  findByRowIndex,
+  queryByField,
+  getAllByField,
+  getByField,
+  finallAllByField,
+  findByField,
 }
