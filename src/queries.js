@@ -81,7 +81,7 @@ function postData(params, body) {
 function EMPTY_APP_SERVICE(tableNo) {
   return {
     md5_hash: null,
-    userid: 2, //FIXME: This is a workaround to permit testing -- needed because XCheckReady checks for a valid userId. If we need a default userId then I guess it should be derived from login
+    userid: tableNo, //FIXME: This is a workaround to permit testing -- needed because XCheckReady checks for a valid userId. If we need a default userId then I guess it should be derived from login
     step: 'TRANSCRIBE' + tableNo,
     complete: false,
     records: [],
@@ -105,7 +105,7 @@ function translateFromAPI(apiData) {
   //services need a lot of extra translation
   const services = [];
   if(Object.getOwnPropertyNames(apiData.service).length === 0) {
-    services.push(EMPTY_APP_SERVICE(0), EMPTY_APP_SERVICE(1));
+    services.push(EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2));
   }
   else {
     if(apiData.service.MAIN.length === 1) {
@@ -163,7 +163,7 @@ function translateToAPI(appData) {
   delete apiData.person.item;
   
   const service = {};
-  if(!isEqual(appData.services, [EMPTY_APP_SERVICE(0), EMPTY_APP_SERVICE(1)])) { //if service data empty then the above empty object is what we want
+  if(!isEqual(appData.services, [EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2)])) { //if service data empty then the above empty object is what we want
     service.MAIN = [];
 //console.log('M1', service.MAIN);
     for(const x of appData.services) {
@@ -202,9 +202,9 @@ function translateToAPI(appData) {
         }
       }
       service.MAIN.push(currentServices);
-      if(same_services(appData.services)) {
-        break; //services are identical, just return the first lot
-      }
+      //if(same_services(appData.services)) {
+      //  break; //services are identical, just return the first lot
+      //}
     }
   }
   apiData.service = service;
