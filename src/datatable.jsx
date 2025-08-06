@@ -71,7 +71,7 @@ export function DataTable(props) {
     return (
       <Stack alignItems='center'>
         <Typography variant='caption'>No rows</Typography>
-        <Button variant='outlined' onClick={()=>{onChange([{...emptyRow(columns), [primary]: 1}])}}>Add first row</Button>
+        <Button data-testid='firstRowButton' variant='outlined' onClick={()=>{onChange([{...emptyRow(columns), [primary]: 1}])}}>Add first row</Button>
       </Stack>
     );
   }
