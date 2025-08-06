@@ -103,3 +103,18 @@ export function status_encode(service_record) {
   if(service_record.reconciled) bitfield |= 8;
   return { status_code: bitfield, description: status_label(bitfield) };
 }
+
+//following https://stackoverflow.com/a/78205295
+//preserves order, optionally requires all expected properties to exist in propMap
+//SHALLOW copy permits quick operation.
+export function rename_properties(obj, propMap, strict = true) {
+  const newObj = {};
+  const mismatch = strict ? (k, v) => { console.log(`Unexpected property ${k}`); throw Error(`Unexpected property ${k}`); }
+                          : (k, v) => { obj[k] = v; }
+  for(const [k, v] of Object.entries(obj)) {
+    if(k in propMap) newObj[propMap[k]] = v;
+    else mismatch(k, v);
+  }
+  return newObj;
+}
+

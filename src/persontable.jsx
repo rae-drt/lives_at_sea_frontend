@@ -19,6 +19,7 @@ function PersonTableField({data, onChange, field}) {
       size='small'
       fullWidth
       value={data[field] === null ? '' : data[field]}
+      data-testid={field + 'TextField'}
       onChange={(e)=>{
         const newData = {...data};
         newData[field] = e.target.value;

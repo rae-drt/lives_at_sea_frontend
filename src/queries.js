@@ -1,5 +1,5 @@
 import { createStore, useStore } from 'zustand';
-import { init_data, status_encode, same_services } from './data_utils';
+import { init_data, status_encode, same_services, rename_properties } from './data_utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
 
@@ -38,11 +38,16 @@ function fetchData(params) {
   const api = import.meta.env.VITE_API_ROOT + params;
   return new Promise((resolve, reject) => {
     const fetchData = async() => {
-      const response = await(fetch(api));
+      const response = await fetch(api);
       if(!response.ok) {
         reject(new Error('Bad response: ' + response.status));
       }
-      resolve(response.json());
+      else {
+        const result = await response.json();
+        //console.log(result);
+        resolve(result);
+        //resolve(response.json());
+      }
     }
     fetchData();
   });
@@ -50,103 +55,160 @@ function fetchData(params) {
 
 function postData(params, body) {
   const api = import.meta.env.VITE_API_ROOT + params;
-console.log('pD1', api);
-console.log('pD2', JSON.stringify(body));
-return;
-/*
   return new Promise((resolve, reject) => {
     const fetchData = async() => {
-      const response = await(fetch(api), {
+      const response = await fetch(api, {
         method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(body),
       });
       if(!response.ok) {
-        reject(new Error('Bad response: ' + response.status));
+        reject(new Error('Bad response ' + response.status + ': ' + response.statusText + response.url + response.headers));
       }
-      resolve(response.json());
+      else {
+        resolve(response.json());
+      }
     }
     fetchData();
   });
-*/}
+}
+
+//An empty services entry, in the 'app' format.
+//In the API this is just an empty object.
+function EMPTY_APP_SERVICE(tableNo) {
+  return {
+    md5_hash: null,
+    userid: 2, //FIXME: This is a workaround to permit testing -- needed because XCheckReady checks for a valid userId. If we need a default userId then I guess it should be derived from login
+    step: 'TRANSCRIBE' + tableNo,
+    complete: false,
+    records: [],
+  }
+}
 
 function translateFromAPI(apiData) {
-  //within this function, it is safe to transform the object that we already have from the API
-  const appData = apiData;
-
-  //check that fields I create do not already exist
-  if(Object.hasOwn(appData.person, 'series') ||
-     Object.hasOwn(appData.person, 'piece') ||
-     Object.hasOwn(appData.person, 'item') ||
-     Object.hasOwn(appData, 'services')) {
-    throw Error();
-  }
-
-  if(Object.getOwnPropertyNames(appData.service).length === 0) {
-    appData.services = [
-      { records: [] },
-      { records: [] },
-    ];
-  }
-  else {
-    appData.services = appData.service.MAIN;
-    if(appData.services.length === 1) {
-      appData.services.push(structuredClone(appData.services[0]));
-    }
-    if(appData.services.length !== 2) {
-      throw Error(`Unexpected nunber of service history transcriptions: ${appData.services.length}`);
-    }
-    for(const x of appData.services) {
-      x.records = x.rows === null ? []: x.rows;
-      for(const y of x.records) {
-        if(Object.hasOwn(y, 'rowid')) throw Error();
-        y.rowid = y.row_number;
-        delete y.row_number;
-      }
-      if(Object.hasOwn(x, 'userid')) throw Error();
-      x.userid = x.user_id;
-      delete x.rows;
-      delete x.user_id;
-    }
-  }
-  delete appData.service;
+  //within this function, it is safe to refer to (as opposed to have to copy) data in the object that we already have from the API
+  const appData = rename_properties(apiData, {
+    source_lookup: 'source_lookup',
+    person: 'name', //rename this key for app format
+    source: 'source',
+    service: 'services', //rename this key (alarmingly subtly) for app format
+    versions: 'versions',
+  });
 
   //FIXME: Get the catalogue info in a robust fashion
-  [ appData.person.series, appData.person.piece, appData.person.item ] = appData.source[0].source_reference.split('^').slice(1,4);
+  //Order is not so important for these, they will get deleted before POST
+  [ appData.name.series, appData.name.piece, appData.name.item ] = appData.source[0].source_reference.split('^').slice(1,4);
+
+  //services need a lot of extra translation
+  const services = [];
+  if(Object.getOwnPropertyNames(apiData.service).length === 0) {
+    services.push(EMPTY_APP_SERVICE(0), EMPTY_APP_SERVICE(1));
+  }
+  else {
+    if(apiData.service.MAIN.length === 1) {
+      apiData.service.MAIN.push(structuredClone(apiData.service.MAIN[0]));
+    }
+    if(apiData.service.MAIN.length !== 2) {
+      throw Error(`Unexpected nunber of service history transcriptions: ${appData.services.length}`);
+    }
+    for(const x of apiData.service.MAIN) {
+      const currentServices = rename_properties(x, {
+        md5_hash: 'md5_hash',
+        user_id: 'userid',
+        step: 'step',
+        complete: 'complete',
+        rows: 'records',
+      });
+      currentServices.records = [];
+      if(x.rows !== null) {
+        for(const y of x.rows) {
+          currentServices.records.push(rename_properties(y, {
+            row_number: 'rowid',
+            ship: 'ship',
+            rating: 'rating',
+            officer: 'officer',
+            fromday: 'fromday',
+            frommonth: 'frommonth',
+            fromyear: 'fromyear',
+            today: 'today',
+            tomonth: 'tomonth',
+            toyear: 'toyear',
+            source_id: 'source_id',
+          }));
+        }
+      }
+      services.push(currentServices);
+    }
+  }
+  appData.services = services;
 
   return appData;
 }
 
 function translateToAPI(appData) {
   //expect to have been passed data that is safe to manipulate (i.e. cloned from, not referring to, cache)
-  const apiData = appData;
+  const apiData = rename_properties(appData, {
+    source_lookup: 'source_lookup',
+    name: 'person', //rename this key from app format
+    source: 'source',
+    services: 'service', //rename this key (alarmingly subtly) from app format
+    versions: 'versions',
+  });
 
   delete apiData.person.series;
   delete apiData.person.piece;
   delete apiData.person.item;
   
-  apiData.service = {};
-  if(!isEqual(apiData.services, [{records:[]},{records:[]}])) { //if service data empty then nothing to write into apiData.service
-console.log(apiData);
-console.log(apiData.services);
-    if(same_services(apiData.services)) {
-      apiData.service.MAIN = [structuredClone(apiData.services[0])];
-    }
-    else {
-      apiData.service.MAIN = structuredClone(apiData.services);
-    }
-    for(const x of apiData.service.MAIN) {
-      x.rows = x.records;
-      for(const y of x.records) {
-        y.row_number = y.rowid;
-        delete y.rowid;
+  const service = {};
+  if(!isEqual(appData.services, [EMPTY_APP_SERVICE(0), EMPTY_APP_SERVICE(1)])) { //if service data empty then the above empty object is what we want
+    service.MAIN = [];
+//console.log('M1', service.MAIN);
+    for(const x of appData.services) {
+      const currentServices = rename_properties(x, {
+        md5_hash: 'md5_hash',
+        userid: 'user_id',
+        step: 'step',
+        complete: 'complete',
+        records: 'rows',
+      });
+
+      //handle status
+      if(x.reconciled) {
+        currentServices.step = 'RECONCILE';
       }
-      x.user_id = x.userid;
-      delete x.records;
-      delete x.user_id;
+
+      if(currentServices.rows.length === 0) {
+        currentServices.rows = null;
+      }
+      else {
+        currentServices.rows = [];
+        for(const y of x.records) {
+          currentServices.rows.push(rename_properties(y, {
+            rowid: 'row_number',
+            ship: 'ship',
+            rating: 'rating',
+            officer: 'officer',
+            fromday: 'fromday',
+            frommonth: 'frommonth',
+            fromyear: 'fromyear',
+            today: 'today',
+            tomonth: 'tomonth',
+            toyear: 'toyear',
+            source_id: 'source_id',
+          }));
+        }
+      }
+      service.MAIN.push(currentServices);
+      if(same_services(appData.services)) {
+        break; //services are identical, just return the first lot
+      }
     }
   }
-  delete apiData.services;
-
+  apiData.service = service;
+//console.log('apiData for POST',apiData);
   return apiData;
 }
 
@@ -283,7 +345,7 @@ async function otherServicesMutate(queryClient, sailorType, nameId, data) {
 const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
-  select: (x) => x.person,
+  select: (x) => x.name,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
@@ -293,7 +355,7 @@ const mainPersonQuery = (sailorType, nameId) => ({
 const serviceRecordsQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
-  select: (x) => { return {reconciled: x.services.length === 1, services: x.services}},
+  select: (x) => { return {reconciled: x.services.every((y) => y.step === 'RECONCILE'), services: x.services}},
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,

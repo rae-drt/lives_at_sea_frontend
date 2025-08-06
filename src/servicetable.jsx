@@ -29,10 +29,12 @@ const columnGroupingModel = [
 
 export function TranscriptionInfo({transcriber, complete, flipComplete, disabled}) {
   return (
+    <div data-testid='completeCheckboxWrapper' data-complete={complete}>
     <Stack direction='row' spacing={4} alignItems='center'>
       <Typography>Transcriber: {transcriber}</Typography>
-      <FormControlLabel control={<Checkbox checked={complete} onChange={flipComplete} disabled={disabled}/>} label='Complete' labelPlacement='start'/>
+      <FormControlLabel control={<Checkbox data-testid='completeCheckbox' data-complete={complete} checked={complete} onChange={flipComplete} disabled={disabled}/>} label='Complete' labelPlacement='start'/>
     </Stack>
+    </div>
   );
 }
 
@@ -64,6 +66,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'fromday',
+      type: 'number',
       headerName: 'D',
       flex: 1,
       minWidth: 2.5 * theme.typography.fontSize,
@@ -72,6 +75,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'frommonth',
+      type: 'number',
       headerName: 'M',
       flex: 1,
       minWidth: 2.5 * theme.typography.fontSize,
@@ -80,6 +84,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'fromyear',
+      type: 'number',
       headerName: 'Y',
       flex: 2,
       minWidth: 4 * theme.typography.fontSize,
@@ -88,6 +93,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'today',
+      type: 'number',
       headerName: 'D',
       flex: 1,
       minWidth: 2.5 * theme.typography.fontSize,
@@ -96,6 +102,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'tomonth',
+      type: 'number',
       headerName: 'M',
       flex: 1,
       minWidth: 2.5 * theme.typography.fontSize,
@@ -104,6 +111,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'toyear',
+      type: 'number',
       headerName: 'Y',
       flex: 2,
       minWidth: 4 * theme.typography.fontSize,
