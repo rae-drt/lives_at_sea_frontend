@@ -16,6 +16,7 @@ export default function LaSAppBar() {
         </IconButton>
         <Menu anchorEl={menuAnchorEl} onClose={()=>setMenuAnchorEl(null)} onClick={()=>setMenuAnchorEl(null)} open={Boolean(menuAnchorEl)}>
           <MenuItem onClick={signOut}>Sign out</MenuItem>
+          <MenuItem onClick={()=>signOut({global:true})}>Sign out everywhere</MenuItem>
         </Menu>
         <Typography variant='h6'>Lives at Sea</Typography>
       </Toolbar>
