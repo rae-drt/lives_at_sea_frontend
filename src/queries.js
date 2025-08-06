@@ -2,6 +2,7 @@ import { createStore, useStore } from 'zustand';
 import { init_data, status_encode, same_services, rename_properties } from './data_utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 //following https://stackoverflow.com/a/1479341
 const RECORDS = (function() { //TODO: Is this a global singleton?
@@ -57,11 +58,14 @@ function postData(params, body) {
   const api = import.meta.env.VITE_API_ROOT + params;
   return new Promise((resolve, reject) => {
     const fetchData = async() => {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
       const response = await fetch(api, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          'Authorization': token || '',
         },
         body: JSON.stringify(body),
       });
