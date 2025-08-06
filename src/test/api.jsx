@@ -70,10 +70,8 @@ describe('getting started', () => {
     await(user.clear(birthYear));
     await user.click(personCommitButton);
   });
-  baseTest.extend(dataTest(100124))('SECOND API TEST', async ({serviceTable0, serviceTable1, component, expect}) => {
+  baseTest.extend(dataTest(100124))('SECOND API TEST', async ({serviceTable0, serviceTable1, component}) => {
     await user.click(within(await serviceTable0).getByTestId('firstRowButton'));
-    //console.log(prettyDOM(serviceTable0));
-    //const firstRow = within(serviceTable0).getByClass('MuiDataGrid-row MuiDataGrid-row--firstVisible MuiDataGrid-row--lastVisible MuiDataGrid-row--dynamicHeight');
     const firstRow = within(serviceTable0).getByRowIndex(0)
     await user.type(within(firstRow).getByField('ship'), 'Indus{Enter}');
     await user.type(within(firstRow).getByField('rating'), 'Butch{Enter}');
