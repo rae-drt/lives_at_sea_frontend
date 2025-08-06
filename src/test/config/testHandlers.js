@@ -1,7 +1,89 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, passthrough } from 'msw';
 import { readFile } from 'fs/promises';
+import { isEqual } from 'lodash';
+const { diff } = require('node:util');
  
+
+//To deal with URLs that I just want to pass through, do something like this:
+//http.get(import.meta.env.VITE_API_ROOT + 'person', () => passthrough()), //NB An empty callback seems to work just as well as explicit call to passthrough(). So far as I can tell, returning (anything? an HttpResponse?) stops the request gettig sent out to the network, but otherwise it is sent and returned as if it had not been intercepted.
+
 export const handlers = [
+  http.get(import.meta.env.VITE_API_ROOT + 'person', ({request}) => {
+    const search_params = new URL(request.url).searchParams;
+    if(search_params.has('personid')) {
+      if(search_params.getAll('personid').length >= 1) {
+        const personid = search_params.getAll('personid').at(-1);
+        if(personid.match(/^\d+$/)) {
+          const fnam = 'src/test/data/responses/person_personid_' + personid + '.json';
+          return readFile(fnam).then(
+            (jsonStr) => HttpResponse.json(JSON.parse(jsonStr)),
+            () => { 
+              throw Error(`No such file as ${fnam}: can create with something like curl 'https://.../person?personid=${personid}' > <gitroot>/${fnam}`);
+            }
+          );
+        }
+      }
+    }
+    return HttpResponse.json({message: 'Internal server error'}, {status: 502});
+  }),
+  http.post(import.meta.env.VITE_API_ROOT + 'person', async ({request}) => {
+    const search_params = new URL(request.url).searchParams;
+    if(search_params.has('personid')) {
+      if(search_params.getAll('personid').length >= 1) {
+        const personid = search_params.getAll('personid').at(-1);
+        if(personid.match(/^\d+$/)) {
+          const fnam = 'src/test/data/responses/person_personid_' + personid + '.json';
+          const postedJSON = await request.json();
+          const baseJSON = JSON.parse(await readFile(fnam));
+          if(isEqual(baseJSON, postedJSON)) { throw Error('Should not be equal'); }
+          if(personid === '379254') {
+            console.log('*** ' + personid);
+            postedJSON.person.birthyear = 1895;
+          }
+          else if(personid === '100124') {
+            console.log('*** ' + personid);
+            delete postedJSON.service.MAIN[0].md5_hash;
+            baseJSON.service = {
+              MAIN: [
+                {
+                  user_id: 2,
+                  step: 'TRANSCRIBE0',
+                  complete: true,
+                  rows: [{
+                    row_number: 1,
+                    ship: 'Indus',
+                    rating: 'Butch',
+                    fromday: 5,
+                    frommonth: 1,
+                    fromyear: 1869,
+                    today: 7,
+                    tomonth: 2,
+                    toyear: 1874,
+                  }],
+                }
+              ]
+            };
+          }
+          else { throw Error('unexpected personid'); }
+          console.log('*** TESTING INSTRUMENTED EQUALITY');
+          if(isEqual(baseJSON, postedJSON)) return HttpResponse.json(baseJSON);
+          for(const [type, text] of
+              diff(JSON.stringify(baseJSON,   undefined, 2).split('\n'),
+                   JSON.stringify(postedJSON, undefined, 2).split('\n'))) {
+            let output;
+            if     (type === -1) output = '-'  + text;
+            else if(type ===  0) output = ' '  + text;
+            else if(type ===  1) output = '+'  + text;
+            else                 output = type + text;
+            console.log(output);
+          }
+          console.error('Unexpected changes (see above)');
+          throw Error('Unexpected changes');
+        }
+      }
+    }
+    return HttpResponse.json({stopped: 'iut'});
+  }),
   http.get(import.meta.env.VITE_API_ROOT + 'status/piece_summary', ({request}) => {
     const search_params = new URL(request.url).searchParams;
     if(search_params.has('piece_number')) {
@@ -48,6 +130,6 @@ export const handlers = [
     }//else no piece number, fall through to the internal server error
 
     //This is what I get from curl. Depending on server configuration, we might get a CORS error instead.
-    return HttpResponse.json({message: 'Internal server error'}, {status: 502});
+    return HttpResponse.json({message: 'Internal server error', status: 502});
   }),
 ];

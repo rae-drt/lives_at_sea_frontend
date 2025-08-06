@@ -41,6 +41,7 @@ function PersonTableField({data, onChange, field, error}) {
       fullWidth
       type={fieldType}
       value={fieldValue}
+      data-testid={field + 'TextField'}
       onBlur={(e)=>{ //i.e. on loss of focus
         if(fieldType === 'number' && e.target.value.trim() === '') {
           const newData = structuredClone(data);

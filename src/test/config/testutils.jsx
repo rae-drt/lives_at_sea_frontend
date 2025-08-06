@@ -6,6 +6,7 @@ import { setupServer } from 'msw/node';
 import { handlers } from './testHandlers';
 import { createRoutesStub, BrowserRouter, useRouteError } from 'react-router';
 import { beforeAll, afterEach, afterAll } from 'vitest';
+import { DialogsProvider } from '@toolpad/core/useDialogs'; //FIXME: Work out what to do if I am wrapping App. Perhaps just move the provider to index.jsx.
 
 //re https://mswjs.io/docs/faq#why-do-i-get-stale-responses-with-react-queryswrapolloetc
 import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -15,7 +16,9 @@ const queryClient = new QueryClient();
 const server = setupServer(...handlers);
 
 beforeAll(() => {
-  server.listen();
+  server.listen({
+    onUnhandledRequest: 'error',
+  });
 });
 
 afterEach(() => {
@@ -41,7 +44,11 @@ const customWithin = element => within(element, allQueries);
 function commonRender(ui, wrapper, options) {
   return render(ui, {
     queries: allQueries,
-    wrapper: wrapper,
+    wrapper: wrapper, /*({children}) => {
+      <DialogsProvider>
+        {wrapper(children)}
+      </DialogsProvider>
+    },*/
     ...options
   });
 }
@@ -51,11 +58,13 @@ const customRender = (ui, options) => {
     ui,
     ({children}) => {
       return (
-        <BrowserRouter> //use default application routing (e.g. when rendering App, likely to test the routing itself)
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </BrowserRouter>
+        <DialogsProvider>
+          <BrowserRouter> //use default application routing (e.g. when rendering App, likely to test the routing itself)
+            <QueryClientProvider client={queryClient}>
+              {children}
+            </QueryClientProvider>
+          </BrowserRouter>
+        </DialogsProvider>
       )
     },
     options,
@@ -77,7 +86,9 @@ function routeRender(ui, route, path, options) {
         ),
       }]);
       return (
-        <Stub initialEntries={[path]}/>
+        <DialogsProvider>
+          <Stub initialEntries={[path]}/>
+        </DialogsProvider>
       );
     },
     options,

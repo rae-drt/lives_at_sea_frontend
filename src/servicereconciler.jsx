@@ -149,43 +149,46 @@ export default function ServiceReconciler() {
       );
     };
     return (
-      <ServiceTable
-        transcriber={serviceRecords.services[thisTable].userid}
-        complete={serviceRecords.services[thisTable].complete}
-        primary={ROW_PRIMARY}
-        cloneButton={
-          <Tooltip title='Replace other table with this table'>
-            <span>
-              <Button
-                disabled={differenceMap === null}
-                onClick={() => {
-                  const clone = structuredClone(serviceRecords);
-                  clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
-                  setServiceRecords(clone);
-                }}
-              >{ thisTable < thatTable ?
-                   (thisTable + 1) + ' ' + String.fromCharCode(8658) + ' ' + (thatTable + 1):
-                   (thatTable + 1) + ' ' + String.fromCharCode(8656) + ' ' + (thisTable + 1)
-               }
-              </Button>
-            </span>
-          </Tooltip>
-        }
-        flipComplete={()=>{
-          const clone = structuredClone(serviceRecords);
-          clone.services[thisTable].complete = !clone.services[thisTable].complete;
-          setServiceRecords(clone);
-        }}
-        data={serviceRecords.services[thisTable].records}
-        onChange={(d)=>{
-          const clone = structuredClone(serviceRecords);
-          clone.services[thisTable].records = structuredClone(d);
-          setServiceRecords(clone);
-        }}
-        difference={differenceMap}
-        extraRowControls={rowControls}
-        controlCount={5}
-      />
+      <div data-testid={'serviceTable' + thisTable}>
+        <ServiceTable
+          transcriber={serviceRecords.services[thisTable].userid}
+          complete={serviceRecords.services[thisTable].complete}
+          primary={ROW_PRIMARY}
+          cloneButton={
+            <Tooltip title='Replace other table with this table'>
+              <span>
+                <Button
+                  data-testid={'clone' + thisTable + 'to' + thatTable + 'Button'}
+                  disabled={differenceMap === null}
+                  onClick={() => {
+                    const clone = structuredClone(serviceRecords);
+                    clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
+                    setServiceRecords(clone);
+                  }}
+                >{ thisTable < thatTable ?
+                     (thisTable + 1) + ' ' + String.fromCharCode(8658) + ' ' + (thatTable + 1):
+                     (thatTable + 1) + ' ' + String.fromCharCode(8656) + ' ' + (thisTable + 1)
+                 }
+                </Button>
+              </span>
+            </Tooltip>
+          }
+          flipComplete={()=>{
+            const clone = structuredClone(serviceRecords);
+            clone.services[thisTable].complete = !clone.services[thisTable].complete;
+            setServiceRecords(clone);
+          }}
+          data={serviceRecords.services[thisTable].records}
+          onChange={(d)=>{
+            const clone = structuredClone(serviceRecords);
+            clone.services[thisTable].records = structuredClone(d);
+            setServiceRecords(clone);
+          }}
+          difference={differenceMap}
+          extraRowControls={rowControls}
+          controlCount={5}
+        />
+      </div>
     );
   }
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
@@ -207,10 +210,13 @@ export default function ServiceReconciler() {
             clone.reconciled = !(serviceRecords.reconciled);
             setServiceRecords(clone);
           }}/>
-         <Button variant='outlined'
+         <div data-testid='sCBWrapper' data-xcheck={xCheckReady} data-dirty={dirty}>
+         <Button data-testid='servicesCommitButton'
+                 variant='outlined'
                  disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
                  onClick={async ()=>{(await emptyOK()) && mutateServiceRecords(structuredClone(serviceRecords))}}
          >Enter</Button>
+         </div>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'space-between', alignItems: 'space-between'}} spacing={2}>
         {getTable(0, 1)}
