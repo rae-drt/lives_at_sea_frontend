@@ -138,16 +138,16 @@ async function updatePieceCache(queryClient, sailorType, nameId) {
   queryClient.setQueryData(qKey, pieceData);
 }
 
-async function mainPersonMutate(queryClient, sailorType, nameId, data) {
+function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = await queryClient.getQueryData(key);
+  const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
   RECORDS.delete(sailorType, nameId, 'name');
 
   updatePieceCache(queryClient, sailorType, nameId); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
 }
 
-async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
+function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = queryClient.getQueryData(key);
   const newData = {service_history: data.services, status: status_encode(data)}
@@ -157,14 +157,14 @@ async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   updatePieceCache(queryClient, sailorType, nameId); //TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
 }
 
-async function otherDataMutate(queryClient, sailorType, nameId, data) {
+function otherDataMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, other_data: data});
   RECORDS.delete(sailorType, nameId, 'data_other');
 }
 
-async function otherServicesMutate(queryClient, sailorType, nameId, data) {
+function otherServicesMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const currentData = queryClient.getQueryData(key);
   queryClient.setQueryData(key, {...currentData, service_other: data});
