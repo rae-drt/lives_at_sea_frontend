@@ -156,7 +156,7 @@ function statusRow(data) {
     if(i %10 === 0) offset += SQUARE_GAP; //larger gap every 10 cells
     states.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
-        <Link to={(state & MISSING) ? '#' : '/rating/' + identifier}>
+        <Link to={(state & MISSING) ? '#' : '/person/rating/' + identifier}>
           {triangle1(offset, state)}
           {triangle2(offset, state)}
           {(state & NOT_WW1) ? dot(offset) : ((state & XCHECKED) && one(offset))}
@@ -291,7 +291,7 @@ export default function RatingsIndex() {
                   <div>
                     <IconButton color='primary'
                                 disabled={unreconciled.length === 0}
-                                onClick={()=>navigate('/rating/' + unreconciled[0])}
+                                onClick={()=>navigate('/person/rating/' + unreconciled[0])}
                     >
                       <ElectricBolt/>
                     </IconButton>
