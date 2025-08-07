@@ -315,7 +315,7 @@ function mainPersonMutate(queryClient, sailorType, nameId, data) {
   newClientData.name = structuredClone(data);
   queryClient.setQueryData(key, newClientData);
   RECORDS.delete(sailorType, nameId, 'name');
-  postData('person?personid=' + nameId, translateToAPI(structuredClone(queryClient.getQueryData(key))));
+  postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key))));
 }
 
 function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
@@ -325,7 +325,7 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   //TODO: Deal with status
   queryClient.setQueryData(key, newClientData);
   RECORDS.delete(sailorType, nameId, 'service');
-  postData('person?personid=' + nameId, translateToAPI(structuredClone(queryClient.getQueryData(key))));
+  postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key))));
 }
 
 async function otherDataMutate(queryClient, sailorType, nameId, data) {
@@ -334,7 +334,7 @@ async function otherDataMutate(queryClient, sailorType, nameId, data) {
   newClientData.other_data = structuredClone(data);
   queryClient.setQueryData(key, newClientData);
   RECORDS.delete(sailorType, nameId, 'data_other');
-  postData('person?personid=' + nameId, translateToAPI(structuredClone(queryClient.getQueryData(key))));
+  postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key))));
 }
 
 async function otherServicesMutate(queryClient, sailorType, nameId, data) {
@@ -343,7 +343,7 @@ async function otherServicesMutate(queryClient, sailorType, nameId, data) {
   newClientData.service_other = structuredClone(data);
   queryClient.setQueryData(key, newClientData);
   RECORDS.delete(sailorType, nameId, 'service_other');
-  postData('person?personid=' + nameId, translateToAPI(structuredClone(queryClient.getQueryData(key))));
+  postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key))));
 }
 
 const mainPersonQuery = (sailorType, nameId) => ({
