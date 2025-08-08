@@ -151,7 +151,9 @@ function statusRow(data) {
   let offset = -1 - SQUARE_GAP;
   for(let i = 0; i < data.row.state.length; i++) { //TODO FIXME: Would be better to have one array of objects, than multiple arrays of scalars
     const state = data.row.state[i];
-    const identifier = data.row.item[i];
+    const identifier = data.row.officialnumber[i] === null || (('' + data.row.item[i]) === ('' + data.row.officialnumber[i]))
+                       ? data.row.item[i]
+                       : `${data.row.item[i]} (${data.row.officialnumber[i]})`;
     offset += 1;
     if(i % 5 === 0) offset += SQUARE_GAP;
     if(i %10 === 0) offset += SQUARE_GAP; //larger gap every 10 cells
@@ -181,6 +183,7 @@ function chunk(data, rowBoxes) {
       nameid: chunk.map((x)=>x.nameid),
       range: chunk[0].item + ' - ' + chunk[chunk.length - 1].item,
       state: chunk.map((x)=>x.state),
+      officialnumber: chunk.map((x)=>x.officialnumber),
       item: chunk.map((x)=>x.item),
     });
   }
@@ -202,6 +205,7 @@ function chunk(data, rowBoxes) {
     lastOutput.state.push(...filler);
     lastOutput.range = lastOutput.item[0] + ' - ' + (lastOutput.item[0] + lastOutput.state.length - 1);
     lastOutput.nameid.push(...(Array(filler.length).fill(null)));
+    lastOutput.officialnumber.push(...(Array(filler.length).fill(null)));
     lastOutput.item.push(...range(lastItem + 1, lastItem + filler.length + 1));
   }
 
@@ -213,6 +217,7 @@ function chunk(data, rowBoxes) {
       nameid: Array(end - start + 1).fill(null),
       range: i + ' - ' + end,
       state: Array(end - start + 1).fill(MISSING, 0),
+      officialnumber: Array(end - start + 1).fill(null),
       item: range(i, i + rowBoxes),
     });
   }
@@ -242,6 +247,7 @@ export default function RatingsIndex() {
       return {
         nameid: record.person_id, //for links (or navigation, anyway)
         state: state, //see just above
+        officialnumber: record.officialnumber, //for tooltips, at least
         item: record.gen_item, //for ui -- everything else is Discovery terms
       };
     }),
