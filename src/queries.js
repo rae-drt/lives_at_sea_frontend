@@ -95,6 +95,37 @@ function EMPTY_APP_SERVICE(tableNo) {
 }
 
 function translateFromAPI(apiData) {
+  function translateServiceHeader(x) {
+    return rename_properties(x, {
+      md5_hash: 'md5_hash',
+      user_id: 'userid',
+      step: 'step',
+      complete: 'complete',
+      rows: 'records',
+    });
+  }
+  function translateMainRecords(x) {
+    const translatedRecords = [];
+    if(x.rows !== null) {
+      for(const y of x.rows) {
+        translatedRecords.push(rename_properties(y, {
+          row_number: 'rowid',
+          ship: 'ship',
+          rating: 'rating',
+          officer: 'officer',
+          fromday: 'fromday',
+          frommonth: 'frommonth',
+          fromyear: 'fromyear',
+          today: 'today',
+          tomonth: 'tomonth',
+          toyear: 'toyear',
+          source_id: 'source_id',
+        }));
+      }
+    }
+    return translatedRecords;
+  }
+
   //within this function, it is safe to refer to (as opposed to have to copy) data in the object that we already have from the API
   const appData = rename_properties(apiData, {
     source_lookup: 'source_lookup',
@@ -121,31 +152,8 @@ function translateFromAPI(apiData) {
       throw Error(`Unexpected nunber of service history transcriptions: ${appData.services.length}`);
     }
     for(const x of apiData.service.MAIN) {
-      const currentServices = rename_properties(x, {
-        md5_hash: 'md5_hash',
-        user_id: 'userid',
-        step: 'step',
-        complete: 'complete',
-        rows: 'records',
-      });
-      currentServices.records = [];
-      if(x.rows !== null) {
-        for(const y of x.rows) {
-          currentServices.records.push(rename_properties(y, {
-            row_number: 'rowid',
-            ship: 'ship',
-            rating: 'rating',
-            officer: 'officer',
-            fromday: 'fromday',
-            frommonth: 'frommonth',
-            fromyear: 'fromyear',
-            today: 'today',
-            tomonth: 'tomonth',
-            toyear: 'toyear',
-            source_id: 'source_id',
-          }));
-        }
-      }
+      const currentServices = translateServiceHeader(x);
+      currentServices.records = translateMainRecords(x);
       services.push(currentServices);
     }
   }
