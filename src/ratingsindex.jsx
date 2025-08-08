@@ -245,7 +245,7 @@ export default function RatingsIndex() {
     ranges: x.piece_ranges,
     items: x.records.map((record) => {
       let state = 0;
-      if(record.notww1 === null && record.tr1 === null && record.tr2 === null && record.complete1 === null && record.complete2 === null && record.reconciled === null) {
+      if(record.source_reference === null) {
         state = 64;
       }
       else {
