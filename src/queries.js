@@ -136,6 +136,44 @@ function translateFromAPI(apiData) {
     }
     return translatedRecords;
   }
+  function translateOtherServiceRecords(x, source_data) {
+    const translatedRecords = [];
+    if(x.rows !== null) {
+      for(const y of x.rows) {
+        const translation = rename_properties(y, {
+          row_number: 'row',
+          ship: 'ship',
+          rating: 'rating',
+          officer: 'officer',
+          fromday: 'fromday',
+          frommonth: 'frommonth',
+          fromyear: 'fromyear',
+          today: 'today',
+          tomonth: 'tomonth',
+          toyear: 'toyear',
+          source_id: 'sourceid',
+        });
+
+        //TODO: check with Mark! Am I translating the sources correctly?
+        let last_part = source_data[translation.sourceid];
+        const source_parts = [last_part];
+        while(last_part.source_collection_id === 0) {
+          last_part = source_data[last_part.parent_id];
+          source_parts.push(last_part);
+        }
+        if(last_part.source_collection_id === 0) { //we were NOT able to find a "source collection"
+        }
+        else {
+          translation.sourceid = last_part.collection_name;
+          translation.piece = source_parts.at(-2).part_reference || null;
+          translation.subref = source_parts.at(-3).part_reference || null;
+        }
+
+        translatedRecords.push(translation);
+      }
+    }
+    return translatedRecords;
+  }
 
   //within this function, it is safe to refer to (as opposed to have to copy) data in the object that we already have from the API
   const appData = rename_properties(apiData, {
@@ -169,6 +207,17 @@ function translateFromAPI(apiData) {
     }
   }
   appData.services = services;
+  if(Object.hasOwn(apiData.service, 'OTHER')) {
+    if(apiData.service.OTHER.length !== 1) {
+      throw Error('Unexpected other service length');
+    }
+    /* The full returned data is not currently used in the front end, just the records.
+       So just read the records, but keep this comment as a record of how to read it 'properly'.
+    appData.service_other = translateServiceHeader(apiData.service.OTHER[0]);
+    appData.service_other.records = translateOtherServiceRecords(apiData.service.OTHER[0], apiData.source_lookup);
+    */
+    appData.service_other = translateOtherServiceRecords(apiData.service.OTHER[0], apiData.source_lookup);
+  }
 
   return appData;
 }
