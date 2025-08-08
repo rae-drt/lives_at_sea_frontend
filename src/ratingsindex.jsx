@@ -146,20 +146,20 @@ function rowWidth(rowBoxes) {
 }
 
 //TODO: The Tooltip and Link returned here end up inside an <svg> tag -- is that OK?
-function statusRow({value}) {
-  const states = [];
+function statusRow({value: items}) {
+  const boxes = [];
   let offset = -1 - SQUARE_GAP;
-  for(let i = 0; i < value.length; i++) {
-    const state = value[i].state;
-    const identifier = value[i].officialnumber === null || (('' + value[i].item) === ('' + value[i].officialnumber))
-                       ? value[i].item
-                       : `${value[i].item} (${value[i].officialnumber})`;
+  for(let i = 0; i < items.length; i++) {
+    const state = items[i].state;
+    const identifier = items[i].officialnumber === null || (('' + items[i].item) === ('' + items[i].officialnumber))
+                       ? items[i].item
+                       : `${items[i].item} (${items[i].officialnumber})`;
     offset += 1;
     if(i % 5 === 0) offset += SQUARE_GAP;
     if(i %10 === 0) offset += SQUARE_GAP; //larger gap every 10 cells
-    states.push(
+    boxes.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
-        <Link to={(state & MISSING) ? '#' : '/person/rating/' + value[i].nameid}>
+        <Link to={(state & MISSING) ? '#' : '/person/rating/' + items[i].nameid}>
           {triangle1(offset, state)}
           {triangle2(offset, state)}
           {(state & NOT_WW1) ? dot(offset) : ((state & XCHECKED) && one(offset))}
@@ -170,18 +170,18 @@ function statusRow({value}) {
   }
 
   return(
-    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: rowWidth(value.length - 1)}}>{states}</svg></Stack>
+    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: rowWidth(items.length - 1)}}>{boxes}</svg></Stack>
   );
 }
 
 function chunk(data, rowBoxes) {
-  const { states, ranges } = data;
+  const { items, ranges } = data;
   const output = [];
-  for(let i = 0; i < states.length; i += rowBoxes) {
-    const chunk = states.slice(i, i + rowBoxes);
+  for(let i = 0; i < items.length; i += rowBoxes) {
+    const chunk = items.slice(i, i + rowBoxes);
     output.push({
       range: chunk[0].item + ' - ' + chunk[chunk.length - 1].item,
-      states: chunk.map((x) => ({
+      items: chunk.map((x) => ({
         nameid: x.nameid,
         state: x.state,
         officialnumber: x.officialnumber,
@@ -201,12 +201,12 @@ function chunk(data, rowBoxes) {
   const lastOutput = output[output.length - 1];
 
   //extend the last row that we already have, if necessary
-  const lastOutputStart = lastOutput.states[0].item;
-  const lastOutputEnd = lastOutput.states.at(-1).item;
+  const lastOutputStart = lastOutput.items[0].item;
+  const lastOutputEnd = lastOutput.items.at(-1).item;
   if(lastOutputEnd < nextStart - 1) {
     lastOutput.range = lastOutputStart + ' - ' + (lastOutputStart + rowBoxes - 1);
     for(let i = lastOutputEnd + 1; i < lastOutputStart + rowBoxes; i++) {
-      lastOutput.states.push({
+      lastOutput.items.push({
         nameid: null,
         state: MISSING,
         officialnumber: null,
@@ -221,10 +221,10 @@ function chunk(data, rowBoxes) {
     const end = Math.min(i + rowBoxes - 1, ranges.next_piece.start_item - 1);
     const newOutput = {
       range: i + ' - ' + end,
-      states: []
+      items: []
     };
     for(let j = i; j <= end; j++) {
-      newOutput.states.push({
+      newOutput.items.push({
         nameid: null,
         state: MISSING,
         officialnumber: null,
@@ -243,7 +243,7 @@ export default function RatingsIndex() {
   const [ searchParams, ] = useSearchParams({rowBoxes: 20});
   const { data: queryData, status: queryStatus } = useQuery({...pieceQuery(piece), select: (x) => ({
     ranges: x.piece_ranges,
-    states: x.records.map((record) => {
+    items: x.records.map((record) => {
       let state = 0;
       if(record.notww1 === null && record.tr1 === null && record.tr2 === null && record.complete1 === null && record.complete2 === null && record.reconciled === null) {
         state = 64;
@@ -274,7 +274,7 @@ export default function RatingsIndex() {
   const unreconciled = [];
   const chunks = queryStatus === 'success' ? chunk(queryData, Number(searchParams.get('rowBoxes'))) : [];
   if(queryStatus === 'success') {
-    for(const state of queryData.states) {
+    for(const state of queryData.items) {
       if((state.state & (XCHECKED|MISSING)) === 0) {
         unreconciled.push(state.nameid);
       }
@@ -289,7 +289,7 @@ export default function RatingsIndex() {
       align: 'right',
     },
     {
-      field: 'states',
+      field: 'items',
       headerName: 'State',
       width: rowWidth(Number(searchParams.get('rowBoxes'))),
       align: 'left',
