@@ -257,7 +257,27 @@ function mainPersonQF({queryKey}) {
     }
   }
   else {
-    if(sailorType === 'rating') return fetchData('person?personid=' + nameId).then((apiData)=>translateFromAPI(apiData));
+    if(sailorType === 'rating') {
+      return new Promise((resolve, reject) => {
+        fetchData('person/lastpost?personid=' + nameId).then(
+          (bucketData) => {
+            console.log(`Retrieved personid ${nameId} from bucket`);
+            resolve(bucketData); //if it worked, just return the JSON
+          },
+          (err) => {
+            if(err.cause.status === 404) { //failed lastpost lookup, try the database
+              resolve(fetchData('person?personid=' + nameId).then((dbData) => {
+                console.log(`Retrieved personid ${nameId} from database`);
+                return dbData;
+              }));
+            }
+            else {
+              reject(err);
+            }
+          }
+        );
+      }).then((apiData)=>translateFromAPI(apiData));
+    }
     else if(sailorType === 'officer') {
       return new Promise((resolve, reject) => {
         const socket = new WebSocket('ws://' + import.meta.env.VITE_QUERYER_ADDR + ':' + import.meta.env.VITE_QUERYER_PORT);
