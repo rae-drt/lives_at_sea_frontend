@@ -164,7 +164,7 @@ function translateFromAPI(apiData) {
         if(last_part.source_collection_id === 0) { //we were NOT able to find a "source collection"
         }
         else {
-          translation.sourceid = last_part.collection_name;
+          translation.reference = last_part.collection_name;
           translation.piece = source_parts.at(-2).part_reference || null;
           translation.subref = source_parts.at(-3).part_reference || null;
         }
