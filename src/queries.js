@@ -41,7 +41,9 @@ function fetchData(params) {
     const fetchData = async() => {
       const response = await fetch(api);
       if(!response.ok) {
-        reject(new Error('Bad response: ' + response.status));
+        let msg = `Bad status ${response.status}`;
+        if(response.statusText) msg += `: ${response.statusText}`;
+        reject(new Error(msg, { cause: response }));
       }
       else {
         const result = await response.json();
