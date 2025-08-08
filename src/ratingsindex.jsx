@@ -146,20 +146,20 @@ function rowWidth(rowBoxes) {
 }
 
 //TODO: The Tooltip and Link returned here end up inside an <svg> tag -- is that OK?
-function statusRow(data) {
+function statusRow({value}) {
   const states = [];
   let offset = -1 - SQUARE_GAP;
-  for(let i = 0; i < data.row.state.length; i++) { //TODO FIXME: Would be better to have one array of objects, than multiple arrays of scalars
-    const state = data.row.state[i];
-    const identifier = data.row.officialnumber[i] === null || (('' + data.row.item[i]) === ('' + data.row.officialnumber[i]))
-                       ? data.row.item[i]
-                       : `${data.row.item[i]} (${data.row.officialnumber[i]})`;
+  for(let i = 0; i < value.length; i++) {
+    const state = value[i].state;
+    const identifier = value[i].officialnumber === null || (('' + value[i].item) === ('' + value[i].officialnumber))
+                       ? value[i].item
+                       : `${value[i].item} (${value[i].officialnumber})`;
     offset += 1;
     if(i % 5 === 0) offset += SQUARE_GAP;
     if(i %10 === 0) offset += SQUARE_GAP; //larger gap every 10 cells
     states.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
-        <Link to={(state & MISSING) ? '#' : '/person/rating/' + data.row.nameid[i]}>
+        <Link to={(state & MISSING) ? '#' : '/person/rating/' + value[i].nameid}>
           {triangle1(offset, state)}
           {triangle2(offset, state)}
           {(state & NOT_WW1) ? dot(offset) : ((state & XCHECKED) && one(offset))}
@@ -170,7 +170,7 @@ function statusRow(data) {
   }
 
   return(
-    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: rowWidth(data.row.state.length - 1)}}>{states}</svg></Stack>
+    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: rowWidth(value.length - 1)}}>{states}</svg></Stack>
   );
 }
 
@@ -180,11 +180,13 @@ function chunk(data, rowBoxes) {
   for(let i = 0; i < states.length; i += rowBoxes) {
     const chunk = states.slice(i, i + rowBoxes);
     output.push({
-      nameid: chunk.map((x)=>x.nameid),
       range: chunk[0].item + ' - ' + chunk[chunk.length - 1].item,
-      state: chunk.map((x)=>x.state),
-      officialnumber: chunk.map((x)=>x.officialnumber),
-      item: chunk.map((x)=>x.item),
+      states: chunk.map((x) => ({
+        nameid: x.nameid,
+        state: x.state,
+        officialnumber: x.officialnumber,
+        item: x.item,
+      })),
     });
   }
 
@@ -199,27 +201,37 @@ function chunk(data, rowBoxes) {
   const lastOutput = output[output.length - 1];
 
   //extend the last row that we already have, if necessary
-  const lastItem = lastOutput.item.at(-1);
-  const filler = Array(Math.min(rowBoxes - lastOutput.state.length, nextStart - thisEnd - 1)).fill(MISSING, 0);
-  if(filler.length) {
-    lastOutput.state.push(...filler);
-    lastOutput.range = lastOutput.item[0] + ' - ' + (lastOutput.item[0] + lastOutput.state.length - 1);
-    lastOutput.nameid.push(...(Array(filler.length).fill(null)));
-    lastOutput.officialnumber.push(...(Array(filler.length).fill(null)));
-    lastOutput.item.push(...range(lastItem + 1, lastItem + filler.length + 1));
+  const lastOutputStart = lastOutput.states[0].item;
+  const lastOutputEnd = lastOutput.states.at(-1).item;
+  if(lastOutputEnd < nextStart - 1) {
+    lastOutput.range = lastOutputStart + ' - ' + (lastOutputStart + rowBoxes - 1);
+    for(let i = lastOutputEnd + 1; i < lastOutputStart + rowBoxes; i++) {
+      lastOutput.states.push({
+        nameid: null,
+        state: MISSING,
+        officialnumber: null,
+        item: i,
+      })
+    }
   }
 
   //add as many new rows as we need to end up with an item numbered one below the lowest item of the next piece
-  for(let i = thisEnd + filler.length + 1; i < nextStart; i += rowBoxes) {
+  for(let i = lastOutputStart + rowBoxes; i < nextStart; i += rowBoxes) {
     const start = i;
     const end = Math.min(i + rowBoxes - 1, ranges.next_piece.start_item - 1);
-    output.push({
-      nameid: Array(end - start + 1).fill(null),
+    const newOutput = {
       range: i + ' - ' + end,
-      state: Array(end - start + 1).fill(MISSING, 0),
-      officialnumber: Array(end - start + 1).fill(null),
-      item: range(i, i + rowBoxes),
-    });
+      states: []
+    };
+    for(let j = i; j <= end; j++) {
+      newOutput.states.push({
+        nameid: null,
+        state: MISSING,
+        officialnumber: null,
+        item: j,
+      });
+    }
+    output.push(newOutput);
   }
 
   return output;
@@ -277,7 +289,7 @@ export default function RatingsIndex() {
       align: 'right',
     },
     {
-      field: 'state',
+      field: 'states',
       headerName: 'State',
       width: rowWidth(Number(searchParams.get('rowBoxes'))),
       align: 'left',
