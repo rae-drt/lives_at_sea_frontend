@@ -5,6 +5,7 @@ import { Alert, Card, CardContent, Stack, Typography, Tooltip, IconButton } from
 import { ElectricBolt } from '@mui/icons-material';
 import { pieceQuery } from './queries';
 import RatingsIndexNavigator from './ratingsindexnavigator';
+import { range } from 'lodash';
 
 const NOT_WW1     =  1;
 const ALLOCATED_1 =  2;
@@ -148,15 +149,15 @@ function rowWidth(rowBoxes) {
 function statusRow(data) {
   const states = [];
   let offset = -1 - SQUARE_GAP;
-  for(let i = 0; i < data.value.length; i++) {
-    const state = data.value[i];
-    const identifier = data.row.nameid + i;
+  for(let i = 0; i < data.row.state.length; i++) { //TODO FIXME: Would be better to have one array of objects, than multiple arrays of scalars
+    const state = data.row.state[i];
+    const identifier = data.row.item[i];
     offset += 1;
     if(i % 5 === 0) offset += SQUARE_GAP;
     if(i %10 === 0) offset += SQUARE_GAP; //larger gap every 10 cells
     states.push(
       <Tooltip key={'tt_' + identifier} title={identifier}>
-        <Link to={(state & MISSING) ? '#' : '/person/rating/' + identifier}>
+        <Link to={(state & MISSING) ? '#' : '/person/rating/' + data.row.nameid[i]}>
           {triangle1(offset, state)}
           {triangle2(offset, state)}
           {(state & NOT_WW1) ? dot(offset) : ((state & XCHECKED) && one(offset))}
@@ -167,7 +168,7 @@ function statusRow(data) {
   }
 
   return(
-    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: rowWidth(data.value.length - 1)}}>{states}</svg></Stack>
+    <Stack direction='row' spacing={0}><svg style={{height: SQUARE_SIZE, width: rowWidth(data.row.state.length - 1)}}>{states}</svg></Stack>
   );
 }
 
@@ -177,9 +178,10 @@ function chunk(data, rowBoxes) {
   for(let i = 0; i < states.length; i += rowBoxes) {
     const chunk = states.slice(i, i + rowBoxes);
     output.push({
-      nameid: Number(chunk[0].nameid),
-      range: chunk[0].nameid + ' - ' + chunk[chunk.length - 1].nameid,
+      nameid: chunk.map((x)=>x.nameid),
+      range: chunk[0].item + ' - ' + chunk[chunk.length - 1].item,
       state: chunk.map((x)=>x.state),
+      item: chunk.map((x)=>x.item),
     });
   }
 
@@ -194,10 +196,13 @@ function chunk(data, rowBoxes) {
   const lastOutput = output[output.length - 1];
 
   //extend the last row that we already have, if necessary
+  const lastItem = lastOutput.item.at(-1);
   const filler = Array(Math.min(rowBoxes - lastOutput.state.length, nextStart - thisEnd - 1)).fill(MISSING, 0);
   if(filler.length) {
     lastOutput.state.push(...filler);
-    lastOutput.range = lastOutput.nameid + ' - ' + (lastOutput.nameid + lastOutput.state.length - 1);
+    lastOutput.range = lastOutput.item[0] + ' - ' + (lastOutput.item[0] + lastOutput.state.length - 1);
+    lastOutput.nameid.push(...(Array(filler.length).fill(null)));
+    lastOutput.item.push(...range(lastItem + 1, lastItem + filler.length + 1));
   }
 
   //add as many new rows as we need to end up with an item numbered one below the lowest item of the next piece
@@ -205,9 +210,10 @@ function chunk(data, rowBoxes) {
     const start = i;
     const end = Math.min(i + rowBoxes - 1, ranges.next_piece.start_item - 1);
     output.push({
-      nameid: i,
+      nameid: Array(end - start + 1).fill(null),
       range: i + ' - ' + end,
       state: Array(end - start + 1).fill(MISSING, 0),
+      item: range(i, i + rowBoxes),
     });
   }
 
@@ -222,20 +228,21 @@ export default function RatingsIndex() {
     ranges: x.piece_ranges,
     states: x.records.map((record) => {
       let state = 0;
-      if(record.notww1 === null && record.has_tr1 === null && record.has_tr2 === null && record.complete1 === null && record.complete2 === null && record.reconciled === null) {
+      if(record.notww1 === null && record.tr1 === null && record.tr2 === null && record.complete1 === null && record.complete2 === null && record.reconciled === null) {
         state = 64;
       }
       else {
         if(record.notww1)     state |=  1;
-        if(record.has_tr1)    state |=  2;
-        if(record.has_tr2)    state |=  4;
+        if(record.tr1)        state |=  2;
+        if(record.tr2)        state |=  4;
         if(record.complete1)  state |=  8;
         if(record.complete2)  state |= 16;
         if(record.reconciled) state |= 32;
       }
       return {
-        nameid: record.nameid,
-        state: state,
+        nameid: record.person_id, //for links (or navigation, anyway)
+        state: state, //see just above
+        item: record.gen_item, //for ui -- everything else is Discovery terms
       };
     }),
   })});
@@ -259,7 +266,7 @@ export default function RatingsIndex() {
   const columns = [
     {
       field: 'range',
-      headerName: 'Range',
+      headerName: 'Item',
       width: 180,
       align: 'right',
     },
@@ -310,7 +317,7 @@ export default function RatingsIndex() {
                 '& .MuiDataGrid-columnHeader:focus-within': { outline: 'none' },
                 '& .MuiDataGrid-row:hover': { backgroundColor: 'inherit' },
               }}
-              getRowId={(row) => {return row.nameid}}
+              getRowId={(row) => {return row.range}}
               rows={chunks}
               columns={columns}
               disableColumnSorting
