@@ -216,6 +216,7 @@ function translateFromAPI(apiData) {
     appData.service_other = translateServiceHeader(apiData.service.OTHER[0]);
     appData.service_other.records = translateOtherServiceRecords(apiData.service.OTHER[0], apiData.source_lookup);
     */
+    appData.service_other_header = apiData.service.OTHER[0]; //not used by app, no need to translate
     appData.service_other = translateOtherServiceRecords(apiData.service.OTHER[0], apiData.source_lookup);
   }
 
@@ -230,6 +231,8 @@ function translateToAPI(appData) {
     source: 'source',
     services: 'service', //rename this key (alarmingly subtly) from app format
     versions: 'versions',
+    service_other_header: 'service_other_header', //temporary, removed later in function
+    service_other: 'service_other', //temporary, removed later in function
   });
 
   delete apiData.person.series;
@@ -278,6 +281,31 @@ function translateToAPI(appData) {
     }
   }
   apiData.service = service;
+  if(appData.service_other) {
+    apiData.service.OTHER = [appData.service_other_header]; //not used by app, wasn't translated
+    apiData.service.OTHER[0].rows = [];
+    for(const x of appData.service_other) {
+      delete x.reference;
+      delete x.piece;
+      delete x.subref;
+      //TODO: Convert reference, piece, subref into a source_id (or arrange the interface such that it is always stored in this form)
+      apiData.service.OTHER[0].rows.push(rename_properties(x, {
+        row: 'row_number',
+        ship: 'ship',
+        rating: 'rating',
+        officer: 'officer',
+        fromday: 'fromday',
+        frommonth: 'frommonth',
+        fromyear: 'fromyear',
+        today: 'today',
+        tomonth: 'tomonth',
+        toyear: 'toyear',
+        sourceid: 'source_id',
+      }));
+    }
+  }
+  delete apiData.service_other_header;
+  delete apiData.service_other;
   return apiData;
 }
 
