@@ -64,6 +64,8 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'fromday',
+      type: 'number',
+      valueFormatter: (v) => v, //prevent clever number formatting (e.g. comma as 1000s separator is unhelpful here)
       headerName: 'D',
       flex: 1,
       minWidth: 2.5 * theme.typography.fontSize,
@@ -72,6 +74,8 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'frommonth',
+      type: 'number',
+      valueFormatter: (v) => v, //prevent clever number formatting (e.g. comma as 1000s separator is unhelpful here)
       headerName: 'M',
       flex: 1,
       minWidth: 2.5 * theme.typography.fontSize,
@@ -80,6 +84,8 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'fromyear',
+      type: 'number',
+      valueFormatter: (v) => v, //prevent clever number formatting (e.g. comma as 1000s separator is unhelpful here)
       headerName: 'Y',
       flex: 2,
       minWidth: 4 * theme.typography.fontSize,
@@ -88,6 +94,8 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'today',
+      type: 'number',
+      valueFormatter: (v) => v, //prevent clever number formatting (e.g. comma as 1000s separator is unhelpful here)
       headerName: 'D',
       flex: 1,
       minWidth: 2.5 * theme.typography.fontSize,
@@ -96,6 +104,8 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'tomonth',
+      type: 'number',
+      valueFormatter: (v) => v, //prevent clever number formatting (e.g. comma as 1000s separator is unhelpful here)
       headerName: 'M',
       flex: 1,
       minWidth: 2.5 * theme.typography.fontSize,
@@ -104,6 +114,8 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
     },
     {
       field: 'toyear',
+      type: 'number',
+      valueFormatter: (v) => v, //prevent clever number formatting (e.g. comma as 1000s separator is unhelpful here)
       headerName: 'Y',
       flex: 2,
       minWidth: 4 * theme.typography.fontSize,
