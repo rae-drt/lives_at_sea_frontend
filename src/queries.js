@@ -1,6 +1,8 @@
 import { createStore, useStore } from 'zustand';
 import { init_data, status_encode } from './data_utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { isEqual } from 'lodash';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 //following https://stackoverflow.com/a/1479341
 const RECORDS = (function() { //TODO: Is this a global singleton?
@@ -42,6 +44,32 @@ function fetchData(params) {
         let msg = `Bad status ${response.status}`;
         if(response.statusText) msg += `: ${response.statusText}`;
         reject(new Error(msg, { cause: response }));
+      }
+      else {
+        resolve(response.json());
+      }
+    }
+    fetchData();
+  });
+}
+
+function postData(params, body) {
+  const api = import.meta.env.VITE_API_ROOT + params;
+  return new Promise((resolve, reject) => {
+    const fetchData = async() => {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      const response = await fetch(api, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': token || '',
+        },
+        body: JSON.stringify(body),
+      });
+      if(!response.ok) {
+        reject(new Error('Bad response ' + response.status + ': ' + response.statusText));
       }
       else {
         resolve(response.json());
@@ -137,6 +165,65 @@ function translateFromAPI(apiData) {
   return appData;
 }
 
+function translateToAPI(appData) {
+  //expect to have been passed data that is safe to manipulate (i.e. cloned from, not referring to, cache)
+  const apiData = rename_properties(appData, {
+    source_lookup: 'source_lookup',
+    name: 'person', //rename this key from app format
+    source: 'source',
+    services: 'service', //rename this key (alarmingly subtly) from app format
+    versions: 'versions',
+  });
+
+  delete apiData.person.series;
+  delete apiData.person.piece;
+  delete apiData.person.item;
+
+  const service = {};
+  if(!isEqual(appData.services, [EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2)])) { //if service data empty then the above empty object is what we want
+    service.MAIN = [];
+    for(const x of appData.services) {
+      const currentServices = rename_properties(x, {
+        md5_hash: 'md5_hash',
+        userid: 'user_id',
+        step: 'step',
+        complete: 'complete',
+        records: 'rows',
+      });
+
+      //handle status
+      if(x.reconciled) {
+        currentServices.step = 'RECONCILE';
+      }
+
+      if(currentServices.rows.length === 0) {
+        currentServices.rows = null;
+      }
+      else {
+        currentServices.rows = [];
+        for(const y of x.records) {
+          currentServices.rows.push(rename_properties(y, {
+            rowid: 'row_number',
+            ship: 'ship',
+            rating: 'rating',
+            officer: 'officer',
+            fromday: 'fromday',
+            frommonth: 'frommonth',
+            fromyear: 'fromyear',
+            today: 'today',
+            tomonth: 'tomonth',
+            toyear: 'toyear',
+            source_id: 'source_id',
+          }));
+        }
+      }
+      service.MAIN.push(currentServices);
+    }
+  }
+  apiData.service = service;
+  return apiData;
+}
+
 function mainPersonQF({queryKey}) {
   const [, {sailorType, nameId}] = queryKey;
   if(typeof(nameId) === 'undefined') {
@@ -204,32 +291,39 @@ function piecesQF() {
   });
 }
 
-function mainPersonMutate(queryClient, sailorType, nameId, data) {
+async function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = queryClient.getQueryData(key);
-  queryClient.setQueryData(mainPersonQuery(sailorType, nameId).queryKey, {...currentData, name: data});
+  const newClientData = structuredClone(queryClient.getQueryData(key));
+  newClientData.name = structuredClone(data);
+  queryClient.setQueryData(key, newClientData);
+  await postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key)))); //TODO: Do I need to await here?
   RECORDS.delete(sailorType, nameId, 'name');
 }
 
-function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
+async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = queryClient.getQueryData(key);
-  const newData = {service_history: data.services, status: status_encode(data)}
-  queryClient.setQueryData(key, {...currentData, ...newData});
+  const newClientData = structuredClone(queryClient.getQueryData(key));
+  newClientData.services = structuredClone(data.services);
+  queryClient.setQueryData(key, newClientData);
+  await postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key)))); //TODO: Do I need to await here?
   RECORDS.delete(sailorType, nameId, 'service');
 }
 
-function otherDataMutate(queryClient, sailorType, nameId, data) {
+async function otherDataMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = queryClient.getQueryData(key);
-  queryClient.setQueryData(key, {...currentData, other_data: data});
+  const newClientData = structuredClone(queryClient.getQueryData(key));
+  newClientData.other_data = structuredClone(data);
+  queryClient.setQueryData(key, newClientData);
+  await postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key)))); //TODO: Do I need to await here?
   RECORDS.delete(sailorType, nameId, 'data_other');
 }
 
-function otherServicesMutate(queryClient, sailorType, nameId, data) {
+async function otherServicesMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
-  const currentData = queryClient.getQueryData(key);
-  queryClient.setQueryData(key, {...currentData, service_other: data});
+  const newClientData = structuredClone(queryClient.getQueryData(key));
+  newClientData.service_other = structuredClone(data);
+  queryClient.setQueryData(key, newClientData);
+  await postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key)))); //TODO: Do I need to await here?
   RECORDS.delete(sailorType, nameId, 'service_other');
 }
 
