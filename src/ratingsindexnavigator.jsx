@@ -16,6 +16,10 @@ export default function RatingsIndexNavigator() {
     return(<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
 
+  if((!Number.isSafeInteger(Number(piece))) || piece <= 0 || pieces[0] > Number(piece) || pieces.at(-1) < Number(piece)) {
+    throw new Error(`No such piece: ${piece}`);
+  }
+
   return (
     <Stack direction='row' alignItems='center' justifyContent='space-between'>
       {/* catref control */}
