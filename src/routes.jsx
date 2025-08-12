@@ -4,6 +4,10 @@ import OfficerIndex from './officerindex.jsx';
 import SimpleEditor from './simpleeditor.jsx';
 import Person from './person.jsx';
 
+function BadRoute() {
+  throw Error(`Bad route: ${window.location.pathname}`);
+}
+
 export const routes = (
   <Routes>
     <Route path='/'>
@@ -28,6 +32,8 @@ export const routes = (
         <Route path='acronyms' element={<SimpleEditor table='acronyms' primary='acronym'/>}/> -- tricky case, there is no independent primary key, and the actual primary (acronym) is a non-integer and needs to be visible and editable
         <Route path='countries' element={<SimpleEditor table='countries' primary='country'/>}/> -- this one only has the country field*
       */}
+      <Route path = '*' element={<BadRoute/>}/>
     </Route>
+    <Route path = '*' element={<BadRoute/>}/>
   </Routes>
 );
