@@ -43,7 +43,9 @@ function fetchData(params) {
         if(response.statusText) msg += `: ${response.statusText}`;
         reject(new Error(msg, { cause: response }));
       }
-      resolve(response.json());
+      else {
+        resolve(response.json());
+      }
     }
     fetchData();
   });
