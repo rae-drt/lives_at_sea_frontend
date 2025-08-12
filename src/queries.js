@@ -155,18 +155,23 @@ function translateFromAPI(apiData) {
         });
 
         //TODO: check with Mark! Am I translating the sources correctly?
-        let last_part = source_data[translation.sourceid];
-        const source_parts = [last_part];
-        while(last_part.source_collection_id === 0) {
-          last_part = source_data[last_part.parent_id];
-          source_parts.push(last_part);
-        }
-        if(last_part.source_collection_id === 0) { //we were NOT able to find a "source collection"
-        }
-        else {
-          translation.reference = last_part.collection_name;
-          translation.piece = source_parts.at(-2).part_reference || null;
-          translation.subref = source_parts.at(-3).part_reference || null;
+        if(source_data[translation.sourceid]) { //TODO: This situation shouldn't arise, but does with the current implementation
+                                                //      as I cannot yet enter sources. Should handle this as an error (or just
+                                                //      let it put the query into an error state, as it will do without this if
+                                                //      condition), but leave like this for now while developing.
+          let last_part = source_data[translation.sourceid];
+          const source_parts = [last_part];
+          while(last_part.source_collection_id === 0) {
+            last_part = source_data[last_part.parent_id];
+            source_parts.push(last_part);
+          }
+          if(last_part.source_collection_id === 0) { //we were NOT able to find a "source collection"
+          }
+          else {
+            translation.reference = last_part.collection_name;
+            translation.piece = source_parts.at(-2).part_reference || null;
+            translation.subref = source_parts.at(-3).part_reference || null;
+          }
         }
 
         translatedRecords.push(translation);
