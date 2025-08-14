@@ -75,7 +75,7 @@ function postData(params, body) {
         resolve(response.json());
       }
     }
-    fetchData();
+    console.log(fetchData());
   });
 }
 
