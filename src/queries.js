@@ -5,7 +5,8 @@ import { isEqual } from 'lodash';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
 //following https://stackoverflow.com/a/1479341
-const RECORDS = (function() { //TODO: Is this a global singleton?
+//exporting only for testing purposes -- seems harmless, but perhaps could be avoided with mocks or spies
+export const RECORDS = (function() { //TODO: Is this a global singleton?
   //private
   const map = new Map();
   function _key(sailorType, nameId, selection) { return `${sailorType}:${nameId}:${selection}` };
@@ -16,6 +17,7 @@ const RECORDS = (function() { //TODO: Is this a global singleton?
     get:    function(sailorType, nameId, selection) { return map.get       (_key(sailorType, nameId, selection)) },
     delete: function(sailorType, nameId, selection) { return map.delete    (_key(sailorType, nameId, selection)) },
     set:    function(sailorType, nameId, selection, value) { return map.set(_key(sailorType, nameId, selection), value) },
+    clear:  function() { return map.clear(); }, //only used in testing at time of writing
   }
 })();
 
@@ -346,7 +348,7 @@ function mainPersonQF({queryKey}) {
       return new Promise((resolve, reject) => {
         fetchData('person/lastpost?personid=' + nameId).then(
           (bucketData) => {
-            console.log(`Retrieved personid ${nameId} from bucket`);
+            import.meta.env.MODE !== 'test' && console.log(`Retrieved personid ${nameId} from bucket`);
             if(bucketData.person.person_id !== Number(nameId)) throw new Error('Person id mismatch');
             if('L@SRecordsReturned' in bucketData && bucketData['L@SRecordsReturned'] === 1) {
               delete bucketData['L@SRecordsReturned']; //this is wrapped by the API, we don't want it internally (or we'll end up writing back to the bucket, then the API might try to add it again, horrors may ensue
@@ -362,7 +364,7 @@ function mainPersonQF({queryKey}) {
                 (jsonbody) => {
                   if('L@SRecordsReturned' in jsonbody && jsonbody['L@SRecordsReturned'] === 0) { //failed lastpost lookup, try the database
                     resolve(fetchData('person?personid=' + nameId).then((dbData) => {
-                      console.log(`Retrieved personid ${nameId} from database`);
+                      import.meta.env.MODE !== 'test' && console.log(`Retrieved personid ${nameId} from database`);
                       if(dbData.person.person_id !== Number(nameId)) throw new Error('Person id mismatch');
                       return dbData;
                     }));
@@ -616,6 +618,17 @@ export function useRecord(sailorType, nameId, selection) {
 
   const query = useQuery(queries[selection](sailorType, nameId));
   const queryClient = useQueryClient();
+
+  /*
+  //Could use this to respond to cache events, but seems better to do it in mutate functions.
+  //Have kept this one here as an example of responding to the cache being cleared, but I'm
+  //not sure of the timing implications and this is a case that only arises inside the test framework.
+  //Assumes presence of a 'clear' function in RECORDS which just calls map.clear()
+  queryClient.getQueryCache().subscribe((e)=>{ //TODO: Race conditions here?
+    e.type === 'removed' && RECORDS.clear(); //clear the map if the query cache gets reset
+  });
+  */
+
   const [record, queryStatus] = getRecord(sailorType, nameId, selection, query);
   const mutation = useMutation({
     mutationFn: (newData) => {
