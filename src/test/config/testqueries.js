@@ -57,6 +57,18 @@ const [
   (c, v) => `Unable to find an element with the data-field attribute of: ${v}`);
 
 
+const [
+  queryByComplete,
+  getAllByComplete,
+  getByComplete,
+  finallAllByComplete,
+  findByComplete,
+] = buildQueries(
+  (...args) => queryHelpers.queryAllByAttribute('data-complete', ...args),
+  (c, v) => `Found multiple elements with the data-complete attribute of: ${v}`,
+  (c, v) => `Unable to find an element with the data-complete attribute of: ${v}`);
+
+
 export {
   queryByAriaLabel,
   queryAllByAriaLabel,
@@ -79,4 +91,9 @@ export {
   getByField,
   finallAllByField,
   findByField,
+  queryByComplete,
+  getAllByComplete,
+  getByComplete,
+  finallAllByComplete,
+  findByComplete,
 }
