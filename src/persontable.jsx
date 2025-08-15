@@ -50,7 +50,7 @@ function PersonTableField({data, onChange, field, error}) {
       }}
       onChange={(e)=>{
         const newData = structuredClone(data);
-        let newValue = e.target.value;
+        let newValue = e.target.value.trim();
         if(fieldType === 'number') {
           if(newValue.match(/^\d+$/)) {
             newValue = Number(newValue);
