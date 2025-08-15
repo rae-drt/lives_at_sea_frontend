@@ -19,7 +19,7 @@ export default function PersonTableControlPanel({data, onChange}) {
         <Stack direction='row' justifyContent='space-between' spacing={2}>
           <Typography variant='h6'>{sailorType === 'officer' ? 'Officer #' + officerref(data) : catref(data)}</Typography>
           <Stack direction='row' spacing={2}>
-            {'error' in data && <FormControlLabel control={<Checkbox checked={data.error} disabled={true}/>} label='Error?' labelPlacement='start'/>}
+            {'error' in data && <FormControlLabel control={<Checkbox checked={data.error} disabled={true} data-testid='errorToggle' data-value={data.error}/>} label='Error?' labelPlacement='start'/>}
             <Button disabled={!dirty} variant='outlined' onClick={onChange} data-testid='personCommitButton'>Enter</Button>
           </Stack>
         </Stack>
