@@ -29,10 +29,10 @@ const columnGroupingModel = [
 
 export function TranscriptionInfo({transcriber, complete, flipComplete, disabled}) {
   return (
-    <div data-testid='completeCheckboxWrapper' data-complete={complete}>
+    <div data-testid='completeCheckboxWrapper' data-value={complete}>
     <Stack direction='row' spacing={4} alignItems='center'>
       <Typography>Transcriber: {transcriber}</Typography>
-      <FormControlLabel control={<Checkbox data-testid='completeCheckbox' data-complete={complete} checked={complete} onChange={flipComplete} disabled={disabled}/>} label='Complete' labelPlacement='start'/>
+      <FormControlLabel control={<Checkbox data-testid='completeCheckbox' data-value={complete} checked={complete} onChange={flipComplete} disabled={disabled}/>} label='Complete' labelPlacement='start'/>
     </Stack>
     </div>
   );
