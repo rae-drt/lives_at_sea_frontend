@@ -19,6 +19,8 @@ const FIXTURES = (function(){
   let personCommitButton = null;
   let serviceTable0 = null;
   let serviceTable1 = null;
+  let notWW1 = null;
+  let errorToggle = null;
 
   //These are functions. It seems that when a function is assigned to a variable as the function is declared,
   //the variable does *not* have to have been declared. This may be a Javascript thing rather than a test
@@ -126,6 +128,16 @@ const FIXTURES = (function(){
           await use(serviceTable1);
           serviceTable1 = null;
         },
+        notWW1: async({component}, use) => {
+          notWW1 = await component.findByTestId('notWW1');
+          await use(notWW1);
+          notWW1 = null;
+        },
+        errorToggle: async({component}, use) => {
+          errorToggle = await component.findByTestId('errorToggle');
+          await use(errorToggle);
+          errorToggle = null;
+        },
       };
     }, // end of dataTest
   };
@@ -199,7 +211,7 @@ function getCheckboxes(tables) {
   const checkboxes = [];
   for(const table of tables) {
     const component = within(table).getByTestId('completeCheckbox');
-    const state = component.getAttribute('data-complete');
+    const state = component.getAttribute('data-value');
     checkboxes.push({component: component, state: state});
   };
   return checkboxes;
@@ -377,6 +389,48 @@ describe('data flow', () => {
       });
     }
   });
+  describe('toggles', () => {
+    fullPersonTest('not ww1 true to false', async ({expect, user, getLastPost, notWW1, personCommitButton}) => { //baselines to true
+      //expected pre-condition
+      expect(notWW1.getAttribute('data-value')).toBe('true'); //stringified in the DOM
+      await unpressable(expect, user, personCommitButton);
+
+      await user.click(notWW1);
+      await user.click(personCommitButton);
+      const { body } = await getLastPost();
+      expect(body.person.notww1).toBe(false);
+    });
+    emptyPersonTest('not ww1 false to true', async ({expect, user, getLastPost, notWW1, personCommitButton}) => { //baselines to false
+      //expected pre-condition
+      expect(notWW1.getAttribute('data-value')).toBe('false'); //stringified in the DOM
+      await unpressable(expect, user, personCommitButton);
+
+      await user.click(notWW1);
+      await user.click(personCommitButton);
+      const { body } = await getLastPost();
+      expect(body.person.notww1).toBe(true);
+    });
+    fullPersonTest('error true to false', async ({expect, user, postSpy, errorToggle, personCommitButton}) => { //baselines to true. Reporting only, cannot be changed.
+      //expected pre-condition
+      expect(errorToggle.getAttribute('data-value')).toBe('true'); //stringified in the DOM
+      await unpressable(expect, user, personCommitButton);
+
+      await unpressable(expect, user, errorToggle);
+      await unpressable(expect, user, personCommitButton);
+      await expect(vi.waitFor(()=>expect(postSpy).not.toHaveBeenCalled())); //not sure about the timing here, but this is anyway not really necessary -- it really should not have been called if we cannot press the button
+    });
+    emptyPersonTest('error false to true', async ({expect, user, postSpy, errorToggle, personCommitButton}) => { //baselines to false. Reporting only, cannot be changed.
+      //expected pre-condition
+      expect(errorToggle.getAttribute('data-value')).toBe('false'); //stringified in the DOM
+      await unpressable(expect, user, personCommitButton);
+
+      await unpressable(expect, user, errorToggle);
+      await unpressable(expect, user, personCommitButton);
+      await expect(vi.waitFor(()=>expect(postSpy).not.toHaveBeenCalled())); //not sure about the timing here, but this is anyway not really necessary -- it really should not have been called if we cannot press the button
+    });
+  });
+  describe.todo('catref', ()=>{}); //check the the catref matches the series and actual item number. manufacture cases where other ususal suspects (officialnumber, nameid) are different from the item number. could be that my existing test data already happens to have these properties.
+
   baseTest.extend(FIXTURES.dataTest(100124))('SECOND API TEST', async ({expect, user, getLastPost, serviceTable0, serviceTable1, component}) => {
     await user.click(within(await serviceTable0).getByTestId('firstRowButton'));
     const fields = getServiceCells(getRow(serviceTable0, 0));
