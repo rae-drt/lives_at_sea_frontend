@@ -205,6 +205,10 @@ function getCheckboxes(tables) {
   return checkboxes;
 }
 
+function unpressable(expect, user, button) {
+  return expect(user.click(button)).rejects.toThrow('Unable to perform pointer interaction as the element has `pointer-events: none`');
+}
+
 const it = baseTest.extend(FIXTURES.dataTest());
 const fullPersonTest  = baseTest.extend(FIXTURES.dataTest(9999999901));
 const emptyPersonTest = baseTest.extend(FIXTURES.dataTest(9999999902));
@@ -252,6 +256,69 @@ describe('data flow', () => {
       expect(url).toMatch(/\/person$/);
     });
   });
+  describe('trim individually', () => {
+    for(const field of EDITABLE_PERSON_TEXT_FIELDS) {
+      fullPersonTest('post-trim full text ' + field, async ({expect, user, getLastPost, personTable, personCommitButton}) => { //Confirm that all input person data gets trimmed. Doesn't really need to be the 'full' data, just need to start somewhere. But using real data lets me confirm that the trimmed text results in something un-submittable.
+        const fieldComponent = await within(personTable).findByTestId(field).then((x)=>x.querySelector('input'));
+        const baseText = fieldComponent.getAttribute('value');
+
+        await user.clear(fieldComponent);
+        await user.type(fieldComponent, baseText + '  {Enter}');
+        expect(fieldComponent.getAttribute('value')).toBe(baseText);
+        await unpressable(expect, user, personCommitButton);
+      });
+      fullPersonTest('pre-trim full text ' + field, async ({expect, user, getLastPost, personTable, personCommitButton}) => { //Confirm that all input person data gets trimmed. Doesn't really need to be the 'full' data, just need to start somewhere. But using real data lets me confirm that the trimmed text results in something un-submittable.
+        const fieldComponent = await within(personTable).findByTestId(field).then((x)=>x.querySelector('input'));
+        const baseText = fieldComponent.getAttribute('value');
+
+        await user.clear(fieldComponent);
+        await user.type(fieldComponent, ' ' + baseText + '{Enter}');
+        expect(fieldComponent.getAttribute('value')).toBe(baseText);
+        await unpressable(expect, user, personCommitButton);
+      });
+      emptyPersonTest('trim empty text ' + field, async ({expect, user, getLastPost, personTable, personCommitButton}) => {
+        const fieldComponent = await within(personTable).findByTestId(field).then((x)=>x.querySelector('input'));
+        const baseText = fieldComponent.getAttribute('value');
+        expect(baseText).toBe('');
+
+        await user.type(fieldComponent, '    ' + baseText + '{Enter}');
+        expect(fieldComponent.getAttribute('value')).toBe(baseText);
+        await unpressable(expect, user, personCommitButton);
+      });
+    }
+    for(const field of EDITABLE_PERSON_NUMERIC_FIELDS) {
+      fullPersonTest('post-trim numeric ' + field, async ({expect, user, getLastPost, personTable, personCommitButton}) => {
+        const fieldComponent = await within(personTable).findByTestId(field).then((x)=>x.querySelector('input'));
+        const base = fieldComponent.getAttribute('value');
+        expect(base).toMatch(/^\d+$/);
+
+        await user.clear(fieldComponent);
+        await user.type(fieldComponent, base + ' {Enter}');
+        expect(fieldComponent.getAttribute('value')).toBe(base);
+        await unpressable(expect, user, personCommitButton);
+      });
+      fullPersonTest('pre-trim numeric ' + field, async ({expect, user, getLastPost, personTable, personCommitButton}) => {
+        const fieldComponent = await within(personTable).findByTestId(field).then((x)=>x.querySelector('input'));
+        const base = fieldComponent.getAttribute('value');
+        expect(base).toMatch(/^\d+$/);
+
+        await user.clear(fieldComponent);
+        await user.type(fieldComponent, ' ' + base + ' {Enter}');
+        expect(fieldComponent.getAttribute('value')).toBe(base);
+        await unpressable(expect, user, personCommitButton);
+      });
+      emptyPersonTest('trim empty numeric ' + field, async ({expect, user, getLastPost, personTable, personCommitButton}) => {
+        const fieldComponent = await within(personTable).findByTestId(field).then((x)=>x.querySelector('input'));
+        const base = fieldComponent.getAttribute('value');
+        expect(base).toBe('0');
+
+        await user.clear(fieldComponent);
+        await user.type(fieldComponent, '     {Enter}');
+        expect(fieldComponent.getAttribute('value')).toBe('0');
+        await unpressable(expect, user, personCommitButton);
+      });
+    }
+  });
   describe('clear person individually', () => {
     for(const field of EDITABLE_PERSON_TEXT_FIELDS) {
       fullPersonTest('full text ' + field, async ({expect, user, getLastPost, personTable, personCommitButton}) => {
@@ -264,17 +331,14 @@ describe('data flow', () => {
         const { body } = await getLastPost();
         expect(body.person[field]).toEqual('');
       });
-      fullPersonTest.todo('trim full text ' + field); //take "full" data, add some whitespace, expect to be unable to submit
-      emptyPersonTest.todo('trim empty text ' + field); //likewise, but from empty state
-      emptyPersonTest.todo('trim submit text ' + field); //modify data, include whitespace, confirm whitespace gets trimmed
       emptyPersonTest('empty text ' + field, async ({expect, user, postSpy, personTable, personCommitButton}) => {
         const fieldComponent = await within(personTable).findByTestId(field).then((x)=>x.querySelector('input'));
         expect(fieldComponent.getAttribute('value')).toBe(''); //precondition -- we are testing that we cannot post if we change the record to be the same as it was before
         await user.clear(fieldComponent);
         await user.type(fieldComponent, '{Enter}');
-        await expect(user.click(personCommitButton)).rejects.toThrow('Unable to perform pointer interaction as the element has `pointer-events: none`');
+        await unpressable(expect, user, personCommitButton);
 
-        expect(postSpy).not.toHaveBeenCalled(); //not sure about the timing here, but this is anyway not really necessary -- it really should not have been called if we cannot press the button
+        await expect(vi.waitFor(()=>expect(postSpy).not.toHaveBeenCalled())); //not sure about the timing here, but this is anyway not really necessary -- it really should not have been called if we cannot press the button
       });
     }
     for(const field of EDITABLE_PERSON_NUMERIC_FIELDS) {
@@ -282,6 +346,7 @@ describe('data flow', () => {
         const fieldComponent = await within(personTable).findByTestId(field).then((x)=>x.querySelector('input'));
 
         //precondition -- we are clearing the field, so to be able to submit it to test API POST, it must not be empty
+        expect(fieldComponent.getAttribute('value')).not.toBe('');
         expect(fieldComponent.getAttribute('value')).not.toBe('0');
         expect(fieldComponent.getAttribute('value')).not.toBe(0);
 
@@ -290,22 +355,25 @@ describe('data flow', () => {
         await user.click(personCommitButton);
 
         const { body } = await getLastPost();
-        expect(body.person[field]).toBe('0');
+        expect(body.person[field]).toBe(0);
       });
-      fullPersonTest.todo('trim full numeric ' + field); //take "full" data, add some whitespace, expect to be unable to submit
-      emptyPersonTest.todo('trim empty numeric ' + field); //likewise, but from empty state
-      emptyPersonTest.todo('trim submit numeric ' + field); //modify data, include whitespace, confirm whitespace gets trimmed
       emptyPersonTest('empty numeric ' + field, async ({expect, user, postSpy, personTable, personCommitButton}) => {
         const fieldComponent = await within(personTable).findByTestId(field).then((x)=>x.querySelector('input'));
 
         //precondition -- we are clearing the field, so to be able to submit it to test API POST, it must not be empty
-        expect(fieldComponent.getAttribute('value')).toBe('0');
+        expect(fieldComponent.getAttribute('value')).toBe('0'); //seems that whatever we read from this field will be stringified, so check the type as well. That we actually end up posting a numeric 0 in such cases should be tested elsewhere
+        expect(fieldComponent.getAttribute('type')).toBe('number');
 
         await user.clear(fieldComponent);
         await user.type(fieldComponent, '{Enter}');
-        await expect(user.click(personCommitButton)).rejects.toThrow('Unable to perform pointer interaction as the element has `pointer-events: none`');
+        await unpressable(expect, user, personCommitButton);
+        await expect(vi.waitFor(()=>expect(postSpy).not.toHaveBeenCalled())); //not sure about the timing here, but this is anyway not really necessary -- it really should not have been called if we cannot press the button
 
-        expect(postSpy).not.toHaveBeenCalled(); //not sure about the timing here, but this is anyway not really necessary -- it really should not have been called if we cannot press the button
+        //test with the explicit 0 too
+        await user.clear(fieldComponent);
+        await user.type(fieldComponent, '0{Enter}');
+        await unpressable(expect, user, personCommitButton);
+        await expect(vi.waitFor(()=>expect(postSpy).not.toHaveBeenCalled())); //not sure about the timing here, but this is anyway not really necessary -- it really should not have been called if we cannot press the button
       });
     }
   });
