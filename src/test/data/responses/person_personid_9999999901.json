@@ -50,7 +50,7 @@
     "dischargereason": "DISCHARGEREASON9999999901",
     "person_role": "RATING",
     "notww1": true,
-    "error": false,
+    "error": true,
     "sources": [
       211521
     ]
