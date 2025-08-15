@@ -58,15 +58,15 @@ const [
 
 
 const [
-  queryByComplete,
-  getAllByComplete,
-  getByComplete,
-  finallAllByComplete,
-  findByComplete,
+  queryByValue,
+  getAllByValue,
+  getByValue,
+  finallAllByValue,
+  findByValue,
 ] = buildQueries(
-  (...args) => queryHelpers.queryAllByAttribute('data-complete', ...args),
-  (c, v) => `Found multiple elements with the data-complete attribute of: ${v}`,
-  (c, v) => `Unable to find an element with the data-complete attribute of: ${v}`);
+  (...args) => queryHelpers.queryAllByAttribute('data-value', ...args),
+  (c, v) => `Found multiple elements with the data-value attribute of: ${v}`,
+  (c, v) => `Unable to find an element with the data-value attribute of: ${v}`);
 
 
 export {
@@ -91,9 +91,9 @@ export {
   getByField,
   finallAllByField,
   findByField,
-  queryByComplete,
-  getAllByComplete,
-  getByComplete,
-  finallAllByComplete,
-  findByComplete,
+  queryByValue,
+  getAllByValue,
+  getByValue,
+  finallAllByValue,
+  findByValue,
 }
