@@ -9,36 +9,65 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import { FIELD_TYPES, FIELD_VALIDATORS } from './data_utils';
 
-function PersonTableField({data, onChange, field}) {
+function PersonTableField({data, onChange, field, error}) {
   const loading = useContext(LoadingContext);
+  const fieldType = FIELD_TYPES[field];
+  const fieldValue = (field in data && data[field] !== null) ? data[field] : '';
+  function hasError() {
+    if(error) return true;
+    if(fieldType === 'text') {
+      if(typeof(fieldValue) !== 'string') return true;
+    }
+    else if(fieldType === 'number') {
+      if(typeof(fieldValue) !== 'number') {
+        if(typeof(fieldValue) === 'string' && fieldValue.trim() === '') {
+          return false;
+        }
+        return true;
+      }
+    }
+    else {
+      throw new Error(`Field "${field}" has unknown type "${fieldType}"`);
+    }
+    return !(FIELD_VALIDATORS[field](fieldValue));
+  }
+
   return (
-    field in data ?
     <TextField
       disabled={loading}
       size='small'
       fullWidth
-      value={data[field] === null ? '' : data[field]}
+      type={fieldType}
+      value={fieldValue}
+      onBlur={(e)=>{ //i.e. on loss of focus
+        if(fieldType === 'number' && e.target.value.trim() === '') {
+          const newData = structuredClone(data);
+          newData[field] = 0;
+          onChange(newData);
+        }
+      }}
       onChange={(e)=>{
-        const newData = {...data};
-        newData[field] = e.target.value;
+        const newData = structuredClone(data);
+        let newValue = e.target.value;
+        if(fieldType === 'number') {
+          if(newValue.match(/^\d+$/)) {
+            newValue = Number(newValue);
+          }
+        }
+        newData[field] = newValue;
         onChange(newData);
       }}
-    />:
-    <div/>
+      error={hasError()}
+    />
   );
 }
 
 /* Each PersonTableRow is expected to be all or nothing: either all of its fields should exist, or none of them should. 
    At time of writing this is not actually tested for and should render OK if the rule is broken (but the label might not make sense)
  */
-function PersonTableRow({onChange, data, rowCells, labels, fields}) {
-  if(typeof(data) === 'undefined') return <div/>;
-  for(const field in fields) {
-    if(!(field in data)) {
-      return <div/>;
-    }
-  }
+function PersonTableRow({onChange, data, rowCells, labels, fields, error}) {
   let counter = 0;
   let cells = [];
   let cellsPlaced = 0;
@@ -47,7 +76,7 @@ function PersonTableRow({onChange, data, rowCells, labels, fields}) {
     cellsPlaced += labels[label];
   }
   for(const field in fields) {
-    cells.push(<Grid key={counter++} size={fields[field]}><PersonTableField data={data} onChange={onChange} field={field}/></Grid>);
+    cells.push(<Grid key={counter++} size={fields[field]}><PersonTableField data={data} onChange={onChange} field={field} error={error.includes(field)}/></Grid>);
     cellsPlaced -= fields[field];
   }
   cells.push(<Grid key={counter++} size={rowCells - cellsPlaced}/>); //spacer
@@ -58,7 +87,7 @@ export default function PersonTable({data, onChange, rows, rowCells}) {
   const table = [];
   let counter = 0;
   for(const row of rows) {
-    table.push(<PersonTableRow key={counter++} labels={row.labels} fields={row.fields} data={data} onChange={onChange} rowCells={rowCells}/>);
+    table.push(<PersonTableRow key={counter++} labels={row.labels} fields={row.fields} error={row.validator(data)} data={data} onChange={onChange} rowCells={rowCells}/>);
   }
 
   return (

@@ -2,6 +2,7 @@ import { useBlocker, matchRoutes } from 'react-router';
 import { useRecord } from './queries';
 import { createContext } from 'react';
 import { isEqual } from 'lodash';
+import { FIELD_TYPES } from './data_utils';
 
 class Dirty {
   any() {
@@ -27,8 +28,20 @@ export function useDirtySailor(sailorType, nameId) {
   const {data: servicesRecord, queryData: servicesQuery } = useRecord(sailorType, nameId, 'service');
   const {data: otherServicesRecord, queryData: otherServicesQuery } = useRecord(sailorType, nameId, 'service_other');
   const {data: otherDataRecord, queryData: otherDataQuery} = useRecord(sailorType, nameId, 'data_other');
+
+  //TODO: Nasty hack to deal with blank and zero being equivalent. There must be a better
+  //      way that does not involve special handling in this component.
+  const clonedNameRecord = structuredClone(nameRecord);
+  if(clonedNameRecord) {
+    for(const field of Object.getOwnPropertyNames(clonedNameRecord)) {
+      if(clonedNameRecord[field] === '' && FIELD_TYPES[field] === 'number') {
+        clonedNameRecord[field] = 0;
+      }
+    }
+  }
+
   return new DirtySailor(
-    !(isEqual(nameRecord, nameQuery)),
+    !(isEqual(clonedNameRecord, nameQuery)),
     !(isEqual(servicesRecord, servicesQuery)),
     !(isEqual(otherServicesRecord, otherServicesQuery)),
     !(isEqual(otherDataRecord, otherDataQuery)),

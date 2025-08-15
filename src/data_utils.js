@@ -33,13 +33,74 @@ export const OFFICER_FIELDS = [
     'birthcounty',
 ];
 
+//HTML5 field types
+export const FIELD_TYPES = {
+    forename:        'text',
+    surname:         'text',
+    officialnumber:  'text', //can have a letter prefix
+    birthday:        'number',
+    birthmonth:      'number',
+    birthyear:       'number',
+    birthplace:      'text',
+    birthcounty:     'text',
+    occupation:      'text',
+    dischargeday:    'number',
+    dischargemonth:  'number',
+    dischargeyear:   'number',
+    dischargereason: 'text',
+};
+
+//These validators assume correct type
+export const FIELD_VALIDATORS = {
+    forename:        (x) => true,
+    surname:         (x) => true,
+    officialnumber:  (x) => x.match(/^[A-Z]?\d+$/),
+    birthday:        (x) => x >= 0 && x <= 31,
+    birthmonth:      (x) => x >= 0 && x <= 12,
+    birthyear:       (x) => x === 0 || (x >= 1700 && x <= 2000), //just try to catch extremely wrong values
+    birthplace:      (x) => true,
+    birthcounty:     (x) => true,
+    occupation:      (x) => true,
+    dischargeday:    (x) => x >= 0 && x <= 31,
+    dischargemonth:  (x) => x >= 0 && x <= 12,
+    dischargeyear:   (x) => x === 0 || (x >= 1700 && x <= 2000), //just try to catch extremely wrong values
+    dischargereason: (x) => true,
+};
+
+//do some date validation, allowing that we may have missing information
+function get_datevalidator(map) {
+  return (fields) => {
+    const day = fields[map.day];
+    const month = fields[map.month];
+    const year = fields[map.year];
+
+    let bad = [];
+    if([9, 4, 6, 11].includes(month)) {
+      if(day > 30) bad = [map.day, map.month];
+    }
+    else if(month === 2) {
+      if(year === 0 || new Date(year, 1, 29).getDate() === 29) { //unknown or leap year https://stackoverflow.com/a/43819507
+        if(day > 29) bad = [map.day, map.month];
+      }
+      else {
+        if(day > 28) bad = [map.day, map.month, map.year]; //only case where the year is relevant
+      }
+    }
+    else { //includes case where month is unknown (0)
+      if(day > 31) bad = [map.day]; //the month is irrelevant for this case
+    }
+
+    return bad;
+  };
+}
+
 export const RATING_LAYOUT = [
-    {labels: {'Forename, surname': 2},      fields: {forename: 3, surname:3}},
-    {labels: {'Official number': 2},        fields: {officialnumber: 3}},
-    {labels: {'Born': 2},                   fields: {birthday: 1, birthmonth: 1, birthyear: 1}},
-    {labels: {'Birth place, county': 2},    fields: {birthplace: 3, birthcounty: 3}},
-    {labels: {'Occupation': 2},             fields: {occupation: 3}},
-    {labels: {'Discharge date, reason': 2}, fields: {dischargeday: 1, dischargemonth: 1, dischargeyear: 1, dischargereason: 3}}
+    {labels: {'Forename, surname': 2},      fields: {forename: 3, surname:3}, validator: () => [], },
+    {labels: {'Official number': 2},        fields: {officialnumber: 3}, validator: () => [], },
+    {labels: {'Born': 2},                   fields: {birthday: 1, birthmonth: 1, birthyear: 1}, validator: get_datevalidator({day: 'birthday', month: 'birthmonth', year: 'birthyear'}), },
+    {labels: {'Birth place, county': 2},    fields: {birthplace: 3, birthcounty: 3}, validator: () => [], },
+    {labels: {'Occupation': 2},             fields: {occupation: 3}, validator: () => [], },
+    {labels: {'Discharge date, reason': 2}, fields: {dischargeday: 1, dischargemonth: 1, dischargeyear: 1, dischargereason: 3}, validator: get_datevalidator({ day: 'dischargeday', month: 'dischargemonth', year: 'dischargeyear'}), },
 ];
 
 export const OFFICER_LAYOUT = [RATING_LAYOUT[0], RATING_LAYOUT[2], RATING_LAYOUT[3]];
