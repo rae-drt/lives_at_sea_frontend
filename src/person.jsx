@@ -5,6 +5,7 @@ import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useDialogs } from '@toolpad/core/useDialogs';
 import OtherData from './otherdata';
 import OtherServices from './otherservices';
 import PersonTable from './persontable';
@@ -16,7 +17,7 @@ import { LoadingContext } from './loadingcontext';
 import { DirtySailorContext, useDirtySailor, useDirtySailorBlocker } from './dirty';
 import BlockNavigationDialog from './blocknavigationdialog';
 import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
-import { useRecord } from './queries';
+import { useRecord, failedMutationDialog } from './queries';
 
 function isNew(id) {
   return id === '0';
@@ -26,9 +27,10 @@ export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { data: personTableData, setData: setPersonTableData, mutateData: mutatePersonTableData, status: mainPersonQueryStatus } = useRecord(sailorType, nameId, 'name');
+  const { data: personTableData, setData: setPersonTableData, mutation: personTableDataMutation, status: mainPersonQueryStatus } = useRecord(sailorType, nameId, 'name');
   const dirty = useDirtySailor(sailorType, nameId);
   const blocker = useDirtySailorBlocker(dirty);
+  const dialogs = useDialogs();
 
   if(isNew(nameId)) document.title = 'New ' + sailorType;
   else if(personTableData) {
@@ -47,7 +49,7 @@ export default function Person() {
   else if(mainPersonQueryStatus === 'error') {
     return (<Alert severity='error'>Error fetching data</Alert>);
   }
-  else if(mainPersonQueryStatus === 'pending') {
+  else if(mainPersonQueryStatus === 'pending' || personTableDataMutation.status === 'pending') {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
   else {
@@ -64,7 +66,9 @@ export default function Person() {
               <Stack direction='row' width={0.9} alignItems='flex-start'>
                 <Card variant='outlined'>
                   <PersonTableControlPanel data={personTableData} onChange={(()=>{
-                    mutatePersonTableData(personTableData);
+                    personTableDataMutation.mutate(personTableData, {
+                      onError: failedMutationDialog(dialogs, personTableDataMutation),
+                    });
                   })}/>
                   {
                     <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}

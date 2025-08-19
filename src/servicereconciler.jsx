@@ -1,12 +1,13 @@
 import { useContext } from 'react';
 import { useParams, useSearchParams } from 'react-router';
+import { useDialogs } from '@toolpad/core/useDialogs';
 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
-import { useRecord } from './queries';
+import { useRecord, failedMutationDialog } from './queries';
 import { DirtySailorContext } from './dirty';
 import { useEmptyRowOK } from './datatable';
 
@@ -64,9 +65,10 @@ function XCheck({ready, checked, onChange}) {
 export default function ServiceReconciler() {
   const {sailorType, nameId} = useParams();
   const [searchParams,] = useSearchParams();
-  const { data: serviceRecords, setData: setServiceRecords, mutateData: mutateServiceRecords } = useRecord(sailorType, nameId, 'service');
+  const { data: serviceRecords, setData: setServiceRecords, mutation: serviceRecordsMutation } = useRecord(sailorType, nameId, 'service');
   const dirty = useContext(DirtySailorContext).service;
   const emptyOK = useEmptyRowOK(serviceRecords.services.map((x)=>x.records), ROW_PRIMARY);
+  const dialogs = useDialogs();
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index
@@ -209,7 +211,13 @@ export default function ServiceReconciler() {
           }}/>
          <Button variant='outlined'
                  disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
-                 onClick={async ()=>{(await emptyOK()) && mutateServiceRecords(structuredClone(serviceRecords))}}
+                 onClick={
+                   async ()=>{
+                     (await emptyOK()) && serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
+                       onError: failedMutationDialog(dialogs, serviceRecordsMutation),
+                     });
+                   }
+                 }
          >Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'space-between', alignItems: 'space-between'}} spacing={2}>

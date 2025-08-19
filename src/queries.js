@@ -1,6 +1,6 @@
 import { createStore, useStore } from 'zustand';
 import { init_data, status_encode } from './data_utils';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
@@ -403,40 +403,44 @@ function piecesQF() {
   });
 }
 
-async function mainPersonMutate(queryClient, sailorType, nameId, data) {
+function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.name = structuredClone(data);
-  queryClient.setQueryData(key, newClientData);
-  await postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key)))); //TODO: Do I need to await here?
-  RECORDS.delete(sailorType, nameId, 'name');
+  return postData('person', translateToAPI(newClientData)).then(() => {
+    queryClient.invalidateQuery(key);
+    RECORDS.delete(sailorType, nameId, 'name'); //TODO: update hazards relating to this partial synchronous state update?
+  });
 }
 
-async function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
+function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.services = structuredClone(data.services);
-  queryClient.setQueryData(key, newClientData);
-  await postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key)))); //TODO: Do I need to await here?
-  RECORDS.delete(sailorType, nameId, 'service');
+  return postData('person', translateToAPI(newClientData)).then(() => {
+    queryClient.invalidateQuery(key);
+    RECORDS.delete(sailorType, nameId, 'service'); //TODO: update hazards relating to this partial synchronous state update?
+  });
 }
 
-async function otherDataMutate(queryClient, sailorType, nameId, data) {
+function otherDataMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.other_data = structuredClone(data);
-  queryClient.setQueryData(key, newClientData);
-  await postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key)))); //TODO: Do I need to await here?
-  RECORDS.delete(sailorType, nameId, 'data_other');
+  return postData('person', translateToAPI(newClientData)).then(() => {
+    queryClient.invalidateQuery(key);
+    RECORDS.delete(sailorType, nameId, 'data_other'); //TODO: update hazards relating to this partial synchronous state update?
+  });
 }
 
-async function otherServicesMutate(queryClient, sailorType, nameId, data) {
+function otherServicesMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.service_other = structuredClone(data);
-  queryClient.setQueryData(key, newClientData);
-  await postData('person', translateToAPI(structuredClone(queryClient.getQueryData(key)))); //TODO: Do I need to await here?
-  RECORDS.delete(sailorType, nameId, 'service_other');
+  postData('person', translateToAPI(newClientData)).then(() => {
+    queryClient.invalidateQuery(key);
+    RECORDS.delete(sailorType, nameId, 'service_other'); //TODO: update hazards relating to this partial synchronous state update?
+  });
 }
 
 const mainPersonQuery = (sailorType, nameId) => ({
@@ -541,11 +545,35 @@ export function useRecord(sailorType, nameId, selection) {
   const query = useQuery(queries[selection](sailorType, nameId));
   const queryClient = useQueryClient();
   const [record, queryStatus] = getRecord(sailorType, nameId, selection, query);
+  const mutation = useMutation({
+    mutationFn: (newData) => {
+      return mutations[selection](queryClient, sailorType, nameId, newData);
+    },
+  });
+
   return {
     data: useStore(record, (state)=>state[selection]),
     setData: useStore(record, (state)=>state.update),
-    mutateData: (value) => mutations[selection](queryClient, sailorType, nameId, value),
+    mutation: mutation,
     queryData: query.data,
     status: queryStatus,
+  };
+}
+
+//This is UI functionality, shouldn't really be here. But it's always going to be needed along with this stuff. And life is short.
+export function failedMutationDialog(dialogs, mutation) {
+  return (error, variables) => {
+    dialogs.confirm(`Save failed due to Error ${error.message}. Try again or contact your developer with detailed error message.`,
+                  {
+                    title: 'Failed save',
+                    cancelText: 'Details',
+                  }).then((ok)=>{
+                    mutation.reset(); //feels dirty to do this while it is handling the error but should be fine
+                                      //so long as this is the last thing that we do with this mutation
+                                      //operation -- which it very much should be
+                    if(!ok) {
+                      dialogs.alert(error.message + JSON.stringify(variables), { title: 'Copy this text for your developer', });
+                    }
+                  });
   };
 }
