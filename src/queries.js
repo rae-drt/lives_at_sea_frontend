@@ -74,7 +74,7 @@ function postData(params, body) {
         reject(new Error(msg, { cause: response }));
       }
       else {
-        resolve(response.json());
+        resolve(response);
       }
     }
     fetchData();
