@@ -27,7 +27,7 @@ export default function PersonControlPanel({navigator, data, onChange}) {
           navigate('/ratings/' + data.piece):
           navigate('/officers/' + (data.surname ? data.surname.charAt(0) : 'null'))}}/></IconButton></Stack>
       { sailorType === 'rating' &&
-        <FormControlLabel control={<Checkbox disabled={loading} checked={data.notww1} onChange={()=>{onChange({...data, notww1: !data.notww1})}} data-testid='notWW1' data-value={data.notww1}/>} label='Not WW1' labelPlacement='start'/>
+        <FormControlLabel control={<Checkbox disabled={loading} checked={data.notww1} onChange={()=>{onChange({...data, notww1: !data.notww1})}} data-testid='notww1' data-value={data.notww1}/>} label='Not WW1' labelPlacement='start'/>
       }
     </Stack>
   );
