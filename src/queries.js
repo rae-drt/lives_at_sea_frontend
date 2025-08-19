@@ -41,7 +41,7 @@ function fetchData(params) {
     const fetchData = async() => {
       const response = await fetch(api);
       if(!response.ok) {
-        let msg = `Bad status ${response.status}`;
+        let msg = '' + response.status;
         if(response.statusText) msg += `: ${response.statusText}`;
         reject(new Error(msg, { cause: response }));
       }
@@ -69,7 +69,9 @@ function postData(params, body) {
         body: JSON.stringify(body),
       });
       if(!response.ok) {
-        reject(new Error('Bad response ' + response.status + ': ' + response.statusText));
+        let msg = '' + response.status;
+        if(response.statusText) msg += `: ${response.statusText}`;
+        reject(new Error(msg, { cause: response }));
       }
       else {
         resolve(response.json());
