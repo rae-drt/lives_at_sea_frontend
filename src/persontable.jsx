@@ -47,11 +47,6 @@ function PersonTableField({data, onChange, field, error}) {
           newData[field] = 0;
           onChange(newData);
         }
-        else if(fieldType === 'text' && (e.target.value.trim() !== e.target.value)) {
-          const newData = structuredClone(data);
-          newData[field] = e.target.value.trim();
-          onChange(newData);
-        }
       }}
       onChange={(e)=>{
         const newData = structuredClone(data);
