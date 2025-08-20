@@ -1,12 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import eslint from 'vite-plugin-eslint'
-import { unlink, symlink } from 'node:fs/promises';
+import { copyFile, unlink, symlink } from 'node:fs/promises';
 
 // https://vite.dev/config/
 export default defineConfig(({command, mode}) => {
-  function link_index() {
-    if(command === 'serve') {
+  async function link_index() {
+    if(command === 'serve' && mode === 'msw') {
+      symlink('alt_dev_msw_index.jsx', 'src/index.jsx', 'file');
+      await copyFile('node_modules/msw/lib/mockServiceWorker.js', 'public/mockServiceWorker.js');
+    }
+    else if(command === 'serve') {
       symlink('alt_dev_index.jsx', 'src/index.jsx', 'file');
     }
     else {
