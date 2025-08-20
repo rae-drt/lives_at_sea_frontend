@@ -408,8 +408,9 @@ function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.name = structuredClone(data);
   return postData('person', translateToAPI(newClientData)).then(() => {
-    queryClient.invalidateQueries(key);
-    RECORDS.delete(sailorType, nameId, 'name'); //TODO: update hazards relating to this partial synchronous state update?
+    queryClient.invalidateQueries(key).then(() => {
+      RECORDS.delete(sailorType, nameId, 'name'); //TODO: update hazards relating to this partial synchronous state update?
+    });
   });
 }
 
@@ -418,8 +419,9 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.services = structuredClone(data.services);
   return postData('person', translateToAPI(newClientData)).then(() => {
-    queryClient.invalidateQueries(key);
-    RECORDS.delete(sailorType, nameId, 'service'); //TODO: update hazards relating to this partial synchronous state update?
+    queryClient.invalidateQueries(key).then(() => {
+      RECORDS.delete(sailorType, nameId, 'service'); //TODO: update hazards relating to this partial synchronous state update?
+    });
   });
 }
 
@@ -428,8 +430,9 @@ function otherDataMutate(queryClient, sailorType, nameId, data) {
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.other_data = structuredClone(data);
   return postData('person', translateToAPI(newClientData)).then(() => {
-    queryClient.invalidateQueries(key);
-    RECORDS.delete(sailorType, nameId, 'data_other'); //TODO: update hazards relating to this partial synchronous state update?
+    queryClient.invalidateQueries(key).then(() => {
+      RECORDS.delete(sailorType, nameId, 'data_other'); //TODO: update hazards relating to this partial synchronous state update?
+    });
   });
 }
 
@@ -437,9 +440,10 @@ function otherServicesMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.service_other = structuredClone(data);
-  postData('person', translateToAPI(newClientData)).then(() => {
-    queryClient.invalidateQueries(key);
-    RECORDS.delete(sailorType, nameId, 'service_other'); //TODO: update hazards relating to this partial synchronous state update?
+  return postData('person', translateToAPI(newClientData)).then(() => {
+    queryClient.invalidateQueries(key).then(() => {
+      RECORDS.delete(sailorType, nameId, 'service_other'); //TODO: update hazards relating to this partial synchronous state update?
+    });
   });
 }
 
