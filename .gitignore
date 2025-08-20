@@ -23,3 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 
 /amplify_outputs.json
+/src/alt_*
+/src/index.jsx
