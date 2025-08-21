@@ -58,7 +58,7 @@ function XCheck({ready, checked, onChange}) {
   return (
     <Stack direction='row' alignItems='center'>
       {ready ? <HappyIcon sx = {{color: 'green'}}/> : <SadIcon sx = {{color: 'red'}}/>}
-      <FormControlLabel control={<Checkbox disabled={loading || (!ready)} checked={checked} onChange={onChange}/>} label='Xcheck' labelPlacement='start'/>
+      <FormControlLabel control={<Checkbox data-testid='xCheck' data-value={checked} disabled={loading || (!ready)} checked={checked} onChange={onChange}/>} label='Xcheck' labelPlacement='start'/>
     </Stack>
   );
 }
