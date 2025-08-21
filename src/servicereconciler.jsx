@@ -214,7 +214,6 @@ export default function ServiceReconciler() {
             clone.reconciled = !(serviceRecords.reconciled);
             setServiceRecords(clone);
           }}/>
-         <div data-testid='sCBWrapper' data-xcheck={xCheckReady} data-dirty={dirty}>
          <Button data-testid='servicesCommitButton'
                  variant='outlined'
                  disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
@@ -226,7 +225,6 @@ export default function ServiceReconciler() {
                    }
                  }
          >Enter</Button>
-         </div>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'space-between', alignItems: 'space-between'}} spacing={2}>
         {getTable(0, 1)}
