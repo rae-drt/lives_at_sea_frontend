@@ -154,6 +154,7 @@ export default function ServiceReconciler() {
       <ServiceTable
         transcriber={serviceRecords.services[thisTable].userid}
         complete={serviceRecords.services[thisTable].complete}
+        reconciled={serviceRecords.reconciled}
         primary={ROW_PRIMARY}
         cloneButton={
           <Tooltip title='Replace other table with this table'>

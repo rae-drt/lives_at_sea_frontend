@@ -36,7 +36,7 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
   );
 }
 
-export default function ServiceTable({transcriber, complete, cloneButton, flipComplete, data, onChange, difference, controlCount, extraRowControls, primary}) {
+export default function ServiceTable({transcriber, complete, reconciled, cloneButton, flipComplete, data, onChange, difference, controlCount, extraRowControls, primary}) {
   const loading = useContext(LoadingContext);
   const theme = useTheme();
   const columns = [
@@ -129,7 +129,7 @@ export default function ServiceTable({transcriber, complete, cloneButton, flipCo
       <CardContent>
         <Box sx={{width: '45vw'}}>
           <Stack direction='row' justifyContent='space-between'>
-            <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading}/>
+            <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading || reconciled}/>
             {cloneButton}
           </Stack>
           <DataTable
