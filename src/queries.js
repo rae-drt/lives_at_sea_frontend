@@ -24,7 +24,7 @@ function getRecord(sailorType, nameId, selection, query) {
     if(query.status === 'success') {
       RECORDS.set(sailorType, nameId, selection,
                   createStore((set) => ({
-                    [selection]: query.data,
+                    [selection]: structuredClone(query.data),
                     update: (value) => set({[selection]: value}),
                   })));
     }
