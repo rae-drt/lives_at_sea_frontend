@@ -45,7 +45,7 @@ export const handlers = [
     const pid = getNumericParam(request.url, 'personid');
     if(TRACE) console.log('GET /person', pid);
     if(pid === null)              return HttpResponse.json({message: 'Internal server error'}, {status: 502});
-    if(PERSON_OVERRIDES.has(pid)) return HttpResponse.json(PERSON_OVERRIDES[pid]);
+    if(PERSON_OVERRIDES.has(pid)) return HttpResponse.json(PERSON_OVERRIDES.get(pid));
 
     //no local override, pass through to server. Try lastpost first.
     const response = await fetch(bypass(import.meta.env.VITE_API_ROOT + 'person/lastpost?' + new URL(request.url).searchParams.toString()));
