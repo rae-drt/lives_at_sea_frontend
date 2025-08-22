@@ -146,7 +146,7 @@ export function DataTable(props) {
         {insertionButtons}
         <Tooltip title='Delete row' placement='top' followCursor arrow>
           <span>
-            <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+            <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='deleteRowButton' onClick={()=>{
               setLocked(true);
               setTimeout(()=>{
                 const newRows = [];
