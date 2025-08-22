@@ -115,7 +115,7 @@ export function DataTable(props) {
         insertionButtons = (<>
           <Tooltip title='Insert row above' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+              <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='newRowAboveButton' onClick={()=>{
                 setLocked(true);
                 setTimeout(()=>{
                   finalOnChange(insert(row[primary]));
@@ -128,7 +128,7 @@ export function DataTable(props) {
           </Tooltip>
           <Tooltip title='Insert row below' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+              <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='newRowBelowButton' onClick={()=>{
                 setLocked(true);
                 setTimeout(()=>{
                   finalOnChange(insert(row[primary] + 1));
