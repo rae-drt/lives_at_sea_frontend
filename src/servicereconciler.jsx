@@ -202,6 +202,7 @@ export default function ServiceReconciler() {
                       serviceRecords.services[0].complete &&
                       serviceRecords.services[1].complete &&
                       sameServices
+  if(!xCheckReady) serviceRecords.reconciled = false; //if the checkbox is, or becomes, unready then the reconciled state should be cleared
   return (
     <Stack sx={{padding: 2}}>
       <Stack direction='row' justifyContent='flex-end' spacing={4} sx={{paddingBottom: 2}}>
