@@ -53,6 +53,15 @@ export function useEmptyRowOK(tables_of_rows, primary) {
   }
 }
 
+export function emptyRow(coldefs) {
+  const row = {};
+  for(const coldef of coldefs) {
+    if(coldef.type === 'number') row[coldef.field] = 0;
+    else                         row[coldef.field] = null;
+  }
+  return row;
+}
+
 export function DataTable(props) {
   const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, controlCount, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
@@ -62,7 +71,7 @@ export function DataTable(props) {
     return (
       <Stack alignItems='center'>
         <Typography variant='caption'>No rows</Typography>
-        <Button variant='outlined' onClick={()=>{onChange([{[primary]: 1}])}}>Add first row</Button>
+        <Button variant='outlined' onClick={()=>{onChange([{...emptyRow(columns), [primary]: 1}])}}>Add first row</Button>
       </Stack>
     );
   }
@@ -92,7 +101,7 @@ export function DataTable(props) {
             if(e[primary] >= pos) clone[primary] += 1;
             return clone;
           })
-          newRows.push({[primary]: pos});
+          newRows.push({...emptyRow(columns), [primary]: pos});
           return newRows;
         }
         insertionButtons = (<>
