@@ -107,14 +107,14 @@ export function DataTable(props) {
         insertionButtons = (<>
           <Tooltip title='Insert row above' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{finalOnChange(insert(row[primary]))}}>
+              <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='newRowAboveButton' onClick={()=>{finalOnChange(insert(row[primary]))}}>
                 <InsertAboveIcon/>
               </IconButton>
             </span>
           </Tooltip>
           <Tooltip title='Insert row below' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{finalOnChange(insert(row[primary] + 1))}}>
+              <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='newRowBelowButton' onClick={()=>{finalOnChange(insert(row[primary] + 1))}}>
                 <InsertBelowIcon/>
               </IconButton>
             </span>
