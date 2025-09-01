@@ -128,7 +128,7 @@ export default function ServiceReconciler({record}) {
         <>
           <Tooltip title={'Overwrite row in ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+              <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='overwriteOtherButton' onClick={()=>{
                 setLocked(true);
                 setTimeout(()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
@@ -146,7 +146,7 @@ export default function ServiceReconciler({record}) {
           </Tooltip>
           <Tooltip title={'Insert row into ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+              <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='insertOtherButton' onClick={()=>{
                 setLocked(true);
                 setTimeout(()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
