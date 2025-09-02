@@ -122,7 +122,7 @@ export default function ServiceReconciler() {
             <span>
               <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
-                  newTable.push(structuredClone(row));
+                  newTable.push({...structuredClone(row), [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
                   newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY])));
                   const clone = structuredClone(serviceRecords);
                   clone.services[thatTable].records = newTable;
@@ -136,7 +136,7 @@ export default function ServiceReconciler() {
             <span>
               <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
-                  newTable.push({...row, [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
+                  newTable.push({...structuredClone(row), [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
                   newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY] - 1)));
                   for(const x of newTable.slice(row[ROW_PRIMARY])) x[ROW_PRIMARY] += 1;
                   const clone = structuredClone(serviceRecords);
