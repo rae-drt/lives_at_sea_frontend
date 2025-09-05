@@ -26,3 +26,4 @@ yarn-error.log*
 /src/alt_*
 /src/index.jsx
 /public/mockServiceWorker.js
+/msw_mocks/data/

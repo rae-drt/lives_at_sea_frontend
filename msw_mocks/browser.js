@@ -1,13 +1,9 @@
 import { setupWorker } from 'msw/browser';
 import { bypass, http, HttpResponse } from 'msw';
+import { PERSON_OVERRIDES, PIECE_OVERRIDES } from './data/data';
 
 const TRACE = false;
 const PERSON_MAP = new Map();
-const PERSON_OVERRIDES = new Map();
-
-const PIECE_OVERRIDES = new Map();
-import piece_summary_5 from './piece_summary_5.js';
-PIECE_OVERRIDES.set(5, piece_summary_5);
 
 function getParam(url, param) {
   const searchParams = new URL(url).searchParams;
