@@ -585,7 +585,7 @@ export function failedMutationDialog(dialogs, mutation) {
                                       //so long as this is the last thing that we do with this mutation
                                       //operation -- which it very much should be
                     if(!ok) {
-                      dialogs.alert(error.message + JSON.stringify(variables), { title: 'Copy this text for your developer', });
+                      dialogs.alert(`${error.message} ${JSON.stringify(variables)} ${error.stack}`, { title: 'Copy this text for your developer', });
                     }
                   });
   };
