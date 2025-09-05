@@ -225,6 +225,7 @@ export function DataTable(props) {
       disableColumnSorting={positionalPrimary}
       disableColumnMenu={positionalPrimary}
       getRowHeight={()=>'auto'}
+      pageSizeOptions={[100]} //only one possibility, to simplify testing (and interface)
       sx={{
         ...sx,
         [`.${gridClasses.cell}`]: {
