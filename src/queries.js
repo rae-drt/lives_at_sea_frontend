@@ -196,9 +196,11 @@ function translateFromAPI(apiData) {
   [ appData.name.series, appData.name.piece, appData.name.item ] = appData.source[0].source_reference.split('^').slice(1,4);
 
   //services need a lot of extra translation
-  const services = [];
   if(Object.getOwnPropertyNames(apiData.service).length === 0) {
-    services.push(EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2));
+    appData.services = {
+      services: [EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2)],
+      reconciled: false,
+    };
   }
   else {
     if(apiData.service.MAIN.length === 1) {
@@ -207,13 +209,17 @@ function translateFromAPI(apiData) {
     if(apiData.service.MAIN.length !== 2) {
       throw Error(`Unexpected nunber of service history transcriptions: ${appData.services.length}`);
     }
+    const services = [];
     for(const x of apiData.service.MAIN) {
       const currentServices = translateServiceHeader(x);
       currentServices.records = translateMainRecords(x);
       services.push(currentServices);
     }
+    appData.services = {
+      reconciled: apiData.service.MAIN.every((x) => x.step === 'RECONCILE'),
+      services:   services,
+    };
   }
-  appData.services = services;
   if(Object.hasOwn(apiData.service, 'OTHER')) {
     if(apiData.service.OTHER.length !== 1) {
       throw Error('Unexpected other service length');
@@ -247,9 +253,19 @@ function translateToAPI(appData) {
   delete apiData.person.item;
 
   const service = {};
-  if(!isEqual(appData.services, [EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2)])) { //if service data empty then the above empty object is what we want
+
+  if(isEqual(appData.services.services, [EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2)])) {
+    if(appData.services.reconciled) {
+      service.services = appData.services.services;
+      for(const service of service.services) {
+        service.step = 'RECONCILE';
+      }
+    }
+    //else: transmitting the empty service object is fine for this case
+  }
+  else {
     service.MAIN = [];
-    for(const x of appData.services) {
+    for(const [index, x] of appData.services.services.entries()) {
       const currentServices = rename_properties(x, {
         md5_hash: 'md5_hash',
         userid: 'user_id',
@@ -259,8 +275,11 @@ function translateToAPI(appData) {
       });
 
       //handle status
-      if(x.reconciled) {
+      if(appData.services.reconciled) {
         currentServices.step = 'RECONCILE';
+      }
+      else {
+        currentServices.step = 'TRANSCRIBE' + (index + 1);
       }
 
       if(currentServices.rows.length === 0) {
@@ -426,7 +445,12 @@ function mainPersonMutate(queryClient, sailorType, nameId, data) {
 function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
-  newClientData.services = trimText(structuredClone(data.services));
+  newClientData.services = structuredClone(data);
+  for(const table of newClientData.services.services) {
+    for(const row of table.records) {
+      trimText(row);
+    }
+  }
   return postData('person', translateToAPI(newClientData)).then(() => {
     queryClient.invalidateQueries(key).then(() => {
       RECORDS.delete(sailorType, nameId, 'service'); //TODO: update hazards relating to this partial synchronous state update?
@@ -469,7 +493,7 @@ const mainPersonQuery = (sailorType, nameId) => ({
 const serviceRecordsQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
-  select: (x) => { return {reconciled: x.services.every((y) => y.step === 'RECONCILE'), services: x.services}},
+  select: (x) => { return x.services },
   refetchOnMount: false,
   refetchOnWindowFocus: false,
   refetchOnReconnect: false,
