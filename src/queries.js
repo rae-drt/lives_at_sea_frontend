@@ -95,18 +95,6 @@ export function rename_properties(obj, propMap, strict = true) {
   return newObj;
 }
 
-//An empty services entry, in the 'app' format.
-//In the API this is just an empty object.
-function EMPTY_APP_SERVICE(tableNo) {
-  return {
-    md5_hash: null,
-    userid: tableNo, //FIXME: This is a workaround to permit testing -- needed because XCheckReady checks for a valid userId. If we need a default userId then I guess it should be derived from login
-    step: 'TRANSCRIBE' + tableNo,
-    complete: false,
-    records: [],
-  };
-}
-
 function translateFromAPI(apiData) {
   function translateServiceHeader(x) {
     return rename_properties(x, {
@@ -196,13 +184,7 @@ function translateFromAPI(apiData) {
   [ appData.name.series, appData.name.piece, appData.name.item ] = appData.source[0].source_reference.split('^').slice(1,4);
 
   //services need a lot of extra translation
-  if(Object.getOwnPropertyNames(apiData.service).length === 0) {
-    appData.services = {
-      services: [EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2)],
-      reconciled: false,
-    };
-  }
-  else {
+  if(Object.hasOwn(apiData.service, 'MAIN')) {
     if(apiData.service.MAIN.length === 1) {
       apiData.service.MAIN.push(structuredClone(apiData.service.MAIN[0]));
     }
@@ -219,6 +201,9 @@ function translateFromAPI(apiData) {
       reconciled: apiData.service.MAIN.every((x) => x.step === 'RECONCILE'),
       services:   services,
     };
+  }
+  else {
+    throw Error('No service data');
   }
   if(Object.hasOwn(apiData.service, 'OTHER')) {
     if(apiData.service.OTHER.length !== 1) {
@@ -252,19 +237,11 @@ function translateToAPI(appData) {
   delete apiData.person.piece;
   delete apiData.person.item;
 
-  const service = {};
 
-  if(isEqual(appData.services.services, [EMPTY_APP_SERVICE(1), EMPTY_APP_SERVICE(2)])) {
-    if(appData.services.reconciled) {
-      service.services = appData.services.services;
-      for(const service of service.services) {
-        service.step = 'RECONCILE';
-      }
-    }
-    //else: transmitting the empty service object is fine for this case
-  }
-  else {
-    service.MAIN = [];
+  if(appData.services) {
+    apiData.service = {
+      MAIN: [],
+    };
     for(const [index, x] of appData.services.services.entries()) {
       const currentServices = rename_properties(x, {
         md5_hash: 'md5_hash',
@@ -303,10 +280,12 @@ function translateToAPI(appData) {
           }));
         }
       }
-      service.MAIN.push(currentServices);
+      apiData.service.MAIN.push(currentServices);
     }
   }
-  apiData.service = service;
+  else {
+    throw Error('No service data');
+  }
   if(appData.service_other) {
     apiData.service.OTHER = [appData.service_other_header]; //not used by app, wasn't translated
     apiData.service.OTHER[0].rows = [];
