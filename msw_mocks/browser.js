@@ -4,6 +4,7 @@ import { PERSON_OVERRIDES, PIECE_OVERRIDES } from './data/data';
 
 const TRACE = false;
 const PERSON_MAP = new Map();
+const PIECE_MAP = new Map();
 
 function getParam(url, param) {
   const searchParams = new URL(url).searchParams;
@@ -58,12 +59,30 @@ export const handlers = [
     PERSON_MAP.set(data.person.person_id, data);
     return HttpResponse.text('Hello, Lambda');
   }),
+  http.get(import.meta.env.VITE_API_ROOT + 'status/piece_summary/last_piecesummary', async ({request}) => {
+    const pid = getNumericParam(request.url, 'piece_number');
+    if(TRACE) console.log('GET /status/piece_summary/last_piecesummary', pid);
+    if(pid === null) return HttpResponse.json({message: 'Internal server error'}, {status: 502});
+    if(PIECE_MAP.has(pid)) return HttpResponse.json(PIECE_MAP.get(pid));
+    else return HttpResponse.text('Not found', {status: 404});
+  }),
   http.get(import.meta.env.VITE_API_ROOT + 'status/piece_summary', async ({request}) => {
     if(TRACE) console.log('GET /status/piece_summary');
     const pieceNo = getNumericParam(request.url, 'piece_number');
     if(pieceNo === null) return HttpResponse.json({message: 'Internal server error'}, {status: 502});
     if(PIECE_OVERRIDES.has(pieceNo)) return HttpResponse.json(PIECE_OVERRIDES.get(pieceNo));
-    else                             return await fetch(bypass(request));
+
+    //no local override, pass through to server. Try last_piecesummary first.
+    const response = await fetch(bypass(import.meta.env.VITE_API_ROOT + 'status/piece_summary/last_piecesummary?' + new URL(request.url).searchParams.toString()));
+    if(response.status === 404) return fetch(bypass(request)); //pass to real server's 'piece_summary'
+    else                        return response; //pass or fail, return what real server's 'last_piecesummary' gave us
+  }),
+  http.post(import.meta.env.VITE_API_ROOT + 'status/piece_summary/last_piecesummary', async ({request}) => {
+    const pid = getNumericParam(request.url, 'piece_number');
+    if(TRACE) console.log('POST /status/piece_summary/last_piecesummary', pid);
+    const data = await request.json();
+    PIECE_MAP.set(pid, data);
+    return HttpResponse.text('Hello, Lambda');
   }),
 ];
 

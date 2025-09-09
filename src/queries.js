@@ -392,7 +392,24 @@ function mainPersonQF({queryKey}) {
 
 function pieceQF({queryKey}) {
   const [, piece] = queryKey;
-  return fetchData('status/piece_summary?piece_number=' + piece);
+  return new Promise((resolve, reject) => {
+    fetchData('status/piece_summary/last_piecesummary?piece_number=' + piece).then(
+    (bucketData) => {
+      console.log(`Retried piece summary ${piece} from bucket`);
+      resolve(bucketData); //if it worked, just return the JSON
+    },
+    (err) => {
+      if(err.cause.status === 404) { //failed last_piecesummary lookup, try the database
+        resolve(fetchData('status/piece_summary?piece_number=' + piece).then((dbData) => {
+          console.log(`Retrieved piece summary ${piece} from database`);
+          return dbData;
+        }));
+      }
+      else {
+        reject(err);
+      }
+    }
+  )});
 }
 
 function piecesQF() {
@@ -412,6 +429,32 @@ function trimText(data) {
   return data;
 }
 
+//TODO: Temporary hack: dump current state to bucket and force re-fetch
+async function updatePieceBucket(queryClient, sailorType, nameId) {
+  const mainData = queryClient.getQueryData(['mainPersonData', { sailorType: sailorType, nameId: Number(nameId)}]);
+  const qKey = pieceQuery('' + mainData.name.piece).queryKey;
+  const pieceData = queryClient.getQueryData(qKey) ?
+                    structuredClone(queryClient.getQueryData(qKey)) :
+                    structuredClone(await queryClient.fetchQuery(pieceQuery('' + mainData.name.piece)));
+  let found = false;
+  for(const record of pieceData.records) {
+    if(Number(record.gen_item) === Number(mainData.name.item)) {
+      record.complete1  = mainData.services.services[0].complete;
+      record.complete2  = mainData.services.services[1].complete;
+      record.tr1        = mainData.services.services[0].userid;
+      record.tr2        = mainData.services.services[1].userid;
+      record.reconciled = mainData.services.reconciled;
+      record.notww1     = mainData.name.notww1;
+      found = true;
+      break;
+    }
+  }
+  if(!found) throw new Error("No matching record found"); //should not happen
+  return postData(`status/piece_summary/last_piecesummary?piece_number=${mainData.name.piece}`, pieceData).then(()=>{
+    return queryClient.invalidateQueries({queryKey: qKey});
+  });
+}
+
 function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
@@ -419,7 +462,9 @@ function mainPersonMutate(queryClient, sailorType, nameId, data) {
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'name'); //TODO: update hazards relating to this partial synchronous state update?
-    return queryClient.invalidateQueries({queryKey: key});
+    return queryClient.invalidateQueries({queryKey: key}).then(() => {
+      return updatePieceBucket(queryClient, sailorType, nameId); //TODO: This last bit is a temporary hack: send the new piece status to a bucket
+    });
   });
 }
 
@@ -435,7 +480,9 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'service'); //TODO: update hazards relating to this partial synchronous state update?
-    return queryClient.invalidateQueries({queryKey: key});
+    return queryClient.invalidateQueries({queryKey: key}).then(() => {
+      return updatePieceBucket(queryClient, sailorType, nameId); //TODO: This last bit is a temporary hack: send the new piece status to a bucket
+    });
   });
 }
 
