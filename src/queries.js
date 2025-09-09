@@ -54,6 +54,7 @@ function fetchData(params) {
 }
 
 function postData(params, body) {
+console.log('posting', params)
   const api = import.meta.env.VITE_API_ROOT + params;
   return new Promise((resolve, reject) => {
     const fetchData = async() => {
@@ -69,11 +70,13 @@ function postData(params, body) {
         body: JSON.stringify(body),
       });
       if(!response.ok) {
+console.log('post failed');
         let msg = '' + response.status;
         if(response.statusText) msg += `: ${response.statusText}`;
         reject(new Error(msg, { cause: response }));
       }
       else {
+console.log('posted ok');
         resolve(response);
       }
     }
@@ -390,7 +393,24 @@ function mainPersonQF({queryKey}) {
 
 function pieceQF({queryKey}) {
   const [, piece] = queryKey;
-  return fetchData('status/piece_summary?piece_number=' + piece);
+  return new Promise((resolve, reject) => {
+    fetchData('status/piece_summary/last_piece?piece_number=' + piece).then(
+    (bucketData) => {
+      console.log(`Retried piece summary ${piece} from bucket`);
+      resolve(bucketData); //if it worked, just return the JSON
+    },
+    (err) => {
+      if(err.cause.status === 403) { //failed last_piece lookup, try the database
+        resolve(fetchData('status/piece_summary?piece_number=' + piece).then((dbData) => {
+          console.log(`Retrieved piece summary ${piece} from database`);
+          return dbData;
+        }));
+      }
+      else {
+        reject(err);
+      }
+    }
+  )});
 }
 
 function piecesQF() {
@@ -410,6 +430,33 @@ function trimText(data) {
   return data;
 }
 
+//TODO: Temporary hack: mutate the cache for the new status. Will not be needed when we can write back.
+async function updatePieceCache(queryClient, sailorType, nameId) {
+  const nNameId = Number(nameId);
+  const mainData = queryClient.getQueryData(['mainPersonData', { sailorType: sailorType, nameId: nNameId}]);
+  const piece = mainData.name.piece;
+  const qKey = pieceQuery('' + mainData.name.piece).queryKey;
+  const pieceData = queryClient.getQueryData(qKey) ?
+                    structuredClone(queryClient.getQueryData(qKey)) :
+                    structuredClone(await queryClient.fetchQuery(pieceQuery('' + mainData.name.piece)));
+  let found = false;
+  for(const record of pieceData.records) {
+    if(record.officialnumber === mainData.name.officialnumber) { //TODO: work out what the key really should be
+console.log(mainData.services.services[0]);
+      record.complete1  = mainData.services.services[0].complete,
+      record.complete2  = mainData.services.services[1].complete,
+      record.tr1        = mainData.services.services[0].userid,
+      record.tr2        = mainData.services.services[1].userid,
+      record.reconciled = mainData.services.reconciled,
+      record.notww1     = mainData.name.notww1,
+      found = true;
+      break;
+    }
+  }
+  if(!found) throw new Error(); //should not happen
+  return postData(`status/piece_summary/last_piece?piece_number=${piece}`, pieceData);
+}
+
 function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
@@ -417,6 +464,10 @@ function mainPersonMutate(queryClient, sailorType, nameId, data) {
   return postData('person', translateToAPI(newClientData)).then(() => {
     queryClient.invalidateQueries(key).then(() => {
       RECORDS.delete(sailorType, nameId, 'name'); //TODO: update hazards relating to this partial synchronous state update?
+    });
+  }).then(() => {//TODO: This last bit is a temporary hack: send the new piece status to a bucket
+    updatePieceCache(queryClient, sailorType, nameId).then(() => {
+      return queryClient.invalidateQueries(pieceQuery('' + newClientData.name.piece).queryKey);
     });
   });
 }
