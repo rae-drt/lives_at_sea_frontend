@@ -419,7 +419,7 @@ function mainPersonMutate(queryClient, sailorType, nameId, data) {
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'name'); //TODO: update hazards relating to this partial synchronous state update?
-    return queryClient.invalidateQueries(key);
+    return queryClient.invalidateQueries({queryKey: key});
   });
 }
 
@@ -435,7 +435,7 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'service'); //TODO: update hazards relating to this partial synchronous state update?
-    return queryClient.invalidateQueries(key);
+    return queryClient.invalidateQueries({queryKey: key});
   });
 }
 
@@ -446,7 +446,7 @@ function otherDataMutate(queryClient, sailorType, nameId, data) {
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'data_other'); //TODO: update hazards relating to this partial synchronous state update?
-    return queryClient.invalidateQueries(key);
+    return queryClient.invalidateQueries({queryKey: key});
   });
 }
 
@@ -457,7 +457,7 @@ function otherServicesMutate(queryClient, sailorType, nameId, data) {
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'service_other'); //TODO: update hazards relating to this partial synchronous state update?
-    return queryClient.invalidateQueries(key);
+    return queryClient.invalidateQueries({queryKey: key});
   });
 }
 
@@ -465,9 +465,6 @@ const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
   select: (x) => x.name,
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
-  refetchOnReconnect: false,
   staleTime: Infinity,
 });
 
@@ -475,9 +472,6 @@ const serviceRecordsQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
   select: (x) => { return x.services },
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
-  refetchOnReconnect: false,
   staleTime: Infinity,
 });
 
@@ -485,9 +479,6 @@ const otherServicesQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
   select: (x) => ( x.service_other ),
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
-  refetchOnReconnect: false,
   staleTime: Infinity,
 });
 
@@ -495,27 +486,18 @@ const otherDataQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
   select: (x) => ( x.other_data ),
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
-  refetchOnReconnect: false,
   staleTime: Infinity
 });
 
 export const pieceQuery = (piece) => ({
   queryKey: ['piece', piece],
   queryFn: pieceQF,
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
-  refetchOnReconnect: false,
   staleTime: Infinity
 });
 
 export const piecesQuery = {
   queryKey: ['pieces', 188],
   queryFn: piecesQF,
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
-  refetchOnReconnect: false,
   staleTime: Infinity
 };
 
@@ -540,9 +522,6 @@ function simpleTableQueryFn({queryKey}) {
 export const simpleTableQuery = (table) => ({
     queryKey: ['simpleEditor', table],
     queryFn: simpleTableQueryFn,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
     staleTime: Infinity,
 });
 
