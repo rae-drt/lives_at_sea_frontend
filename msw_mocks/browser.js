@@ -67,10 +67,10 @@ export const handlers = [
     else return HttpResponse.text('Not found', {status: 404});
   }),
   http.get(import.meta.env.VITE_API_ROOT + 'status/piece_summary', async ({request}) => {
-    if(TRACE) console.log('GET /status/piece_summary');
-    const pieceNo = getNumericParam(request.url, 'piece_number');
-    if(pieceNo === null) return HttpResponse.json({message: 'Internal server error'}, {status: 502});
-    if(PIECE_OVERRIDES.has(pieceNo)) return HttpResponse.json(PIECE_OVERRIDES.get(pieceNo));
+    const pid = getNumericParam(request.url, 'piece_number');
+    if(TRACE) console.log('GET /status/piece_summary', pid);
+    if(pid === null) return HttpResponse.json({message: 'Internal server error'}, {status: 502});
+    if(PIECE_OVERRIDES.has(pid)) return HttpResponse.json(PIECE_OVERRIDES.get(pid));
 
     //no local override, pass through to server. Try last_piecesummary first.
     const response = await fetch(bypass(import.meta.env.VITE_API_ROOT + 'status/piece_summary/last_piecesummary?' + new URL(request.url).searchParams.toString()));
