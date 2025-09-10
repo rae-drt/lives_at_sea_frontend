@@ -22,6 +22,9 @@ function getNumericParam(url, param) {
 }
  
 export const handlers = [
+  http.get('/favicon.ico', ({request}) => {
+    return fetch(bypass(request));
+  }),
   http.get(import.meta.env.VITE_API_ROOT + 'person/lastpost', ({request}) => { //emulate real server by returning from map if there
     const pid = getNumericParam(request.url, 'personid');
     if(TRACE) console.log('GET /person/lastpost', pid);
