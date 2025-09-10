@@ -352,12 +352,14 @@ function mainPersonQF({queryKey}) {
         fetchData('person/lastpost?personid=' + nameId).then(
           (bucketData) => {
             console.log(`Retrieved personid ${nameId} from bucket`);
+            if(bucketData.person.person_id !== Number(nameId)) throw new Error('Person id mismatch');
             resolve(bucketData); //if it worked, just return the JSON
           },
           (err) => {
             if(err.cause.status === 404) { //failed lastpost lookup, try the database
               resolve(fetchData('person?personid=' + nameId).then((dbData) => {
                 console.log(`Retrieved personid ${nameId} from database`);
+                if(dbData.person.person_id !== Number(nameId)) throw new Error('Person id mismatch');
                 return dbData;
               }));
             }
