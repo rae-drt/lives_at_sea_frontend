@@ -410,13 +410,13 @@ function pieceQF({queryKey}) {
   return new Promise((resolve, reject) => {
     fetchData('status/piece_summary/last_piecesummary?piece_number=' + piece).then(
     (bucketData) => {
-      console.log(`Retrieved piece summary ${piece} from bucket`);
+      import.meta.env.MODE !== 'test' && console.log(`Retrieved piece summary ${piece} from bucket`);
       resolve(bucketData); //if it worked, just return the JSON
     },
     (err) => {
       if(err.cause.status === 404) { //failed last_piecesummary lookup, try the database
         resolve(fetchData('status/piece_summary?piece_number=' + piece).then((dbData) => {
-          console.log(`Retrieved piece summary ${piece} from database`);
+          import.meta.env.MODE !== 'test' && console.log(`Retrieved piece summary ${piece} from database`);
           return dbData;
         }));
       }
