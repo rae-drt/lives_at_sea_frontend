@@ -191,17 +191,62 @@ export default function ServiceReconciler() {
       />
     );
   }
+
+  if(serviceRecords.services.length === 1) {
+    return (
+      <Stack sx={{padding: 2}}>
+        <Stack direction='row' justifyContent='flex-end' spacing={4} sx={{paddingBottom: 2}}>
+          <XCheck ready={serviceRecords.services[0].complete} checked={serviceRecords.reconciled} onChange={() => {
+            const clone = structuredClone(serviceRecords);
+            clone.reconciled = !(serviceRecords.reconciled);
+            setServiceRecords(clone);
+          }}/>
+          <Button variant='outlined'
+                  disabled={(!searchParams.get('devMode')) && (!serviceRecords.services[0].complete) || (!dirty)}
+                  onClick={
+                    async ()=>{
+                      (await emptyOK()) && serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
+                        onError: failedMutationDialog(dialogs, serviceRecordsMutation),
+                      });
+                    }
+                  }
+           >Enter</Button>
+        </Stack>
+        <Stack direction='row' sx={{justifyContent: 'space-between', alignItems: 'space-between'}} spacing={2}>
+          <ServiceTable
+            transcriber={serviceRecords.services[0].userid}
+            complete={serviceRecords.services[0].complete}
+            reconciled={serviceRecords.reconciled}
+            primary={ROW_PRIMARY}
+            flipComplete={()=>{
+              const clone = structuredClone(serviceRecords);
+              clone.services[0].complete = !clone.services[0].complete;
+              setServiceRecords(clone);
+            }}
+            data={serviceRecords.services[0].records}
+            onChange={(d)=>{
+              const clone = structuredClone(serviceRecords);
+              clone.services[0].records = structuredClone(d);
+              setServiceRecords(clone);
+            }}
+            difference={null}
+          />
+        </Stack>
+      </Stack>
+    );
+  }
+
     //TODO: Assuming that we get an empty array when there are no service records, and hence can check for length == 0
   const differenceMap = (serviceRecords.services.length === 0 || isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records)) ?
     null : //null if the services are identical. If there is any difference, the array will be the same length as the shorter services table (potentially empty, making _all_ rows in the longer table "different").
            //TODO it may well be that if one table is empty, the API just doesn't return anything at all for it -- if so, I can make that work for me by passing an empty array in place of the missing entry
     getDifferenceMap(serviceRecords.services[0].records, serviceRecords.services[1].records);
-  const sameServices = serviceRecords.length === 0 ? true : isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records);
+  const sameServices = (serviceRecords.length === 0 || serviceRecords.length === 1) ? true : isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records);
   const xCheckReady = serviceRecords.services[0].userid > 0 &&
                       serviceRecords.services[1].userid > 0 &&
                       serviceRecords.services[0].complete &&
                       serviceRecords.services[1].complete &&
-                      sameServices
+                      sameServices;
   if(!xCheckReady) serviceRecords.reconciled = false; //if the checkbox is, or becomes, unready then the reconciled state should be cleared
   return (
     <Stack sx={{padding: 2}}>

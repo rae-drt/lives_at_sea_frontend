@@ -185,10 +185,7 @@ function translateFromAPI(apiData) {
 
   //services need a lot of extra translation
   if(Object.hasOwn(apiData.service, 'MAIN')) {
-    if(apiData.service.MAIN.length === 1) {
-      apiData.service.MAIN.push(structuredClone(apiData.service.MAIN[0]));
-    }
-    if(apiData.service.MAIN.length !== 2) {
+    if(apiData.service.MAIN.length !== 1 && apiData.service.MAIN.length !== 2) {
       throw Error(`Unexpected nunber of service history transcriptions: ${appData.services.length}`);
     }
     const services = [];
@@ -237,51 +234,49 @@ function translateToAPI(appData) {
   delete apiData.person.piece;
   delete apiData.person.item;
 
-
+  //if we are able to write the services then they must be the same, so we only write the first table
   if(appData.services) {
     apiData.service = {
       MAIN: [],
     };
-    for(const [index, x] of appData.services.services.entries()) {
-      const currentServices = rename_properties(x, {
-        md5_hash: 'md5_hash',
-        userid: 'user_id',
-        step: 'step',
-        complete: 'complete',
-        records: 'rows',
-      });
+    const app_services = appData.services.services[0];
+    const currentServices = rename_properties(app_services, {
+      md5_hash: 'md5_hash',
+      userid: 'user_id',
+      step: 'step',
+      complete: 'complete',
+      records: 'rows',
+    });
 
-      //handle status
-      if(appData.services.reconciled) {
-        currentServices.step = 'RECONCILE';
-      }
-      else {
-        currentServices.step = 'TRANSCRIBE' + (index + 1);
-      }
-
-      if(currentServices.rows.length === 0) {
-        currentServices.rows = null;
-      }
-      else {
-        currentServices.rows = [];
-        for(const y of x.records) {
-          currentServices.rows.push(rename_properties(y, {
-            rowid: 'row_number',
-            ship: 'ship',
-            rating: 'rating',
-            officer: 'officer',
-            fromday: 'fromday',
-            frommonth: 'frommonth',
-            fromyear: 'fromyear',
-            today: 'today',
-            tomonth: 'tomonth',
-            toyear: 'toyear',
-            source_id: 'source_id',
-          }));
-        }
-      }
-      apiData.service.MAIN.push(currentServices);
+    //handle status
+    if(appData.services.reconciled) {
+      currentServices.step = 'RECONCILE';
     }
+    else {
+      currentServices.step = 'TRANSCRIBE1';
+    }
+    if(currentServices.rows.length === 0) {
+      currentServices.rows = null;
+    }
+    else {
+      currentServices.rows = [];
+      for(const y of app_services.records) {
+        currentServices.rows.push(rename_properties(y, {
+          rowid: 'row_number',
+          ship: 'ship',
+          rating: 'rating',
+          officer: 'officer',
+          fromday: 'fromday',
+          frommonth: 'frommonth',
+          fromyear: 'fromyear',
+          today: 'today',
+          tomonth: 'tomonth',
+          toyear: 'toyear',
+          source_id: 'source_id',
+        }));
+      }
+    }
+    apiData.service.MAIN.push(currentServices);
   }
   else {
     throw Error('No service data');
@@ -436,12 +431,19 @@ async function updatePieceBucket(queryClient, mainData) {
   let found = false;
   for(const record of pieceData.records) {
     if(Number(record.gen_item) === Number(mainData.name.item)) {
-      record.complete1  = mainData.services.services[0].complete;
-      record.complete2  = mainData.services.services[1].complete;
-      record.tr1        = mainData.services.services[0].userid;
-      record.tr2        = mainData.services.services[1].userid;
+      const tables = mainData.services.services;
+      record.complete1  = tables[0].complete;
+      record.tr1        = tables[0].userid;
       record.reconciled = mainData.services.reconciled;
       record.notww1     = mainData.name.notww1;
+      if(tables.length === 1) {
+        record.complete2 = record.complete1;
+        record.tr2       = record.tr1;
+      }
+      else {
+        record.complete2  = tables[1].complete;
+        record.tr2        = tables[1].userid;
+      }
       found = true;
       break;
     }
