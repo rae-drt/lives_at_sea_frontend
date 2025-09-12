@@ -430,12 +430,9 @@ function trimText(data) {
 }
 
 //TODO: Temporary hack: dump current state to bucket and force re-fetch
-async function updatePieceBucket(queryClient, sailorType, nameId) {
-  const mainData = queryClient.getQueryData(['mainPersonData', { sailorType: sailorType, nameId: Number(nameId)}]);
-  const qKey = pieceQuery('' + mainData.name.piece).queryKey;
-  const pieceData = queryClient.getQueryData(qKey) ?
-                    structuredClone(queryClient.getQueryData(qKey)) :
-                    structuredClone(await queryClient.fetchQuery(pieceQuery('' + mainData.name.piece)));
+async function updatePieceBucket(queryClient, mainData) {
+  const queryOpts = pieceQuery('' + mainData.name.piece);
+  const pieceData = structuredClone(await queryClient.ensureQueryData(queryOpts));
   let found = false;
   for(const record of pieceData.records) {
     if(Number(record.gen_item) === Number(mainData.name.item)) {
@@ -449,11 +446,23 @@ async function updatePieceBucket(queryClient, sailorType, nameId) {
       break;
     }
   }
-  if(!found) throw new Error("No matching record found"); //should not happen
-  return postData(`status/piece_summary/last_piecesummary?piece_number=${mainData.name.piece}`, pieceData).then(()=>{
-    return queryClient.invalidateQueries({queryKey: qKey});
+  if(found) {
+    return postData(`status/piece_summary/last_piecesummary?piece_number=${mainData.name.piece}`, pieceData).then(()=>{
+      return queryClient.invalidateQueries({queryKey: queryOpts.queryKey});
+    });
+  }
+  else {
+    console.warn(`No matching piece state found for person with item ${mainData.name.item} in piece ${mainData.name.piece}`);
+  }
+}
+export function initPieceBucket(queryClient) {
+  queryClient.getQueryCache().subscribe((e) => {
+    if(e.type === 'updated' && e.action.type === 'success' && e.query.queryKey[0] === 'mainPersonData') {
+      updatePieceBucket(queryClient, e.query.state.data);
+    }
   });
 }
+//END TEMPORARY HACK
 
 function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
@@ -462,9 +471,7 @@ function mainPersonMutate(queryClient, sailorType, nameId, data) {
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'name'); //TODO: update hazards relating to this partial synchronous state update?
-    return queryClient.invalidateQueries({queryKey: key}).then(() => {
-      return updatePieceBucket(queryClient, sailorType, nameId); //TODO: This last bit is a temporary hack: send the new piece status to a bucket
-    });
+    return queryClient.invalidateQueries({queryKey: key});
   });
 }
 
@@ -480,9 +487,7 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'service'); //TODO: update hazards relating to this partial synchronous state update?
-    return queryClient.invalidateQueries({queryKey: key}).then(() => {
-      return updatePieceBucket(queryClient, sailorType, nameId); //TODO: This last bit is a temporary hack: send the new piece status to a bucket
-    });
+    return queryClient.invalidateQueries({queryKey: key});
   });
 }
 

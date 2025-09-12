@@ -10,6 +10,7 @@ import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimen
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Stack } from '@mui/material';
 import { DialogsProvider } from '@toolpad/core/useDialogs';
+import { initPieceBucket } from './queries.js';
 
 const queryClientOptions = import.meta.env.VITE_PERSIST_CACHE ?
   {
@@ -24,6 +25,7 @@ const queryClientOptions = import.meta.env.VITE_PERSIST_CACHE ?
 ;
 
 const queryClient = new QueryClient(queryClientOptions);
+initPieceBucket(queryClient);
 
 if(import.meta.env.VITE_BROADCAST_CACHE) {
   console.log("Enabled cache state broadcast (changes made in one tab will be broadcast to others)");
