@@ -454,7 +454,7 @@ async function updatePieceBucket(queryClient, mainData) {
     });
   }
   else {
-    console.warn(`No matching piece state found for person with item ${mainData.name.item} in piece ${mainData.name.piece}`);
+    import.meta.env.MODE !== 'test' && console.warn(`No matching piece state found for person with item ${mainData.name.item} in piece ${mainData.name.piece}`);
   }
 }
 export function initPieceBucket(queryClient) {
