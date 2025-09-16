@@ -94,7 +94,7 @@ function get_datevalidator(map) {
   };
 }
 
-export function trimText(data, types) {
+export function normalize(data, types) {
   for(const field of Object.getOwnPropertyNames(data)) {
     if(data[field] !== null && types[field] === 'text') {
       data[field] = data[field].trim();

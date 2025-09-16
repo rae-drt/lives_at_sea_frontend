@@ -2,7 +2,7 @@ import { useBlocker, matchRoutes } from 'react-router';
 import { useRecord } from './queries';
 import { createContext } from 'react';
 import { isEqual } from 'lodash';
-import { trimText, PERSON_FIELD_TYPES } from './data_utils';
+import { normalize, PERSON_FIELD_TYPES } from './data_utils';
 
 class Dirty {
   any() {
@@ -38,7 +38,7 @@ export function useDirtySailor(sailorType, nameId) {
         clonedNameRecord[field] = 0;
       }
     }
-    trimText(clonedNameRecord, PERSON_FIELD_TYPES);
+    normalize(clonedNameRecord, PERSON_FIELD_TYPES);
   }
 
   return new DirtySailor(

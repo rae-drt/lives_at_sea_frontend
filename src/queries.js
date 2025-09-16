@@ -1,5 +1,5 @@
 import { createStore, useStore } from 'zustand';
-import { init_data, status_encode, trimText, PERSON_FIELD_TYPES } from './data_utils';
+import { init_data, status_encode, normalize, PERSON_FIELD_TYPES } from './data_utils';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
 import { fetchAuthSession } from 'aws-amplify/auth';
@@ -460,7 +460,7 @@ export function initPieceBucket(queryClient) {
 function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
-  newClientData.name = trimText(structuredClone(data), PERSON_FIELD_TYPES);
+  newClientData.name = normalize(structuredClone(data), PERSON_FIELD_TYPES);
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'name'); //TODO: update hazards relating to this partial synchronous state update?
@@ -474,7 +474,7 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   newClientData.services = structuredClone(data);
   for(const table of newClientData.services.services) {
     for(const row of table.records) {
-      trimText(row);
+      normalize(row);
     }
   }
   return postData('person', translateToAPI(newClientData)).then(() => {
@@ -487,7 +487,7 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
 function otherDataMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
-  newClientData.other_data = trimText(structuredClone(data));
+  newClientData.other_data = normalize(structuredClone(data));
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'data_other'); //TODO: update hazards relating to this partial synchronous state update?
@@ -498,7 +498,7 @@ function otherDataMutate(queryClient, sailorType, nameId, data) {
 function otherServicesMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
-  newClientData.service_other = trimText(structuredClone(data));
+  newClientData.service_other = normalize(structuredClone(data));
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'service_other'); //TODO: update hazards relating to this partial synchronous state update?
