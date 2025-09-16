@@ -2,8 +2,8 @@ import { setupWorker } from 'msw/browser';
 import { bypass, http, HttpResponse } from 'msw';
 import { PERSON_OVERRIDES, PIECE_OVERRIDES } from './data/data';
 
-const TRACE = false;
-const DUMP = false;
+const TRACE = import.meta.env.VITE_MOCK_TRACE;
+const DUMP  = import.meta.env.VITE_MOCK_DUMP;
 const PERSON_MAP = new Map();
 const PIECE_MAP = new Map();
 
