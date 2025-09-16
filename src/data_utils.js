@@ -34,7 +34,7 @@ export const OFFICER_FIELDS = [
 ];
 
 //HTML5 field types
-export const FIELD_TYPES = {
+export const PERSON_FIELD_TYPES = {
     forename:        'text',
     surname:         'text',
     officialnumber:  'text', //can have a letter prefix
@@ -51,7 +51,7 @@ export const FIELD_TYPES = {
 };
 
 //These validators assume correct type
-export const FIELD_VALIDATORS = {
+export const PERSON_FIELD_VALIDATORS = {
     forename:        (x) => true,
     surname:         (x) => true,
     officialnumber:  (x) => x.match(/^[A-Z]?\d+$/),

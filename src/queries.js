@@ -1,5 +1,5 @@
 import { createStore, useStore } from 'zustand';
-import { init_data, status_encode, FIELD_TYPES } from './data_utils';
+import { init_data, status_encode, PERSON_FIELD_TYPES } from './data_utils';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
 import { fetchAuthSession } from 'aws-amplify/auth';
@@ -417,7 +417,7 @@ function piecesQF() {
 
 function trimText(data) {
   for(const field of Object.getOwnPropertyNames(data)) {
-    if(data[field] !== null && FIELD_TYPES[field] === 'text') {
+    if(data[field] !== null && PERSON_FIELD_TYPES[field] === 'text') {
       data[field] = data[field].trim();
       if(data[field] === "") {
         data[field] = null;

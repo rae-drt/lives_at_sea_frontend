@@ -9,11 +9,11 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { FIELD_TYPES, FIELD_VALIDATORS } from './data_utils';
+import { PERSON_FIELD_TYPES, PERSON_FIELD_VALIDATORS } from './data_utils';
 
 function PersonTableField({data, onChange, field, error}) {
   const loading = useContext(LoadingContext);
-  const fieldType = FIELD_TYPES[field];
+  const fieldType = PERSON_FIELD_TYPES[field];
   const fieldValue = (field in data && data[field] !== null) ? data[field] : '';
   function hasError() {
     if(error) return true;
@@ -31,7 +31,7 @@ function PersonTableField({data, onChange, field, error}) {
     else {
       throw new Error(`Field "${field}" has unknown type "${fieldType}"`);
     }
-    return !(FIELD_VALIDATORS[field](fieldValue));
+    return !(PERSON_FIELD_VALIDATORS[field](fieldValue));
   }
 
   return (

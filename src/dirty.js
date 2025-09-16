@@ -2,7 +2,7 @@ import { useBlocker, matchRoutes } from 'react-router';
 import { useRecord } from './queries';
 import { createContext } from 'react';
 import { isEqual } from 'lodash';
-import { FIELD_TYPES } from './data_utils';
+import { PERSON_FIELD_TYPES } from './data_utils';
 
 class Dirty {
   any() {
@@ -34,10 +34,10 @@ export function useDirtySailor(sailorType, nameId) {
   const clonedNameRecord = structuredClone(nameRecord);
   if(clonedNameRecord) {
     for(const field of Object.getOwnPropertyNames(clonedNameRecord)) {
-      if(clonedNameRecord[field] === '' && FIELD_TYPES[field] === 'number') {
+      if(clonedNameRecord[field] === '' && PERSON_FIELD_TYPES[field] === 'number') {
         clonedNameRecord[field] = 0;
       }
-      if(FIELD_TYPES[field] === 'text') {
+      if(PERSON_FIELD_TYPES[field] === 'text') { //TODO
         if(clonedNameRecord[field]) {
           clonedNameRecord[field] = clonedNameRecord[field].trim();
           if(clonedNameRecord[field] === "") {
