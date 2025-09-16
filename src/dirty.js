@@ -29,15 +29,8 @@ export function useDirtySailor(sailorType, nameId) {
   const {data: otherServicesRecord, queryData: otherServicesQuery } = useRecord(sailorType, nameId, 'service_other');
   const {data: otherDataRecord, queryData: otherDataQuery} = useRecord(sailorType, nameId, 'data_other');
 
-  //TODO: Nasty hack to deal with blank and zero being equivalent. There must be a better
-  //      way that does not involve special handling in this component.
   const clonedNameRecord = structuredClone(nameRecord);
   if(clonedNameRecord) {
-    for(const field of Object.getOwnPropertyNames(clonedNameRecord)) { //handle number fields that are temporarily empty due to user edit
-      if(clonedNameRecord[field] === '' && PERSON_FIELD_TYPES[field] === 'number') {
-        clonedNameRecord[field] = 0;
-      }
-    }
     normalize(clonedNameRecord, PERSON_FIELD_TYPES);
   }
 

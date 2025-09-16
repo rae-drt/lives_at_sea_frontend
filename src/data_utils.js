@@ -102,6 +102,10 @@ export function normalize(data, types) {
         data[field] = null;
       }
     }
+    else if(types[field] === 'number') {
+      if(data[field] === null) data[field] = 0;
+      else if(typeof data[field] !== 'number') data[field] = 0;
+    }
   }
   return data;
 }
