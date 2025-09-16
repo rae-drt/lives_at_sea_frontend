@@ -147,34 +147,23 @@ export default function ServiceTable({transcriber, complete, reconciled, cloneBu
             primary={primary}
             positionalPrimary
             extraRowControls={extraRowControls}
-            getCellClassName={(p) => {
-              if(p.field === primary || p.field === 'row_controls') { //these two fields do not need decoration
+            getCellClassName={({field, id, value, row}) => {
+              if(field === primary || field === 'row_controls') { //these two fields do not need decoration
                 return;
               }
-              let differs = false;
-              if (difference !== null) {
-                if(p.id > difference.length) {
-                  differs = true;
-                }
-                else if(p.field in difference[p.id - 1]) {
-                  differs = true;
-                }
-              }
+              const differs = (difference !== null) && (id > difference.length || field in difference[id - 1]);
 
-              if(!(SERVICE_FIELD_VALIDATORS[p.field](p.value))) {
-                if(differs) return 'errdiffers';
-                else        return 'error';
-              }
-              for(const date of [['fromday', 'frommonth', 'fromyear'],
-                                 [  'today',   'tomonth',   'toyear']]) {
-                if(date.includes(p.field)) {
-                  const bad = get_datevalidator({day: date[0], month: date[1], year: date[2]})(p.row);
-                  if(bad.includes(p.field)) {
-                    if(differs) return 'errdiffers';
-                    else        return 'error';
+              let errs = !(SERVICE_FIELD_VALIDATORS[field](value));
+              if(!errs) {
+                for(const date of [['fromday', 'frommonth', 'fromyear'], ['today', 'tomonth', 'toyear']]) {
+                  if(date.includes(field)) {
+                    errs = (get_datevalidator({day: date[0], month: date[1], year: date[2]})(row)).includes(field);
                   }
                 }
               }
+              if(differs && errs) return 'errdiffers';
+              else if(differs)    return    'differs';
+              else if(errs)       return 'error';
             }}
             sx={{
               [`& .${gridClasses.cell}.differs`]: style.differentCell,
