@@ -28,6 +28,22 @@ const columnGroupingModel = [
   },
 ]
 
+function impossibleServiceDates({fromday, frommonth, fromyear, tomonth, today, toyear}) {
+  if(toyear === 0 || fromyear === 0 || toyear === null || fromyear === null) return false; //if we do not know one of the years, we cannot know if "to" is earlier than "from"
+  if(toyear > fromyear) return false;
+  if(toyear < fromyear) return true;
+
+  //years are both known and equal, try months
+  if(tomonth === 0 || frommonth === 0 || toyear === null || fromyear === null) return false; //if we do not know one of the months, we cannot know if "to" is earlier than "from"
+  if(tomonth > frommonth) return false;
+  if(tomonth < frommonth) return true;
+
+  //months and years are all known and all equal, try days
+  if(today === 0 || fromday === 0 || today === null || fromyear === null) return false; //if we do not know one of the days, we cannot know if "to" is earlier than "from"
+  if(today < fromday) return true;
+  return false; //today is at least as high as fromday
+}
+
 export function TranscriptionInfo({transcriber, complete, flipComplete, disabled}) {
   return (
     <Stack direction='row' spacing={4} alignItems='center'>
@@ -159,6 +175,11 @@ export default function ServiceTable({transcriber, complete, reconciled, cloneBu
                   if(date.includes(field)) {
                     errs = (get_datevalidator({day: date[0], month: date[1], year: date[2]})(row)).includes(field);
                   }
+                }
+              }
+              if(!errs) {
+                if(['fromday', 'frommonth', 'fromyear', 'today', 'tomonth', 'toyear'].includes(field)) {
+                  if(impossibleServiceDates(row)) errs = true;
                 }
               }
               if(differs && errs) return 'errdiffers';
