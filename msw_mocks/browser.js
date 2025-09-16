@@ -3,6 +3,7 @@ import { bypass, http, HttpResponse } from 'msw';
 import { PERSON_OVERRIDES, PIECE_OVERRIDES } from './data/data';
 
 const TRACE = false;
+const DUMP = false;
 const PERSON_MAP = new Map();
 const PIECE_MAP = new Map();
 
@@ -33,6 +34,7 @@ export const handlers = [
       return HttpResponse.json({message: 'Internal server error'}, {status: 502});
     }
     if(PERSON_MAP.has(pid)) {
+      if(DUMP) console.log(`Mock bucket lookup read Person ${pid}:`, PERSON_MAP.get(pid));
       return HttpResponse.json(PERSON_MAP.get(pid));
     }
     else {
@@ -45,18 +47,28 @@ export const handlers = [
     const pid = getNumericParam(request.url, 'personid');
     if(TRACE) console.log('GET /person', pid);
     if(pid === null)              return HttpResponse.json({message: 'Internal server error'}, {status: 502});
-    if(PERSON_OVERRIDES.has(pid)) return HttpResponse.json(PERSON_OVERRIDES.get(pid));
+    if(PERSON_OVERRIDES.has(pid)) {
+      if(DUMP) console.log(`Mock DB lookup read Person ${pid}:`, PERSON_OVERRIDES.get(pid));
+      return HttpResponse.json(PERSON_OVERRIDES.get(pid));
+    }
 
     //no local override, pass through to server. Try lastpost first.
     const response = await fetch(bypass(import.meta.env.VITE_API_ROOT + 'person/lastpost?' + new URL(request.url).searchParams.toString()));
-    if(response.status === 404)   return fetch(bypass(request)); //pass to real server's 'person'
-    else                          return response;        //pass or fail, return what real server's 'lastpost' gave us
-
+    if(response.status === 404) {
+      const response = await fetch(bypass(request)); //pass to real server's 'person'
+      if(DUMP) console.log(`Real DB lookup read Person ${pid}:`, await response.clone().json());
+      return response;
+    }
+    else {
+      if(DUMP && response.ok) console.log(`Real bucket lookup read Person ${pid}:`, await response.clone().json());
+      return response;        //pass or fail, return what real server's 'lastpost' gave us
+    }
   }),
   http.post(import.meta.env.VITE_API_ROOT + 'person', async ({request}) => {
     if(TRACE) console.log('POST /person');
     const data = await request.json();
     PERSON_MAP.set(data.person.person_id, data);
+    if(DUMP) console.log(`Mock wrote to bucket Person ${data.person.person_id}:`, data);
     return HttpResponse.text('Hello, Lambda');
   }),
   http.get(import.meta.env.VITE_API_ROOT + 'status/piece_summary/last_piecesummary', async ({request}) => {
@@ -82,6 +94,7 @@ export const handlers = [
     if(TRACE) console.log('POST /status/piece_summary/last_piecesummary', pid);
     const data = await request.json();
     PIECE_MAP.set(pid, data);
+    if(DUMP) console.log(`Mock wrote to bucket Piece ${pid}: `, data);
     return HttpResponse.text('Hello, Lambda');
   }),
 ];
