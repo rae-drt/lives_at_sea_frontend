@@ -61,6 +61,23 @@ export const SERVICE_FIELD_TYPES = {
   toyear:    'number',
 }
 
+export const OTHER_SERVICE_FIELD_TYPES = {
+  reference: 'text',
+  piece: 'text',
+  subref: 'text',
+  ...SERVICE_FIELD_TYPES,
+}
+
+export const OTHER_DATA_FIELD_TYPES = {
+  sourceid: 'text',
+  subref:   'text',
+  day:      'number',
+  month:    'number',
+  year:     'number',
+  type:     'text',
+  entry:    'text',
+}
+
 //These validators assume correct type
 export const PERSON_FIELD_VALIDATORS = {
     forename:        (x) => true,
