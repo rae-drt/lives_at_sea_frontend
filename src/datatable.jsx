@@ -235,6 +235,7 @@ export function DataTable(props) {
           pl: '3px',
           pr: '3px',
         },
+        '& .MuiDataGrid-cell.error': style.errorCell,
         //N.B. The source is really helpful for finding the way through this:
         //https://github.com/mui/mui-x/blob/af50a4a9974f14afc09ce7639da4f326909c7270/packages/grid/_modules_/grid/components/containers/GridRootStyles.ts#L218-L228
         '& .MuiDataGrid-cell, .MuiDataGrid-columnHeader': { py: '3px', border: 1 },

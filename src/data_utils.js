@@ -78,8 +78,19 @@ export const PERSON_FIELD_VALIDATORS = {
     dischargereason: (x) => true,
 };
 
+export const SERVICE_FIELD_VALIDATORS = {
+  ship:      (x) => true,
+  rating:    (x) => true,
+  fromday:   (x) => x >= 0 && x <= 31,
+  frommonth: (x) => x >= 0 && x <= 12,
+  fromyear:  (x) => x === 0 || (x >= 1700 && x <= 2000), //just try to catch extremely wrong values
+  today:     (x) => x >= 0 && x <= 31,
+  tomonth:   (x) => x >= 0 && x <= 12,
+  toyear:    (x) => x === 0 || (x >= 1700 && x <= 2000), //just try to catch extremely wrong values
+};
+
 //do some date validation, allowing that we may have missing information
-function get_datevalidator(map) {
+export function get_datevalidator(map) {
   return (fields) => {
     const day = fields[map.day];
     const month = fields[map.month];
