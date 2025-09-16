@@ -50,6 +50,17 @@ export const PERSON_FIELD_TYPES = {
     dischargereason: 'text',
 };
 
+export const SERVICE_FIELD_TYPES = {
+  ship:      'text',
+  rating:    'text',
+  fromday:   'number',
+  frommonth: 'number',
+  fromyear:  'number',
+  today:     'number',
+  tomonth:   'number',
+  toyear:    'number',
+}
+
 //These validators assume correct type
 export const PERSON_FIELD_VALIDATORS = {
     forename:        (x) => true,

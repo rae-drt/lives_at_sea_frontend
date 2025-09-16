@@ -1,5 +1,5 @@
 import { createStore, useStore } from 'zustand';
-import { init_data, status_encode, normalize, PERSON_FIELD_TYPES } from './data_utils';
+import { init_data, status_encode, normalize, PERSON_FIELD_TYPES, SERVICE_FIELD_TYPES } from './data_utils';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
 import { fetchAuthSession } from 'aws-amplify/auth';
@@ -474,7 +474,7 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   newClientData.services = structuredClone(data);
   for(const table of newClientData.services.services) {
     for(const row of table.records) {
-      normalize(row);
+      normalize(row, SERVICE_FIELD_TYPES);
     }
   }
   return postData('person', translateToAPI(newClientData)).then(() => {

@@ -2,7 +2,7 @@ import { useBlocker, matchRoutes } from 'react-router';
 import { useRecord } from './queries';
 import { createContext } from 'react';
 import { isEqual } from 'lodash';
-import { normalize, PERSON_FIELD_TYPES } from './data_utils';
+import { normalize, PERSON_FIELD_TYPES, SERVICE_FIELD_TYPES } from './data_utils';
 
 class Dirty {
   any() {
@@ -34,9 +34,18 @@ export function useDirtySailor(sailorType, nameId) {
     normalize(clonedNameRecord, PERSON_FIELD_TYPES);
   }
 
+  const clonedServicesRecord = structuredClone(servicesRecord);
+  if(clonedServicesRecord) {
+    for(const table of clonedServicesRecord.services) {
+      for(const row of table.records) {
+        normalize(row, SERVICE_FIELD_TYPES);
+      }
+    }
+  }
+
   return new DirtySailor(
     !(isEqual(clonedNameRecord, nameQuery)),
-    !(isEqual(servicesRecord, servicesQuery)),
+    !(isEqual(clonedServicesRecord, servicesQuery)),
     !(isEqual(otherServicesRecord, otherServicesQuery)),
     !(isEqual(otherDataRecord, otherDataQuery)),
   );
