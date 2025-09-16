@@ -28,7 +28,9 @@ const columnGroupingModel = [
   },
 ]
 
-function impossibleServiceDates({fromday, frommonth, fromyear, tomonth, today, toyear}) {
+function impossibleServiceDates(field, {fromday, frommonth, fromyear, tomonth, today, toyear}) {
+  if(!(['fromday', 'frommonth', 'fromyear', 'today', 'tomonth', 'toyear'].includes(field))) return false; //not a date field
+
   if(toyear === 0 || fromyear === 0 || toyear === null || fromyear === null) return false; //if we do not know one of the years, we cannot know if "to" is earlier than "from"
   if(toyear > fromyear) return false;
   if(toyear < fromyear) return true;
@@ -42,6 +44,15 @@ function impossibleServiceDates({fromday, frommonth, fromyear, tomonth, today, t
   if(today === 0 || fromday === 0 || today === null || fromyear === null) return false; //if we do not know one of the days, we cannot know if "to" is earlier than "from"
   if(today < fromday) return true;
   return false; //today is at least as high as fromday
+}
+
+function impossibleDate(field, row) {
+  for(const date of [['fromday', 'frommonth', 'fromyear'], ['today', 'tomonth', 'toyear']]) {
+    if(date.includes(field)) {
+      return (get_datevalidator({day: date[0], month: date[1], year: date[2]})(row)).includes(field);
+    }
+  }
+  return false; //field is not a date field
 }
 
 export function TranscriptionInfo({transcriber, complete, flipComplete, disabled}) {
@@ -168,20 +179,7 @@ export default function ServiceTable({transcriber, complete, reconciled, cloneBu
                 return;
               }
               const differs = (difference !== null) && (id > difference.length || field in difference[id - 1]);
-
-              let errs = !(SERVICE_FIELD_VALIDATORS[field](value));
-              if(!errs) {
-                for(const date of [['fromday', 'frommonth', 'fromyear'], ['today', 'tomonth', 'toyear']]) {
-                  if(date.includes(field)) {
-                    errs = (get_datevalidator({day: date[0], month: date[1], year: date[2]})(row)).includes(field);
-                  }
-                }
-              }
-              if(!errs) {
-                if(['fromday', 'frommonth', 'fromyear', 'today', 'tomonth', 'toyear'].includes(field)) {
-                  if(impossibleServiceDates(row)) errs = true;
-                }
-              }
+              const errs = (!(SERVICE_FIELD_VALIDATORS[field](value))) || impossibleDate(field, row) || impossibleServiceDates(field, row);
               if(differs && errs) return 'errdiffers';
               else if(differs)    return    'differs';
               else if(errs)       return 'error';
