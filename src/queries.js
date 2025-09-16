@@ -417,8 +417,11 @@ function piecesQF() {
 
 function trimText(data) {
   for(const field of Object.getOwnPropertyNames(data)) {
-    if(FIELD_TYPES[field] === 'text') {
+    if(data[field] !== null && FIELD_TYPES[field] === 'text') {
       data[field] = data[field].trim();
+      if(data[field] === "") {
+        data[field] = null;
+      }
     }
   }
   return data;

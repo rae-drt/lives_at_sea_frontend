@@ -40,6 +40,9 @@ export function useDirtySailor(sailorType, nameId) {
       if(FIELD_TYPES[field] === 'text') {
         if(clonedNameRecord[field]) {
           clonedNameRecord[field] = clonedNameRecord[field].trim();
+          if(clonedNameRecord[field] === "") {
+            clonedNameRecord[field] = null;
+          }
         }
       }
     }
