@@ -94,6 +94,18 @@ function get_datevalidator(map) {
   };
 }
 
+export function trimText(data, types) {
+  for(const field of Object.getOwnPropertyNames(data)) {
+    if(data[field] !== null && types[field] === 'text') {
+      data[field] = data[field].trim();
+      if(data[field] === "") {
+        data[field] = null;
+      }
+    }
+  }
+  return data;
+}
+
 export const RATING_LAYOUT = [
     {labels: {'Forename, surname': 2},      fields: {forename: 3, surname:3}, validator: () => [], },
     {labels: {'Official number': 2},        fields: {officialnumber: 3}, validator: () => [], },

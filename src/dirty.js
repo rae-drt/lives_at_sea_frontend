@@ -2,7 +2,7 @@ import { useBlocker, matchRoutes } from 'react-router';
 import { useRecord } from './queries';
 import { createContext } from 'react';
 import { isEqual } from 'lodash';
-import { PERSON_FIELD_TYPES } from './data_utils';
+import { trimText, PERSON_FIELD_TYPES } from './data_utils';
 
 class Dirty {
   any() {
@@ -33,19 +33,12 @@ export function useDirtySailor(sailorType, nameId) {
   //      way that does not involve special handling in this component.
   const clonedNameRecord = structuredClone(nameRecord);
   if(clonedNameRecord) {
-    for(const field of Object.getOwnPropertyNames(clonedNameRecord)) {
+    for(const field of Object.getOwnPropertyNames(clonedNameRecord)) { //handle number fields that are temporarily empty due to user edit
       if(clonedNameRecord[field] === '' && PERSON_FIELD_TYPES[field] === 'number') {
         clonedNameRecord[field] = 0;
       }
-      if(PERSON_FIELD_TYPES[field] === 'text') { //TODO
-        if(clonedNameRecord[field]) {
-          clonedNameRecord[field] = clonedNameRecord[field].trim();
-          if(clonedNameRecord[field] === "") {
-            clonedNameRecord[field] = null;
-          }
-        }
-      }
     }
+    trimText(clonedNameRecord, PERSON_FIELD_TYPES);
   }
 
   return new DirtySailor(

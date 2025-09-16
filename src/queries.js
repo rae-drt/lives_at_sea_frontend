@@ -1,5 +1,5 @@
 import { createStore, useStore } from 'zustand';
-import { init_data, status_encode, PERSON_FIELD_TYPES } from './data_utils';
+import { init_data, status_encode, trimText, PERSON_FIELD_TYPES } from './data_utils';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
 import { fetchAuthSession } from 'aws-amplify/auth';
@@ -415,18 +415,6 @@ function piecesQF() {
   });
 }
 
-function trimText(data) {
-  for(const field of Object.getOwnPropertyNames(data)) {
-    if(data[field] !== null && PERSON_FIELD_TYPES[field] === 'text') {
-      data[field] = data[field].trim();
-      if(data[field] === "") {
-        data[field] = null;
-      }
-    }
-  }
-  return data;
-}
-
 //TODO: Temporary hack: dump current state to bucket and force re-fetch
 async function updatePieceBucket(queryClient, mainData) {
   const queryOpts = pieceQuery('' + mainData.name.piece);
@@ -472,7 +460,7 @@ export function initPieceBucket(queryClient) {
 function mainPersonMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
-  newClientData.name = trimText(structuredClone(data));
+  newClientData.name = trimText(structuredClone(data), PERSON_FIELD_TYPES);
   return postData('person', translateToAPI(newClientData)).then(() => {
     //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
     RECORDS.delete(sailorType, nameId, 'name'); //TODO: update hazards relating to this partial synchronous state update?
