@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useRecord, failedMutationDialog } from './queries';
 import { DirtySailorContext } from './dirty';
 import { useEmptyRowOK } from './datatable';
@@ -65,10 +66,17 @@ function XCheck({ready, checked, onChange}) {
 export default function ServiceReconciler() {
   const {sailorType, nameId} = useParams();
   const [searchParams,] = useSearchParams();
-  const { data: serviceRecords, setData: setServiceRecords, mutation: serviceRecordsMutation } = useRecord(sailorType, nameId, 'service');
+  const { data: serviceRecords, setData: setServiceRecords, mutation: serviceRecordsMutation, status: serviceRecordsQueryStatus } = useRecord(sailorType, nameId, 'service');
   const dirty = useContext(DirtySailorContext).service;
   const emptyOK = useEmptyRowOK(serviceRecords.services.map((x)=>x.records), ROW_PRIMARY);
   const dialogs = useDialogs();
+
+  if(serviceRecordsQueryStatus === 'error') {
+    return(<Alert severity='error'>Error fetching data</Alert>);
+  }
+  else if(serviceRecordsQueryStatus === 'pending' || serviceRecordsMutation.status === 'pending') {
+    return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
+  }
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
      These assume a row property one greater than array index
