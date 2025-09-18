@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useEffectEvent } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router';
 import Card from '@mui/material/Card';
 import Tab from '@mui/material/Tab';
@@ -16,6 +16,7 @@ import { DirtySailorContext, useDirtySailor, useDirtySailorBlocker } from './dir
 import BlockNavigationDialog from './blocknavigationdialog';
 import { isNew, catref, officerref } from './data_utils';
 import { useRecord } from './queries';
+import { snapshot } from './snapshot';
 
 export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
@@ -28,6 +29,32 @@ export default function Person() {
   const dirty = useDirtySailor(sailorType, nameId);
   const blocker = useDirtySailorBlocker(dirty);
   const [ locked, setLocked ] = useState(false);
+
+  const audit = {
+    name: personRecord,
+    service: serviceRecord,
+    service_other: otherServiceRecord,
+    data_other: otherDataRecord,
+  };
+
+  const onRead = useEffectEvent((label, stat) => {
+    if(stat === 'success') {
+      setLocked(true);
+      snapshot(label, false, audit, nameId, true).then(()=>setLocked(false));
+    }
+  });
+  useEffect(()=>{
+    onRead('mrvd_name', personRecord.mutation.status);
+  }, [personRecord.mutation.status]);
+  useEffect(()=>{
+    onRead('mrvd_service', serviceRecord.mutation.status);
+  }, [serviceRecord.mutation.status]);
+  useEffect(()=>{
+    onRead('qrvd_name', personRecord.status);
+  }, [personRecord.status]);
+  useEffect(()=>{
+    onRead('qrvd_service', serviceRecord.status);
+  }, [serviceRecord.status]);
 
   const allStatus = [
     personRecord.status,
@@ -71,7 +98,7 @@ export default function Person() {
               <BlockNavigationDialog blocker={blocker}/>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
                 <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={4}>
-                  <PersonData record={personRecord}/>
+                  <PersonData record={personRecord} audit={audit}/>
                   <Stack alignItems='center' spacing={2} width='95vw'>
                     <Tabs value={dataType} onChange={(e,v) => {navigate('/person/' + sailorType + '/' + nameId + '/' + v);}}>
                       {sailorType === 'rating' && <Tab value='main' label='Services' disabled={loading|locked} sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
@@ -79,7 +106,7 @@ export default function Person() {
                       <Tab value='otherdata' label='Data' disabled={true|loading|locked} sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
                     </Tabs>
                     <Card variant='outlined'>
-                      {dataType === 'main' &&          <ServiceReconciler record={serviceRecord}/>}
+                      {dataType === 'main' &&          <ServiceReconciler record={serviceRecord} audit={audit}/>}
                       {dataType === 'otherservices' && <OtherServices record={otherServiceRecord}/>}
                       {dataType === 'otherdata' &&     <OtherData record={otherDataRecord}/>}
                     </Card>
