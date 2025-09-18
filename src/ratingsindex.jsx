@@ -162,7 +162,7 @@ function statusRow({value: items}) {
         <Link to={(state & MISSING) ? '#' : '/person/rating/' + items[i].nameid}>
           {triangle1(offset, state)}
           {triangle2(offset, state)}
-          {(state & NOT_WW1) ? dot(offset) : ((state & XCHECKED) && one(offset))}
+          {((state & XCHECKED) || ((state & COMPLETED_1) && (state & COMPLETED_2))) && ((state & NOT_WW1) ? dot(offset) : one(offset))}
           {box(offset)}
         </Link>
       </Tooltip>
