@@ -1,5 +1,7 @@
 import { useContext } from 'react';
+import { useSearchParams } from 'react-router';
 import { DirtySailorContext } from './dirty';
+import { snapshot } from './snapshot';
 import { useParams } from 'react-router';
 import Stack from '@mui/material/Stack';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -12,6 +14,7 @@ import { catref, officerref } from './data_utils';
 
 export default function PersonTableControlPanel({data, onChange}) {
   const {sailorType} = useParams();
+  const [searchParams,] = useSearchParams();
   const dirty = useContext(DirtySailorContext).name;
   return (
     <Card>
@@ -20,7 +23,7 @@ export default function PersonTableControlPanel({data, onChange}) {
           <Typography variant='h6'>{sailorType === 'officer' ? 'Officer #' + officerref(data) : catref(data)}</Typography>
           <Stack direction='row' spacing={2}>
             {'error' in data && <FormControlLabel control={<Checkbox checked={data.error} disabled={true}/>} label='Error?' labelPlacement='start'/>}
-            <Button disabled={!dirty} variant='outlined' onClick={onChange}>Enter</Button>
+            <Button disabled={!dirty} variant='outlined' onClick={()=>{snapshot('person_for_snapshot', searchParams.get('devMode'), data).then(()=>onChange())}}>Enter</Button>
           </Stack>
         </Stack>
       </CardContent>
