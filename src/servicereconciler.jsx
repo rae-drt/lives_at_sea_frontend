@@ -21,6 +21,8 @@ import HappyIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import SadIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import { LoadingContext } from './loadingcontext';
 import { LockedContext } from './lockedcontext';
+import { snapshot } from './snapshot';
+import { usePrefs } from './prefs';
 
 import { isEqual, reduce } from 'lodash';
 
@@ -64,7 +66,7 @@ function XCheck({ready, checked, onChange}) {
   );
 }
 
-export default function ServiceReconciler({record}) {
+export default function ServiceReconciler({record, audit}) {
   const {sailorType, nameId} = useParams();
   const [searchParams,] = useSearchParams();
   const { data: serviceRecords, setData: setServiceRecords, mutation: serviceRecordsMutation, status: serviceRecordsQueryStatus } = record;
@@ -73,6 +75,7 @@ export default function ServiceReconciler({record}) {
   const [locked, setLocked] = useContext(LockedContext);
   const emptyOK = useEmptyRowOK(serviceRecords.services.map((x)=>x.records), ROW_PRIMARY);
   const dialogs = useDialogs();
+  const screenshot = usePrefs((state)=>state.screenshot);
 
   if(serviceRecordsQueryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
@@ -258,14 +261,16 @@ export default function ServiceReconciler({record}) {
                    async ()=>{
                      if(await emptyOK()) {
                        setLocked(true);
-                       serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
-                         onError: (error, variables) => {
-                           failedMutationDialog(dialogs, serviceRecordsMutation)(error, variables);
-                           setLocked(false);
-                         },
-                         onSuccess: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
+                       snapshot('sent_service', screenshot, audit, nameId).then(()=>{
+                         serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
+                           onError: (error, variables) => {
+                             failedMutationDialog(dialogs, serviceRecordsMutation)(error, variables);
+                             setLocked(false);
+                           },
+                           onSuccess: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
+                         });
                        });
-                     }
+                     };
                    }
                    //It looks like it is possible for the user to mess about with entering extra data
                    //between the emptyOK operation and the mutate. More generally, it looks like it is possible
