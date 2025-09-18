@@ -86,8 +86,8 @@ export default function Person() {
               <Stack alignItems='center' spacing={2} width='95vw'>
                 <Tabs value={dataType} onChange={(e,v) => {navigate('/person/' + sailorType + '/' + nameId + '/' + v);}}>
                   {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
-                  <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
-                  <Tab value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
+                  <Tab disabled={true} value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
+                  <Tab disabled={true} value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
                 </Tabs>
                 <Card variant='outlined'>
                   {dataType === 'main' &&          <ServiceReconciler/>}
