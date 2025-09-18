@@ -21,6 +21,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import HappyIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import SadIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import { LoadingContext } from './loadingcontext';
+import { snapshot } from './snapshot';
 
 import { isEqual, reduce } from 'lodash';
 
@@ -235,7 +236,7 @@ export default function ServiceReconciler() {
                       sameServices;
   if(!xCheckReady) serviceRecords.reconciled = false; //if the checkbox is, or becomes, unready then the reconciled state should be cleared
   return (
-    <Stack sx={{padding: 2}}>
+    <Stack sx={{padding: 2}} id='servicereconciler_for_snapshot'>
       <Stack direction='row' justifyContent='flex-end' spacing={4} sx={{paddingBottom: 2}}>
         <XCheck ready={xCheckReady} checked={serviceRecords.reconciled} onChange={() => {
             const clone = structuredClone(serviceRecords);
@@ -246,8 +247,10 @@ export default function ServiceReconciler() {
                  disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
                  onClick={
                    async ()=>{
-                     (await emptyOK()) && serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
-                       onError: failedMutationDialog(dialogs, serviceRecordsMutation),
+                     (await emptyOK()) && snapshot('servicereconciler_for_snapshot', searchParams.get('devMode'), serviceRecords, nameId).then(()=>{
+                       serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
+                         onError: failedMutationDialog(dialogs, serviceRecordsMutation),
+                       });
                      });
                    }
                  }
