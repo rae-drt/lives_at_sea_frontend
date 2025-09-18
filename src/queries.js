@@ -3,6 +3,7 @@ import { init_data, status_encode, normalize, PERSON_FIELD_TYPES, SERVICE_FIELD_
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { snapshot } from './snapshot';
 
 //following https://stackoverflow.com/a/1479341
 //exporting only for testing purposes -- seems harmless, but perhaps could be avoided with mocks or spies
@@ -29,6 +30,12 @@ function getRecord(sailorType, nameId, selection, query) {
                     [selection]: structuredClone(query.data),
                     update: (value) => set({[selection]: value}),
                   })));
+      if(selection === 'name' || selection === 'service') {
+            //We have just set the record to query.data.
+            //Reading it back is more complex than I'd like.
+            //Just dumping query.data as the sync state should be fine.
+            snapshot(selection + '_rcvd', false, query.data, query.data, nameId);
+      }
     }
   }
 

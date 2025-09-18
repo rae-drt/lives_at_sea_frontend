@@ -21,6 +21,8 @@ import HappyIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import SadIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import { LoadingContext } from './loadingcontext';
 import { LockedContext } from './lockedcontext';
+import { snapshot } from './snapshot';
+import { usePrefs } from './prefs';
 
 import { isEqual, reduce } from 'lodash';
 
@@ -73,6 +75,7 @@ export default function ServiceReconciler({record}) {
   const [locked, setLocked] = useContext(LockedContext);
   const emptyOK = useEmptyRowOK(serviceRecords.services.map((x)=>x.records), ROW_PRIMARY);
   const dialogs = useDialogs();
+  const screenshot = usePrefs((state)=>state.screenshot);
 
   if(serviceRecordsQueryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
@@ -264,12 +267,14 @@ export default function ServiceReconciler({record}) {
                    ()=>{
                      setLocked(true);
                      setTimeout(async ()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
-                       (await emptyOK()) && serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
-                         onError: (error, variables) => {
-                           failedMutationDialog(dialogs, serviceRecordsMutation)(error, variables);
-                           setLocked(false);
-                         },
-                         onSuccess: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
+                       (await emptyOK()) && snapshot('service_sent', screenshot, serviceRecords, record.queryData, nameId).then(()=>{
+                         serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
+                           onError: (error, variables) => {
+                             failedMutationDialog(dialogs, serviceRecordsMutation)(error, variables);
+                             setLocked(false);
+                           },
+                           onSuccess: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
+                         });
                        });
                      });
                    }
