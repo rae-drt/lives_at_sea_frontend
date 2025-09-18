@@ -390,7 +390,7 @@ function pieceQF({queryKey}) {
   return new Promise((resolve, reject) => {
     fetchData('status/piece_summary/last_piecesummary?piece_number=' + piece).then(
     (bucketData) => {
-      console.log(`Retried piece summary ${piece} from bucket`);
+      console.log(`Retrieved piece summary ${piece} from bucket`);
       resolve(bucketData); //if it worked, just return the JSON
     },
     (err) => {
