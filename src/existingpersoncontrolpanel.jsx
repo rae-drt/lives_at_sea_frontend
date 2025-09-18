@@ -18,13 +18,13 @@ export function RecordNavigator() {
   function RecordNavigatorBack() {
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>navigate('/person/' + sailorType + '/' + (Number(nameId) - 1))} ><WestIcon color='primary'/></IconButton>
+      <IconButton disabled={true} onClick={()=>navigate('/person/' + sailorType + '/' + (Number(nameId) - 1))} ><WestIcon color='primary'/></IconButton>
     );
   }
   function RecordNavigatorForward() {
     const loading = useContext(LoadingContext);
     return(
-      <IconButton disabled={loading} onClick={()=>navigate('/person/' + sailorType + '/' + (Number(nameId) + 1))}><EastIcon color='primary'/></IconButton>
+      <IconButton disabled={true} onClick={()=>navigate('/person/' + sailorType + '/' + (Number(nameId) + 1))}><EastIcon color='primary'/></IconButton>
     );
   }
 
@@ -36,30 +36,6 @@ export function RecordNavigator() {
     return (
       <>
         <Typography onClick={(e)=>{setPopoverAnchor(e.currentTarget)}}>Record</Typography>
-        <Popover
-          open={Boolean(popoverAnchor)}
-          anchorEl={popoverAnchor}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-        >
-          <TextField
-            onKeyPress={(e) => {
-              if(e.key === 'Enter' && valid) {
-                const intendedSailor = e.target.value.trim();
-                if(intendedSailor.includes('/')) navigate('/person/' + intendedSailor);
-                else navigate('/person/' + sailorType + '/' + e.target.value);
-                setPopoverAnchor(false);
-              }
-            }}
-            onKeyDown={(e)=>{e.key === 'Escape' && setPopoverAnchor(false);}}
-            defaultValue={nameId}
-            onChange={(e)=>{setValid(/(?:rating\/|officer\/)?\d+$/.test(e.target.value.trim()));}}
-            error={!valid}
-            helperText={valid || 'Enter nameid with optional sailor type. Examples: 100123; rating/100123; officer/7.'}
-          />
-        </Popover>
       </>
     );
   }
