@@ -6,6 +6,12 @@ import { defineAuth } from "@aws-amplify/backend";
  */
 export const auth = defineAuth({
   loginWith: {
-    email: true,
+    email: {
+      userInvitation: {
+        emailSubject: "Lives at Sea invitation",
+        emailBody: (user, code) =>
+          `You can now log in to Lives at Sea with username ${user()} and temporary password ${code()}.\nPlease change your password to something that you do not use anywhere else.`,
+      },
+    },
   },
 });
