@@ -65,7 +65,7 @@ export function RecordNavigator({piece}) {
     return(
       <Tooltip title={lastItem ? `No lower items in piece ${piece}. ${getSkippedStr(nextUrl)}` : ''}>
         <span>
-          <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)}><WestIcon color='primary'/></IconButton>
+          <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><WestIcon color='inherit'/></IconButton>
         </span>
       </Tooltip>
     );
@@ -77,7 +77,7 @@ export function RecordNavigator({piece}) {
     return(
       <Tooltip title={lastItem ? `No higher items in piece ${piece}. ${getSkippedStr(nextUrl)}` : ''}>
         <span>
-          <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)}><EastIcon color='primary'/></IconButton>
+          <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><EastIcon color='inherit'/></IconButton>
         </span>
       </Tooltip>
     );
