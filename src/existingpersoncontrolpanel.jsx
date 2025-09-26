@@ -5,7 +5,7 @@ import PersonControlPanel from './personcontrolpanel';
 import { pieceQuery } from './queries';
 import { useQuery } from '@tanstack/react-query';
 
-import { Alert, Snackbar } from '@mui/material';
+import { Alert, Snackbar, Tooltip } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Popover from '@mui/material/Popover';
 import TextField from '@mui/material/TextField';
@@ -52,20 +52,34 @@ export function RecordNavigator({piece}) {
       skipped.push(pieceData.records[idx].gen_item);
       idx += increment;
     }
+    if(increment < 0 && idx === -1)                       return skipped;
+    if(increment > 0 && idx === pieceData.records.length) return skipped;
     const nextUrl = `/person/${sailorType}/${pieceData.records[idx].person_id}/main`;
     if(skipped.length > 0) { return nextUrl + '?skipped=' + skipped.join() }
     else { return nextUrl; }
   }
   function RecordNavigatorBack() {
     const loading = useContext(LoadingContext) || (pieceStatus !== 'success');
+    const nextUrl = loading ? null : next(-1);
+    const lastItem = typeof(nextUrl) !== 'string';
     return(
-      <IconButton disabled={loading} onClick={()=>navigate(next(-1))}><WestIcon color='primary'/></IconButton>
+      <Tooltip title={lastItem ? `No lower items in piece ${piece}. ${getSkippedStr(nextUrl)}` : ''}>
+        <span>
+          <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)}><WestIcon color='primary'/></IconButton>
+        </span>
+      </Tooltip>
     );
   }
   function RecordNavigatorForward() {
     const loading = useContext(LoadingContext) || (pieceStatus !== 'success');
+    const nextUrl = loading ? null : next( 1);
+    const lastItem = typeof(nextUrl) !== 'string';
     return(
-      <IconButton disabled={loading} onClick={()=>navigate(next( 1))}><EastIcon color='primary'/></IconButton>
+      <Tooltip title={lastItem ? `No higher items in piece ${piece}. ${getSkippedStr(nextUrl)}` : ''}>
+        <span>
+          <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)}><EastIcon color='primary'/></IconButton>
+        </span>
+      </Tooltip>
     );
   }
 
