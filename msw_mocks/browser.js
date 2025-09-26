@@ -20,8 +20,9 @@ function getParam(url, param) {
 
 function getNumericParam(url, param) {
   const text = getParam(url, param);
-  if(text.match(/^\d+$/)) return Number(text);
-  else                    return null;
+  if(text === null)            return null;
+  else if(text.match(/^\d+$/)) return Number(text);
+  else                         return null;
 }
  
 export const handlers = [
