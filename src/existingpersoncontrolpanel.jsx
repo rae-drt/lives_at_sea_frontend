@@ -2,10 +2,10 @@ import { useState, useContext, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router';
 import { LoadingContext } from './loadingcontext';
 import PersonControlPanel from './personcontrolpanel';
-import { pieceQuery } from './queries';
+import { pieceQuery, refToPersonIdQuery } from './queries';
 import { useQuery } from '@tanstack/react-query';
 
-import { Alert, Snackbar, Tooltip } from '@mui/material';
+import { Alert, CircularProgress, Snackbar, Tooltip, InputAdornment } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Popover from '@mui/material/Popover';
 import TextField from '@mui/material/TextField';
@@ -86,10 +86,20 @@ export function RecordNavigator({piece}) {
   //re https://github.com/mui/material-ui/issues/5393, https://stackoverflow.com/questions/67578008/how-to-get-value-from-material-ui-textfield-after-pressing-enter
   function RecordNavigatorTeleport() {
     const [valid, setValid] = useState(true);
+    const [ref, setRef] = useState(false);
     const [popoverAnchor, setPopoverAnchor] = useState(false);
+    const { data: nameId, status: queryStatus } = useQuery({...refToPersonIdQuery(ref.piece, ref.item), enabled: () => ref !== false});
+    useEffect(() => {
+      queryStatus === 'success' && navigate('/person/rating/' + nameId);
+    }, [queryStatus]);
+
+    if(queryStatus === 'pending' && ref !== false) {
+      return (<CircularProgress/>);
+    }
 
     return (
       <>
+        <Snackbar open={queryStatus === 'error' && ref !== false} onClose={()=>setRef(false)} autoHideDuration={5000} anchorOrigin={{vertical: 'top', horizontal: 'center'}}><Alert severity='error'>No identifier found for ADM 188/{ref.piece}/{ref.item}</Alert></Snackbar>
         <Typography onClick={(e)=>{setPopoverAnchor(e.currentTarget)}}>Record</Typography>
         <Popover
           open={Boolean(popoverAnchor)}
@@ -100,19 +110,31 @@ export function RecordNavigator({piece}) {
           }}
         >
           <TextField
+            slotProps = {{
+              input: {
+                startAdornment: <InputAdornment position='start'>ADM 188/</InputAdornment>,
+              }
+            }}
             onKeyPress={(e) => {
               if(e.key === 'Enter' && valid) {
                 const intendedSailor = e.target.value.trim();
-                if(intendedSailor.includes('/')) navigate('/person/' + intendedSailor);
-                else navigate('/person/' + sailorType + '/' + e.target.value);
+                if(intendedSailor.startsWith('rating/') || intendedSailor.startsWith('officer/')) {
+                  navigate('/person/' + intendedSailor);
+                }
+                else if(/^\d+$/.test(intendedSailor)) {
+                  navigate('/ratings/' + intendedSailor);
+                }
+                else {
+                  const bits = e.target.value.split('/');
+console.log(bits[0].trim(), bits[1].trim());
+                  setRef({piece: bits[0].trim(), item: bits[1].trim()});
+                }
                 setPopoverAnchor(false);
               }
             }}
             onKeyDown={(e)=>{e.key === 'Escape' && setPopoverAnchor(false);}}
-            defaultValue={nameId}
-            onChange={(e)=>{setValid(/(?:rating\/|officer\/)?\d+$/.test(e.target.value.trim()));}}
+            onChange={(e)=>{setValid(/^(?:rating\/|officer\/)?\d+$/.test(e.target.value.trim()) || /^\d+\/\d+$/.test(e.target.value.trim()));}}
             error={!valid}
-            helperText={valid || 'Enter nameid with optional sailor type. Examples: 100123; rating/100123; officer/7.'}
           />
         </Popover>
       </>

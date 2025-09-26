@@ -506,6 +506,17 @@ function otherServicesMutate(queryClient, sailorType, nameId, data) {
   });
 }
 
+/* Inefficient -- looks up the same data twice.
+   But this is a simple way to ensure that it ends up in the
+   correct place in the cache.
+ */
+export const refToPersonIdQuery = (piece, item) => ({
+  queryKey: ['refToPersonId', {department: 'ADM', series: '188', piece: piece, item: item}],
+  queryFn: ({queryKey}) => fetchData(`person?sourcereference=ADM&sourcereference=188&sourcereference=${piece}&sourcereference=${item}`),
+  select: (x) => x.person.person_id,
+  staleTime: Infinity,
+});
+
 const mainPersonQuery = (sailorType, nameId) => ({
   queryKey: ['mainPersonData', {sailorType: sailorType, nameId: Number(nameId)}],
   queryFn: mainPersonQF,
