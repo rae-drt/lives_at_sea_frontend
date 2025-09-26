@@ -1,13 +1,22 @@
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Alert, CircularProgress, Stack, Typography, Tooltip, TextField, Autocomplete, IconButton } from '@mui/material';
+import { Alert, CircularProgress, Stack, Snackbar, Typography, Tooltip, TextField, Autocomplete, IconButton } from '@mui/material';
 import { ArrowForwardIos } from '@mui/icons-material';
 import { piecesQuery } from './queries';
+import { range } from 'lodash';
+import { getSkippedStr } from './data_utils';
 
 export default function RatingsIndexNavigator() {
   const { piece } = useParams();
   const { data: pieces, status: queryStatus } = useQuery(piecesQuery);
+  const [searchParams,] = useSearchParams();
+  const [checkSkipped, setCheckSkipped] = useState(true);
+  const loc = useLocation();
   const navigate = useNavigate();
+  useEffect(() => {
+    setCheckSkipped(true);
+  }, [loc]);
 
   if(queryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
@@ -20,8 +29,20 @@ export default function RatingsIndexNavigator() {
     throw new Error(`No such piece: ${piece}`);
   }
 
+  function next(increment) {
+    if(pieces.filter((e) => e === Number(piece)).length != 1) throw new Error(`There is not exactly one piece with number ${piece}`); //should never happen
+    const newPieceIdx = pieces.indexOf(Number(piece)) + increment;
+    const skipped = range(Math.min(Number(piece) + increment, pieces[newPieceIdx]), Math.max(Number(piece) + increment, pieces[newPieceIdx]));
+    if(skipped.length === 0) return '/ratings/' + pieces[newPieceIdx];
+    else                     return '/ratings/' + pieces[newPieceIdx] + '?skipped=' + skipped.join();
+  }
+
+
   return (
     <Stack direction='row' alignItems='center' justifyContent='space-between'>
+      <Snackbar open={checkSkipped && searchParams.get('skipped')} onClose={()=>{setCheckSkipped(false)}} autoHideDuration={5000} anchorOrigin={{vertical: 'top', horizontal: 'center'}}>
+        <Alert severity='warning'>{getSkippedStr(searchParams.get('skipped')?.split(','), 'piece')}</Alert>
+      </Snackbar>
       {/* catref control */}
       <Stack direction='row' spacing={2} alignItems='center' width={1}>
         <Typography variant='h6'>ADM</Typography>
@@ -39,22 +60,22 @@ export default function RatingsIndexNavigator() {
         />
         {/* Nav forward, backward buttons */}
         <Stack direction='row' spacing={0}>
-          <Tooltip title='Back one piece'>
+          <Tooltip title={pieces[0] === Number(piece) ? 'No lower pieces in series 188' : 'Back one piece'}>
             <div>
               <IconButton
                 disabled={pieces[0] === Number(piece)}
-                onClick={()=>navigate('/ratings/' + (pieces[pieces.indexOf(Number(piece)) - 1]))}
+                onClick={()=>navigate(next(-1))}
                 color='primary'
               >
                 <ArrowForwardIos sx={{transform: 'rotate(180deg)'}}/>
               </IconButton>
             </div>
           </Tooltip>
-          <Tooltip title='Forward one piece'>
+          <Tooltip title={pieces.at(-1) === Number(piece) ? 'No higher pieces in series 188': 'Forward one piece'}>
             <div>
               <IconButton
                 disabled={pieces.at(-1) === Number(piece)}
-                onClick={()=>navigate('/ratings/' + (pieces[pieces.indexOf(Number(piece)) + 1]))}
+                onClick={()=>navigate(next( 1))}
                 color='primary'
               >
                 <ArrowForwardIos/>
