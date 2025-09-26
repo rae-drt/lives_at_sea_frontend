@@ -213,3 +213,11 @@ export function status_encode(service_record) {
   if(service_record.reconciled) bitfield |= 8;
   return { status_code: bitfield, description: status_label(bitfield) };
 }
+
+export function getSkippedStr(skipped, noun) {
+  if(skipped) {
+    if(skipped.length === 1)    return `Skipped missing ${noun} ${skipped[0]}`;
+    else if(skipped.length > 1) return `Skipped missing ${noun}s ${skipped.slice(0, -1).join(', ')} and ${skipped.at(-1)}`;
+  }
+  return '';
+}

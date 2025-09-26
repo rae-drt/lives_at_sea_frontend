@@ -4,6 +4,7 @@ import { LoadingContext } from './loadingcontext';
 import PersonControlPanel from './personcontrolpanel';
 import { pieceQuery, refToPersonIdQuery } from './queries';
 import { useQuery } from '@tanstack/react-query';
+import { getSkippedStr } from './data_utils';
 
 import { Alert, CircularProgress, Snackbar, Tooltip, InputAdornment } from '@mui/material';
 import Stack from '@mui/material/Stack';
@@ -26,13 +27,6 @@ export function RecordNavigator({piece}) {
   }, [loc]);
   const { data: pieceData,  status: pieceStatus } = useQuery({...pieceQuery(piece)});
 
-  function getSkippedStr(skipped) {
-    if(skipped) {
-      if(skipped.length === 1)    return `Skipped missing item ${skipped[0]}`;
-      else if(skipped.length > 1) return `Skipped missing items ${skipped.slice(0, -1).join(', ')} and ${skipped.at(-1)}`;
-    }
-    return '';
-  }
   function currentIndex() {
     const idx = pieceData.records.findIndex((e, i, a) => {
       if(e.person_id === Number(nameId)) {
@@ -63,7 +57,7 @@ export function RecordNavigator({piece}) {
     const nextUrl = loading ? null : next(-1);
     const lastItem = typeof(nextUrl) !== 'string';
     return(
-      <Tooltip title={lastItem ? `No lower items in piece ${piece}. ${getSkippedStr(nextUrl)}` : ''}>
+      <Tooltip title={lastItem ? `No lower items in piece ${piece}. ${getSkippedStr(nextUrl, 'item')}` : ''}>
         <span>
           <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><WestIcon color='inherit'/></IconButton>
         </span>
@@ -75,7 +69,7 @@ export function RecordNavigator({piece}) {
     const nextUrl = loading ? null : next( 1);
     const lastItem = typeof(nextUrl) !== 'string';
     return(
-      <Tooltip title={lastItem ? `No higher items in piece ${piece}. ${getSkippedStr(nextUrl)}` : ''}>
+      <Tooltip title={lastItem ? `No higher items in piece ${piece}. ${getSkippedStr(nextUrl, 'item')}` : ''}>
         <span>
           <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><EastIcon color='inherit'/></IconButton>
         </span>
@@ -141,11 +135,10 @@ console.log(bits[0].trim(), bits[1].trim());
     );
   }
 
-  const skippedMsg = getSkippedStr(searchParams.get('skipped')?.split(','));
   return (
     <Stack direction='row' alignItems='center'>
       <Snackbar open={checkSkipped && searchParams.get('skipped')} onClose={()=>{setCheckSkipped(false)}} autoHideDuration={5000} anchorOrigin={{vertical: 'top', horizontal: 'center'}}>
-        <Alert severity='warning'>{skippedMsg}</Alert>
+        <Alert severity='warning'>{getSkippedStr(searchParams.get('skipped')?.split(','), 'item')}</Alert>
       </Snackbar>
       <RecordNavigatorBack/>
       <RecordNavigatorTeleport/>
