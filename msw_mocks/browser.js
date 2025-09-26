@@ -45,24 +45,29 @@ export const handlers = [
   http.get(import.meta.env.VITE_API_ROOT + 'person', async ({request}) => { //override locally if local override exists. 
                                                                             //otherwise pass through to real server as a lastpost
                                                                             //call, then as a person call
-    const pid = getNumericParam(request.url, 'personid');
-    if(TRACE) console.log('GET /person', pid);
-    if(pid === null)              return HttpResponse.json({message: 'Internal server error'}, {status: 502});
-    if(PERSON_OVERRIDES.has(pid)) {
-      if(DUMP) console.log(`Mock DB lookup read Person ${pid}:`, PERSON_OVERRIDES.get(pid));
-      return HttpResponse.json(PERSON_OVERRIDES.get(pid));
-    }
+    if(getParam(request.url, 'personid')) {
+      const pid = getNumericParam(request.url, 'personid');
+      if(TRACE) console.log('GET /person', pid);
+      if(pid === null)              return HttpResponse.json({message: 'Internal server error'}, {status: 502});
+      if(PERSON_OVERRIDES.has(pid)) {
+        if(DUMP) console.log(`Mock DB lookup read Person ${pid}:`, PERSON_OVERRIDES.get(pid));
+        return HttpResponse.json(PERSON_OVERRIDES.get(pid));
+      }
 
-    //no local override, pass through to server. Try lastpost first.
-    const response = await fetch(bypass(import.meta.env.VITE_API_ROOT + 'person/lastpost?' + new URL(request.url).searchParams.toString()));
-    if(response.status === 404) {
-      const response = await fetch(bypass(request)); //pass to real server's 'person'
-      if(DUMP) console.log(`Real DB lookup read Person ${pid}:`, await response.clone().json());
-      return response;
+      //no local override, pass through to server. Try lastpost first.
+      const response = await fetch(bypass(import.meta.env.VITE_API_ROOT + 'person/lastpost?' + new URL(request.url).searchParams.toString()));
+      if(response.status === 404) {
+        const response = await fetch(bypass(request)); //pass to real server's 'person'
+        if(DUMP) console.log(`Real DB lookup read Person ${pid}:`, await response.clone().json());
+        return response;
+      }
+      else {
+        if(DUMP && response.ok) console.log(`Real bucket lookup read Person ${pid}:`, await response.clone().json());
+        return response;        //pass or fail, return what real server's 'lastpost' gave us
+      }
     }
     else {
-      if(DUMP && response.ok) console.log(`Real bucket lookup read Person ${pid}:`, await response.clone().json());
-      return response;        //pass or fail, return what real server's 'lastpost' gave us
+      return fetch(bypass(request));
     }
   }),
   http.post(import.meta.env.VITE_API_ROOT + 'person', async ({request}) => {
