@@ -39,18 +39,24 @@ export function RecordNavigator({piece}) {
     return idx;
   }
   function next(increment) {
-    const currentIdx = currentIndex();
-    let idx = currentIdx + increment;
-    const skipped = [];
-    while(idx < pieceData.records.length && idx >= 0 && pieceData.records[idx].person_id === null) {
-      skipped.push(pieceData.records[idx].gen_item);
-      idx += increment;
+    try {
+      const currentIdx = currentIndex();
+      let idx = currentIdx + increment;
+      const skipped = [];
+      while(idx < pieceData.records.length && idx >= 0 && pieceData.records[idx].person_id === null) {
+        skipped.push(pieceData.records[idx].gen_item);
+        idx += increment;
+      }
+      if(increment < 0 && idx === -1)                       return skipped;
+      if(increment > 0 && idx === pieceData.records.length) return skipped;
+      const nextUrl = `/person/${sailorType}/${pieceData.records[idx].person_id}/main`;
+      if(skipped.length > 0) { return nextUrl + '?skipped=' + skipped.join() }
+      else { return nextUrl; }
     }
-    if(increment < 0 && idx === -1)                       return skipped;
-    if(increment > 0 && idx === pieceData.records.length) return skipped;
-    const nextUrl = `/person/${sailorType}/${pieceData.records[idx].person_id}/main`;
-    if(skipped.length > 0) { return nextUrl + '?skipped=' + skipped.join() }
-    else { return nextUrl; }
+    catch(e) { //log the error and disable the forward/backward buttons
+      console.error(e);
+      return [];
+    }
   }
   function RecordNavigatorBack() {
     const loading = useContext(LoadingContext) || (pieceStatus !== 'success');
