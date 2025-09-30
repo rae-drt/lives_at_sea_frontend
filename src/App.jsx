@@ -54,7 +54,17 @@ function App() {
             fontSize: 18, //TODO: This really should be relative to (a bit bigger than) "base" font size
           }
         }
-      }
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            "&.Mui-disabled": {
+              backgroundColor: '#f0f0f0',
+              fontWeight: 'bolder',
+            },
+          },
+        },
+      },
     }
   });
   if(import.meta.env.VITE_PERSIST_CACHE) {
