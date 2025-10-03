@@ -234,49 +234,49 @@ function translateToAPI(appData) {
   delete apiData.person.piece;
   delete apiData.person.item;
 
-  //if we are able to write the services then they must be the same, so we only write the first table
   if(appData.services) {
     apiData.service = {
       MAIN: [],
     };
-    const app_services = appData.services.services[0];
-    const currentServices = rename_properties(app_services, {
-      md5_hash: 'md5_hash',
-      userid: 'user_id',
-      step: 'step',
-      complete: 'complete',
-      records: 'rows',
-    });
+    for(const [index, x] of appData.services.services.entries()) {
+      const currentServices = rename_properties(x, {
+        md5_hash: 'md5_hash',
+        userid: 'user_id',
+        step: 'step',
+        complete: 'complete',
+        records: 'rows',
+      });
 
-    //handle status
-    if(appData.services.reconciled) {
-      currentServices.step = 'RECONCILE';
-    }
-    else {
-      currentServices.step = 'TRANSCRIBE1';
-    }
-    if(currentServices.rows.length === 0) {
-      currentServices.rows = null;
-    }
-    else {
-      currentServices.rows = [];
-      for(const y of app_services.records) {
-        currentServices.rows.push(rename_properties(y, {
-          rowid: 'row_number',
-          ship: 'ship',
-          rating: 'rating',
-          officer: 'officer',
-          fromday: 'fromday',
-          frommonth: 'frommonth',
-          fromyear: 'fromyear',
-          today: 'today',
-          tomonth: 'tomonth',
-          toyear: 'toyear',
-          source_id: 'source_id',
-        }));
+      //handle status
+      if(appData.services.reconciled) {
+        currentServices.step = 'RECONCILE';
       }
+      else {
+        currentServices.step = 'TRANSCRIBE' + (index + 1);
+      }
+      if(currentServices.rows.length === 0) {
+        currentServices.rows = null;
+      }
+      else {
+        currentServices.rows = [];
+        for(const y of x.records) {
+          currentServices.rows.push(rename_properties(y, {
+            rowid: 'row_number',
+            ship: 'ship',
+            rating: 'rating',
+            officer: 'officer',
+            fromday: 'fromday',
+            frommonth: 'frommonth',
+            fromyear: 'fromyear',
+            today: 'today',
+            tomonth: 'tomonth',
+            toyear: 'toyear',
+            source_id: 'source_id',
+          }));
+        }
+      }
+      apiData.service.MAIN.push(currentServices);
     }
-    apiData.service.MAIN.push(currentServices);
   }
   else {
     throw Error('No service data');
@@ -472,6 +472,7 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.services = structuredClone(data);
+  newClientData.services.services = [newClientData.services.services[0]] //if we are able to write the services then they must be the same, so we only write the first table
   for(const table of newClientData.services.services) {
     for(const row of table.records) {
       normalize(row, SERVICE_FIELD_TYPES);
