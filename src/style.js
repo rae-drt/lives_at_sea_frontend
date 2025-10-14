@@ -1,6 +1,6 @@
 const style = {
   differentCell: {
-    backgroundColor: 'color-mix(in srgb, pink 25%, transparent)',
+    backgroundColor: 'color-mix(in srgb, pink 50%, transparent)',
     fontWeight: 'bold',
   },
   selectedCell: {
