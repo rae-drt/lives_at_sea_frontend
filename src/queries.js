@@ -348,17 +348,35 @@ function mainPersonQF({queryKey}) {
           (bucketData) => {
             console.log(`Retrieved personid ${nameId} from bucket`);
             if(bucketData.person.person_id !== Number(nameId)) throw new Error('Person id mismatch');
-            resolve(bucketData); //if it worked, just return the JSON
+            if('L@SRecordsReturned' in bucketData && bucketData['L@SRecordsReturned'] === 1) {
+              delete bucketData['L@SRecordsReturned']; //this is wrapped by the API, we don't want it internally (or we'll end up writing back to the bucket, then the API might try to add it again, horrors may ensue
+              resolve(bucketData); //if it worked, just return the JSON
+            }
+            else { // 200, so we found something in the bucket -- but it did not have the expected identifying key/value, so blow up
+              reject(new Error('Bad record count in response'), { cause: bucketData });
+            }
           },
           (err) => {
-            if(err.cause.status === 404) { //failed lastpost lookup, try the database
-              resolve(fetchData('person?personid=' + nameId).then((dbData) => {
-                console.log(`Retrieved personid ${nameId} from database`);
-                if(dbData.person.person_id !== Number(nameId)) throw new Error('Person id mismatch');
-                return dbData;
-              }));
+            if(err.cause.status === 404) {
+              err.cause.json().then(
+                (jsonbody) => {
+                  if('L@SRecordsReturned' in jsonbody && jsonbody['L@SRecordsReturned'] === 0) { //failed lastpost lookup, try the database
+                    resolve(fetchData('person?personid=' + nameId).then((dbData) => {
+                      console.log(`Retrieved personid ${nameId} from database`);
+                      if(dbData.person.person_id !== Number(nameId)) throw new Error('Person id mismatch');
+                      return dbData;
+                    }));
+                  }
+                  else { //Bad 404 -- contains JSON, but not the expected key/value
+                    reject(err);
+                  }
+                },
+                () => { //Bad 404 -- JSON not decodable (e.g. because it is text)
+                  reject(err);
+                }
+              );
             }
-            else {
+            else { //Bad error -- not a 404
               reject(err);
             }
           }

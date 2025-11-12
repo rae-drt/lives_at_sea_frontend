@@ -37,10 +37,12 @@ export const handlers = [
     }
     if(PERSON_MAP.has(pid)) {
       if(DUMP) console.log(`Mock bucket lookup read Person ${pid}:`, PERSON_MAP.get(pid));
-      return HttpResponse.json(PERSON_MAP.get(pid));
+      const map_data = structuredClone(PERSON_MAP.get(pid));
+      map_data['L@SRecordsReturned'] = 1;
+      return HttpResponse.json(map_data);
     }
     else {
-      return HttpResponse.text('Not found', {status: 404});
+      return HttpResponse.json({'L@SRecordsReturned': 0}, {status: 404});
     }
   }),
   http.get(import.meta.env.VITE_API_ROOT + 'person', async ({request}) => { //override locally if local override exists. 
