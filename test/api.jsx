@@ -225,12 +225,14 @@ const EMPTY_FIRST_ROW = {
   rowid: 1,
   ship: null,
   rating: null,
+  officer: false,
   fromday: 0,
   frommonth: 0,
   fromyear: 0,
   today: 0,
   tomonth: 0,
   toyear: 0,
+  source_id: 0,
 };
 
 { //make sure I've set up my data right
@@ -260,12 +262,14 @@ const SERVICE_FIELDS = [
   'rowid',
   'ship',
   'rating',
+  'officer',
   'fromday',
   'frommonth',
   'fromyear',
   'today',
   'tomonth',
   'toyear',
+  'source_id',
 ];
 
 const EDITABLE_SERVICE_TEXT_FIELDS = [
@@ -285,6 +289,7 @@ const EDITABLE_SERVICE_NUMERIC_FIELDS = [
 const SERVICE_NUMERIC_FIELDS = [
   'rowid',
   ...EDITABLE_SERVICE_NUMERIC_FIELDS,
+  'source_id',
 ];
 
 const EDITABLE_SERVICE_FIELDS = [

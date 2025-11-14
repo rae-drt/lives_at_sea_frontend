@@ -67,12 +67,14 @@
   "service": {
     "MAIN": [
       {
+        "md5_hash": "d41d8cd9-8f00-b204-e980-0998ecf8427e",
         "user_id": 1,
         "step": "TRANSCRIBE1",
         "complete": false,
         "rows": null
       },
       {
+        "md5_hash": "d41d8cd9-8f00-b204-e980-0998ecf8427e",
         "user_id": 2,
         "step": "TRANSCRIBE2",
         "complete": false,
