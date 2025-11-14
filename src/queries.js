@@ -86,19 +86,11 @@ function postData(params, body) {
 //SHALLOW copy permits quick operation.
 export function rename_properties(obj, propMap, strict = true) {
   const newObj = {};
-  const untranslated = new Set(Object.keys(propMap));
   const mismatch = strict ? (k, v) => { console.log(`Unexpected property ${k}`); throw Error(`Unexpected property ${k}`); }
                           : (k, v) => { obj[k] = v; }
   for(const [k, v] of Object.entries(obj)) {
-    if(k in propMap) {
-      newObj[propMap[k]] = v;
-      untranslated.delete(k);
-    }
+    if(k in propMap) newObj[propMap[k]] = v;
     else mismatch(k, v);
-  }
-  if(strict && untranslated.size !== 0) {
-    console.log(`Expected property(s) not found in input object`, untranslated.values());
-    throw Error(`Missing property(s): ${untranslated.values()}`);
   }
   return newObj;
 }
@@ -234,15 +226,8 @@ function translateToAPI(appData) {
     source: 'source',
     services: 'service', //rename this key (alarmingly subtly) from app format
     versions: 'versions',
-
-    //This bit of daftness also enforces that both or neither of these
-    //keys are present, because the strict check in rename_properties will
-    //fail here if only one is defined. If we reach a point where they will
-    //always be present, can remove the conditional.
-    ...(('service_other_header' in appData || 'service_other' in appData) ? {
-      service_other_header: 'service_other_header', //temporary, removed later in function
-      service_other: 'service_other', //temporary, removed later in function
-    } : {}),
+    service_other_header: 'service_other_header', //temporary, removed later in function
+    service_other: 'service_other', //temporary, removed later in function
   });
 
   delete apiData.person.series;
