@@ -60,13 +60,29 @@ export const handlers = [
       //no local override, pass through to server. Try lastpost first.
       const response = await fetch(bypass(import.meta.env.VITE_API_ROOT + 'person/lastpost?' + new URL(request.url).searchParams.toString()));
       if(response.status === 404) {
-        const response = await fetch(bypass(request)); //pass to real server's 'person'
-        if(DUMP) console.log(`Real DB lookup read Person ${pid}:`, await response.clone().json());
-        return response;
+        const body = await response.json();
+        if('L@SRecordsReturned' in body && body['L@SRecordsReturned'] === 0) { //failed lastpost lookup, try the database
+          const response = await fetch(bypass(request)); //pass to real server's 'person'
+          if(DUMP) console.log(`Real DB lookup read Person ${pid}:`, await response.clone().json());
+          return response;
+        }
+        else {
+          console.error(`Mock: L@S check failed in bucket 404 for Person ${pid}`);
+          return HttpResponse.error(); //something has gone very wrong
+        }
       }
       else {
-        if(DUMP && response.ok) console.log(`Real bucket lookup read Person ${pid}:`, await response.clone().json());
-        return response;        //pass or fail, return what real server's 'lastpost' gave us
+        if(response.ok) { //pass, return a new response with the body minus the L@S thing (because the app treats this as a database hit)
+          const body = await response.json();
+          if((!('L@SRecordsReturned' in body)) || body['L@SRecordsReturned'] !== 1) {
+            console.error(`Mock: L@S check failed in bucket 200 for Person ${pid}`);
+            return HttpResponse.error(); //something has gone very wrong
+          }
+          if(DUMP) console.log(`Real bucket lookup read Person ${pid}:`, body);
+          delete body['L@SRecordsReturned'];
+          return HttpResponse.json(body);
+        }
+        else return response; //fail, return what real server's 'lastpost' gave us
       }
     }
     else {
