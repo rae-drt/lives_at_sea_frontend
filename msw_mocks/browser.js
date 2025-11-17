@@ -8,6 +8,8 @@ const POST_DELAY = Number(import.meta.env.VITE_POST_DELAY);
 const PERSON_MAP = new Map();
 const PIECE_MAP = new Map();
 
+const WRITE_COUNTER = new Map();
+
 function getParam(url, param) {
   const searchParams = new URL(url).searchParams;
   if(searchParams.has(param)) {
@@ -93,7 +95,10 @@ export const handlers = [
     if(TRACE) console.log('POST /person');
     if(POST_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, POST_DELAY * 1000)); console.log('...end delay'); }
     const data = await request.json();
+
     PERSON_MAP.set(data.person.person_id, data);
+    if(WRITE_COUNTER.has(data.person.person_id)) WRITE_COUNTER.set(data.person.person_id, WRITE_COUNTER.get(data.person.person_id) + 1);
+    else                                         WRITE_COUNTER.set(data.person.person_id, 1);
     if(DUMP) console.log(`Mock wrote to bucket Person ${data.person.person_id}:`, data);
     return HttpResponse.text('Hello, Lambda');
   }),
