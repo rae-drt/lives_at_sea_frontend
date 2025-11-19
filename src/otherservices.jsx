@@ -1,6 +1,6 @@
 import Other from './other';
 
-export default function OtherServices() {
+export default function OtherServices({record}) {
   const columnGroupingModel = [
     {
       groupId: 'fromDate',
@@ -117,5 +117,5 @@ export default function OtherServices() {
     },
   ];
 
-  return (<Other tag='service_other' columns={columns} columnGroupingModel={columnGroupingModel}/>);
+  return (<Other tag='service_other' columns={columns} columnGroupingModel={columnGroupingModel} record={record}/>);
 }

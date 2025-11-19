@@ -1,15 +1,15 @@
 import { useContext } from 'react';
 import { useParams } from 'react-router';
-import { useRecord, failedMutationDialog } from './queries';
+import { failedMutationDialog } from './queries';
 import { Alert, Button, Stack } from '@mui/material';
 import { useDialogs } from '@toolpad/core/useDialogs';
 import { LoadingContext } from './loadingcontext';
 import { useEmptyRowOK , DataTable } from './datatable';
 import { DirtySailorContext } from './dirty';
 
-export default function Other({tag, columns, columnGroupingModel}) {
+export default function Other({tag, columns, columnGroupingModel, record}) {
   const { sailorType, nameId } = useParams();
-  const { data, setData, mutation, status: queryStatus } = useRecord(sailorType, nameId, tag);
+  const { data, setData, mutation, status: queryStatus } = record;
   const dirty = useContext(DirtySailorContext)[tag];
   const emptyOK = useEmptyRowOK([data], 'row');
   const dialogs = useDialogs();

@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useRecord, failedMutationDialog } from './queries';
+import { failedMutationDialog } from './queries';
 import { DirtySailorContext } from './dirty';
 import { useEmptyRowOK } from './datatable';
 
@@ -63,10 +63,10 @@ function XCheck({ready, checked, onChange}) {
   );
 }
 
-export default function ServiceReconciler() {
+export default function ServiceReconciler({record}) {
   const {sailorType, nameId} = useParams();
   const [searchParams,] = useSearchParams();
-  const { data: serviceRecords, setData: setServiceRecords, mutation: serviceRecordsMutation, status: serviceRecordsQueryStatus } = useRecord(sailorType, nameId, 'service');
+  const { data: serviceRecords, setData: setServiceRecords, mutation: serviceRecordsMutation, status: serviceRecordsQueryStatus } = record;
   const dirty = useContext(DirtySailorContext).service;
   const emptyOK = useEmptyRowOK(serviceRecords.services.map((x)=>x.records), ROW_PRIMARY);
   const dialogs = useDialogs();

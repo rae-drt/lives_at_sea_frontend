@@ -28,9 +28,23 @@ export default function Person() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { data: personTableData, setData: setPersonTableData, mutation: personTableDataMutation, status: mainPersonQueryStatus } = useRecord(sailorType, nameId, 'name');
+  const serviceRecord = useRecord(sailorType, nameId, 'service');
+  const otherServiceRecord = useRecord(sailorType, nameId, 'service_other');
+  const otherDataRecord = useRecord(sailorType, nameId, 'data_other');
   const dirty = useDirtySailor(sailorType, nameId);
   const blocker = useDirtySailorBlocker(dirty);
   const dialogs = useDialogs();
+
+  const allStatus = [
+    mainPersonQueryStatus,
+    serviceRecord.status,
+    otherServiceRecord.status,
+    otherDataRecord.status,
+    personTableDataMutation.status,
+    serviceRecord.mutation.status,
+    otherServiceRecord.mutation.status,
+    otherDataRecord.mutation.status,
+  ];
 
   if(isNew(nameId)) document.title = 'New ' + sailorType;
   else if(personTableData) {
@@ -46,19 +60,19 @@ export default function Person() {
   ) {
     return (<Alert severity='error'>Bad location: {pathname}</Alert>);
   }
-  else if(mainPersonQueryStatus === 'error') {
-    return (<Alert severity='error'>Error fetching data</Alert>);
+  else if(allStatus.some((e) => e === 'error')) {
+    return (<Alert severity='error'>Error getting or posting data</Alert>);
   }
-  else if(mainPersonQueryStatus === 'pending' || personTableDataMutation.status === 'pending') {
+  else if(allStatus.some((e) => e === 'pending')) {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
-  else {
+  else { //mutations are in idle (i.e. have never run) or success state. queries are in success state.
     const controlPanel = isNew(nameId) ?
       <NewPersonControlPanel data={personTableData} onChange={setPersonTableData}/>
       :
       <ExistingPersonControlPanel data={personTableData} onChange={setPersonTableData}/>;
     return (
-      <LoadingContext value={mainPersonQueryStatus === 'pending'}>
+      <LoadingContext value={allStatus.some((e) => e === 'pending')}>{/* Currently hidden by the spinner for allStatus pending above */ }
         <DirtySailorContext value={dirty}>
           <BlockNavigationDialog blocker={blocker}/>
           <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
@@ -90,9 +104,9 @@ export default function Person() {
                   <Tab value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
                 </Tabs>
                 <Card variant='outlined'>
-                  {dataType === 'main' &&          <ServiceReconciler/>}
-                  {dataType === 'otherservices' && <OtherServices/>}
-                  {dataType === 'otherdata' &&     <OtherData/>}
+                  {dataType === 'main' &&          <ServiceReconciler record={serviceRecord}/>}
+                  {dataType === 'otherservices' && <OtherServices record={otherServiceRecord}/>}
+                  {dataType === 'otherdata' &&     <OtherData record={otherDataRecord}/>}
                 </Card>
               </Stack>
             </Stack>
