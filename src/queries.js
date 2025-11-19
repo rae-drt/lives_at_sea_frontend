@@ -621,6 +621,7 @@ export function useRecord(sailorType, nameId, selection) {
     mutationFn: (newData) => {
       return mutations[selection](queryClient, sailorType, nameId, newData);
     },
+    scope: { id: 'ATOMIC' }, //mutations in the same scope run in series. this ensures that updates are completed before data is gathered for the next mutation.
   });
 
   return {
