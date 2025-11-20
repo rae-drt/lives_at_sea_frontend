@@ -91,6 +91,7 @@ export const handlers = [
       }
     }
     else {
+      if(TRACE) console.log('GET /person (passing through)');
       if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('        ...end delay'); }
       return fetch(bypass(request));
     }
