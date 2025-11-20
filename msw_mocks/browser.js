@@ -4,6 +4,7 @@ import { PERSON_OVERRIDES, PIECE_OVERRIDES } from './data/data';
 
 const TRACE = import.meta.env.VITE_MOCK_TRACE;
 const DUMP  = import.meta.env.VITE_MOCK_DUMP;
+const GET_DELAY  = Number(import.meta.env.VITE_GET_DELAY);
 const POST_DELAY = Number(import.meta.env.VITE_POST_DELAY);
 const PERSON_MAP = new Map();
 const PIECE_MAP = new Map();
@@ -31,9 +32,10 @@ export const handlers = [
   http.get('/favicon.ico', ({request}) => {
     return fetch(bypass(request));
   }),
-  http.get(import.meta.env.VITE_API_ROOT + 'person/lastpost', ({request}) => { //emulate real server by returning from map if there
+  http.get(import.meta.env.VITE_API_ROOT + 'person/lastpost', async ({request}) => { //emulate real server by returning from map if there
     const pid = getNumericParam(request.url, 'personid');
     if(TRACE) console.log('GET /person/lastpost', pid);
+    if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
     if(pid === null) {
       return HttpResponse.json({message: 'Internal server error'}, {status: 502});
     }
@@ -53,6 +55,7 @@ export const handlers = [
     if(getParam(request.url, 'personid')) {
       const pid = getNumericParam(request.url, 'personid');
       if(TRACE) console.log('GET /person', pid);
+      if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
       if(pid === null)              return HttpResponse.json({message: 'Internal server error'}, {status: 502});
       if(PERSON_OVERRIDES.has(pid)) {
         if(DUMP) console.log(`Mock DB lookup read Person ${pid}:`, PERSON_OVERRIDES.get(pid));
@@ -88,6 +91,7 @@ export const handlers = [
       }
     }
     else {
+      if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
       return fetch(bypass(request));
     }
   }),
@@ -105,6 +109,7 @@ export const handlers = [
   http.get(import.meta.env.VITE_API_ROOT + 'status/piece_summary/last_piecesummary', async ({request}) => {
     const pid = getNumericParam(request.url, 'piece_number');
     if(TRACE) console.log('GET /status/piece_summary/last_piecesummary', pid);
+    if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
     if(pid === null) return HttpResponse.json({message: 'Internal server error'}, {status: 502});
     if(PIECE_MAP.has(pid)) return HttpResponse.json(PIECE_MAP.get(pid));
     else return HttpResponse.text('Not found', {status: 404});
@@ -112,6 +117,7 @@ export const handlers = [
   http.get(import.meta.env.VITE_API_ROOT + 'status/piece_summary', async ({request}) => {
     const pid = getNumericParam(request.url, 'piece_number');
     if(TRACE) console.log('GET /status/piece_summary', pid);
+    if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
     if(pid === null) return HttpResponse.json({message: 'Internal server error'}, {status: 502});
     if(PIECE_OVERRIDES.has(pid)) return HttpResponse.json(PIECE_OVERRIDES.get(pid));
 
