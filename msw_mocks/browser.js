@@ -35,7 +35,7 @@ export const handlers = [
   http.get(import.meta.env.VITE_API_ROOT + 'person/lastpost', async ({request}) => { //emulate real server by returning from map if there
     const pid = getNumericParam(request.url, 'personid');
     if(TRACE) console.log('GET /person/lastpost', pid);
-    if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
+    if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('        ...end delay'); }
     if(pid === null) {
       return HttpResponse.json({message: 'Internal server error'}, {status: 502});
     }
@@ -55,7 +55,7 @@ export const handlers = [
     if(getParam(request.url, 'personid')) {
       const pid = getNumericParam(request.url, 'personid');
       if(TRACE) console.log('GET /person', pid);
-      if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
+      if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('        ...end delay'); }
       if(pid === null)              return HttpResponse.json({message: 'Internal server error'}, {status: 502});
       if(PERSON_OVERRIDES.has(pid)) {
         if(DUMP) console.log(`Mock DB lookup read Person ${pid}:`, PERSON_OVERRIDES.get(pid));
@@ -91,13 +91,13 @@ export const handlers = [
       }
     }
     else {
-      if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
+      if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('        ...end delay'); }
       return fetch(bypass(request));
     }
   }),
   http.post(import.meta.env.VITE_API_ROOT + 'person', async ({request}) => {
     if(TRACE) console.log('POST /person');
-    if(POST_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, POST_DELAY * 1000)); console.log('...end delay'); }
+    if(POST_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, POST_DELAY * 1000)); console.log('        ...end delay'); }
     const data = await request.json();
 
     PERSON_MAP.set(data.person.person_id, data);
@@ -109,7 +109,7 @@ export const handlers = [
   http.get(import.meta.env.VITE_API_ROOT + 'status/piece_summary/last_piecesummary', async ({request}) => {
     const pid = getNumericParam(request.url, 'piece_number');
     if(TRACE) console.log('GET /status/piece_summary/last_piecesummary', pid);
-    if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
+    if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('        ...end delay'); }
     if(pid === null) return HttpResponse.json({message: 'Internal server error'}, {status: 502});
     if(PIECE_MAP.has(pid)) return HttpResponse.json(PIECE_MAP.get(pid));
     else return HttpResponse.text('Not found', {status: 404});
@@ -117,7 +117,7 @@ export const handlers = [
   http.get(import.meta.env.VITE_API_ROOT + 'status/piece_summary', async ({request}) => {
     const pid = getNumericParam(request.url, 'piece_number');
     if(TRACE) console.log('GET /status/piece_summary', pid);
-    if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('...end delay'); }
+    if(GET_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, GET_DELAY * 1000)); console.log('        ...end delay'); }
     if(pid === null) return HttpResponse.json({message: 'Internal server error'}, {status: 502});
     if(PIECE_OVERRIDES.has(pid)) return HttpResponse.json(PIECE_OVERRIDES.get(pid));
 
@@ -129,7 +129,7 @@ export const handlers = [
   http.post(import.meta.env.VITE_API_ROOT + 'status/piece_summary/last_piecesummary', async ({request}) => {
     const pid = getNumericParam(request.url, 'piece_number');
     if(TRACE) console.log('POST /status/piece_summary/last_piecesummary', pid);
-    if(POST_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, POST_DELAY * 1000)); console.log('...end delay'); }
+    if(POST_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, POST_DELAY * 1000)); console.log('        ...end delay'); }
     const data = await request.json();
     PIECE_MAP.set(pid, data);
     if(DUMP) console.log(`Mock wrote to bucket Piece ${pid}: `, data);
