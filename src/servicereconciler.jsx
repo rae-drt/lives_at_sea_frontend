@@ -21,6 +21,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import HappyIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import SadIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import { LoadingContext } from './loadingcontext';
+import { LockedContext } from './lockedcontext';
 
 import { isEqual, reduce } from 'lodash';
 
@@ -55,10 +56,11 @@ function getDifferenceMap(table1, table2) {
 
 function XCheck({ready, checked, onChange}) {
   const loading = useContext(LoadingContext);
+  const [locked,] = useContext(LockedContext);
   return (
     <Stack direction='row' alignItems='center'>
       {ready ? <HappyIcon sx = {{color: 'green'}}/> : <SadIcon sx = {{color: 'red'}}/>}
-      <FormControlLabel control={<Checkbox disabled={loading || (!ready)} checked={checked} onChange={onChange}/>} label='Xcheck' labelPlacement='start'/>
+      <FormControlLabel control={<Checkbox disabled={locked || loading || (!ready)} checked={checked} onChange={onChange}/>} label='Xcheck' labelPlacement='start'/>
     </Stack>
   );
 }
@@ -68,6 +70,8 @@ export default function ServiceReconciler({record}) {
   const [searchParams,] = useSearchParams();
   const { data: serviceRecords, setData: setServiceRecords, mutation: serviceRecordsMutation, status: serviceRecordsQueryStatus } = record;
   const dirty = useContext(DirtySailorContext).service;
+  const loading = useContext(LoadingContext);
+  const [locked, setLocked] = useContext(LockedContext);
   const emptyOK = useEmptyRowOK(serviceRecords.services.map((x)=>x.records), ROW_PRIMARY);
   const dialogs = useDialogs();
 
@@ -168,7 +172,7 @@ export default function ServiceReconciler({record}) {
           <Tooltip title='Replace other table with this table'>
             <span>
               <Button
-                disabled={differenceMap === null}
+                disabled={(differenceMap === null) || loading || locked}
                 onClick={() => {
                   const clone = structuredClone(serviceRecords);
                   clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
@@ -243,11 +247,13 @@ export default function ServiceReconciler({record}) {
             setServiceRecords(clone);
           }}/>
          <Button variant='outlined'
-                 disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty))}
+                 disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty)) || locked || loading}
                  onClick={
                    async ()=>{
+                     setLocked(true);
                      (await emptyOK()) && serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
                        onError: failedMutationDialog(dialogs, serviceRecordsMutation),
+                       onSettled: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
                      });
                    }
                    //It looks like it is possible for the user to mess about with entering extra data

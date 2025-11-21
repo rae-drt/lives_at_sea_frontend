@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
+import { LockedContext } from './lockedcontext';
 
 import style from './style';
 
@@ -66,6 +67,7 @@ export function TranscriptionInfo({transcriber, complete, flipComplete, disabled
 
 export default function ServiceTable({transcriber, complete, reconciled, cloneButton, flipComplete, data, onChange, difference, controlCount, extraRowControls, primary}) {
   const loading = useContext(LoadingContext);
+  const [locked,] = useContext(LockedContext);
   const theme = useTheme();
   const columns = [
     {
@@ -163,7 +165,7 @@ export default function ServiceTable({transcriber, complete, reconciled, cloneBu
       <CardContent>
         <Box sx={{width: extraRowControls ? '45vw' : '90vw'}}>
           <Stack direction='row' justifyContent='space-between'>
-            <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading || reconciled}/>
+            <TranscriptionInfo transcriber={transcriber} complete={complete} flipComplete={flipComplete} disabled={loading || locked || reconciled}/>
             {cloneButton}
           </Stack>
           <DataTable
