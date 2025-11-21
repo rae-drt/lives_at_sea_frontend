@@ -24,7 +24,7 @@ export default function PersonControlPanel({navigator, data, onChange}) {
         alignItems: "flex-end",
       }}>
       {navigator}
-      <Stack direction='row' alignItems='center'><Typography>{sailorType === 'rating' ? 'Progress' : 'Officers'}</Typography><IconButton color='primary'><WestIcon color='inherit' onClick={()=>{
+      <Stack direction='row' alignItems='center'><Typography>{sailorType === 'rating' ? 'Progress' : 'Officers'}</Typography><IconButton disabled={loading || locked} color='primary'><WestIcon color='inherit' onClick={()=>{
         sailorType === 'rating' ?
           navigate('/ratings/' + data.piece):
           navigate('/officers/' + (data.surname ? data.surname.charAt(0) : 'null'))}}/></IconButton></Stack>

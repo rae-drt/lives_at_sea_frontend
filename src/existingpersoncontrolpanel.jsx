@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router';
 import { LoadingContext } from './loadingcontext';
+import { LockedContext } from './lockedcontext';
 import PersonControlPanel from './personcontrolpanel';
 import { pieceQuery, refToPersonIdQuery } from './queries';
 import { useQuery } from '@tanstack/react-query';
@@ -60,24 +61,26 @@ export function RecordNavigator({piece}) {
   }
   function RecordNavigatorBack() {
     const loading = useContext(LoadingContext) || (pieceStatus !== 'success');
+    const [locked,] = useContext(LockedContext);
     const nextUrl = loading ? null : next(-1);
     const lastItem = typeof(nextUrl) !== 'string';
     return(
       <Tooltip title={lastItem ? `No lower items in piece ${piece}. ${getSkippedStr(nextUrl, 'item')}` : ''}>
         <span>
-          <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><WestIcon color='inherit'/></IconButton>
+          <IconButton disabled={loading || locked || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><WestIcon color='inherit'/></IconButton>
         </span>
       </Tooltip>
     );
   }
   function RecordNavigatorForward() {
     const loading = useContext(LoadingContext) || (pieceStatus !== 'success');
+    const [locked,] = useContext(LockedContext);
     const nextUrl = loading ? null : next( 1);
     const lastItem = typeof(nextUrl) !== 'string';
     return(
       <Tooltip title={lastItem ? `No higher items in piece ${piece}. ${getSkippedStr(nextUrl, 'item')}` : ''}>
         <span>
-          <IconButton disabled={loading || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><EastIcon color='inherit'/></IconButton>
+          <IconButton disabled={loading || locked || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><EastIcon color='inherit'/></IconButton>
         </span>
       </Tooltip>
     );
@@ -85,6 +88,8 @@ export function RecordNavigator({piece}) {
 
   //re https://github.com/mui/material-ui/issues/5393, https://stackoverflow.com/questions/67578008/how-to-get-value-from-material-ui-textfield-after-pressing-enter
   function RecordNavigatorTeleport() {
+    const loading = useContext(LoadingContext) || (pieceStatus !== 'success');
+    const [locked,] = useContext(LockedContext);
     const [valid, setValid] = useState(true);
     const [ref, setRef] = useState(false);
     const [popoverAnchor, setPopoverAnchor] = useState(false);
@@ -100,7 +105,7 @@ export function RecordNavigator({piece}) {
     return (
       <>
         <Snackbar open={queryStatus === 'error' && ref !== false} onClose={()=>setRef(false)} autoHideDuration={5000} anchorOrigin={{vertical: 'top', horizontal: 'center'}}><Alert severity='error'>No identifier found for ADM 188/{ref.piece}/{ref.item}</Alert></Snackbar>
-        <Typography onClick={(e)=>{setPopoverAnchor(e.currentTarget)}}>Record</Typography>
+        <Typography onClick={(e)=>{(!locked) && (!loading) && setPopoverAnchor(e.currentTarget)}}>Record</Typography>
         <Popover
           open={Boolean(popoverAnchor)}
           anchorEl={popoverAnchor}
@@ -110,6 +115,7 @@ export function RecordNavigator({piece}) {
           }}
         >
           <TextField
+            disabled = {loading || locked}
             slotProps = {{
               input: {
                 startAdornment: <InputAdornment position='start'>ADM 188/</InputAdornment>,
