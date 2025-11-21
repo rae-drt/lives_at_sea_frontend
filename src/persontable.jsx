@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { LoadingContext } from './loadingcontext';
+import { LockedContext } from './lockedcontext';
 
 import style from './style';
 
@@ -13,6 +14,7 @@ import { PERSON_FIELD_TYPES, PERSON_FIELD_VALIDATORS } from './data_utils';
 
 function PersonTableField({data, onChange, field, error}) {
   const loading = useContext(LoadingContext);
+  const [locked,] = useContext(LockedContext);
   const fieldType = PERSON_FIELD_TYPES[field];
   const fieldValue = (field in data && data[field] !== null) ? data[field] : '';
   function hasError() {
@@ -36,7 +38,7 @@ function PersonTableField({data, onChange, field, error}) {
 
   return (
     <TextField
-      disabled={loading}
+      disabled={loading || locked}
       size='small'
       fullWidth
       type={fieldType}

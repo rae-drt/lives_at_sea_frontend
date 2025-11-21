@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { LoadingContext } from './loadingcontext';
+import { LockedContext } from './lockedcontext';
 
 import Stack from '@mui/material/Stack';
 import Checkbox from '@mui/material/Checkbox';
@@ -12,6 +13,7 @@ import WestIcon from '@mui/icons-material/ArrowBack'
 
 export default function PersonControlPanel({navigator, data, onChange}) {
   const loading = useContext(LoadingContext);
+  const [locked,] = useContext(LockedContext);
   const {sailorType} = useParams();
   const navigate = useNavigate();
   return(
@@ -27,7 +29,7 @@ export default function PersonControlPanel({navigator, data, onChange}) {
           navigate('/ratings/' + data.piece):
           navigate('/officers/' + (data.surname ? data.surname.charAt(0) : 'null'))}}/></IconButton></Stack>
       { sailorType === 'rating' &&
-        <FormControlLabel control={<Checkbox disabled={loading} checked={data.notww1} onChange={()=>{onChange({...data, notww1: !data.notww1})}}/>} label='Not WW1' labelPlacement='start'/>
+        <FormControlLabel control={<Checkbox disabled={loading || locked} checked={data.notww1} onChange={()=>{onChange({...data, notww1: !data.notww1})}}/>} label='Not WW1' labelPlacement='start'/>
       }
     </Stack>
   );

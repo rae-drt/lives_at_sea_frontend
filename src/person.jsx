@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router';
 import Card from '@mui/material/Card';
 import Tab from '@mui/material/Tab';
@@ -10,6 +11,7 @@ import OtherServices from './otherservices';
 import PersonData from './persondata';
 import ServiceReconciler from './servicereconciler';
 import { LoadingContext } from './loadingcontext';
+import { LockedContext } from './lockedcontext';
 import { DirtySailorContext, useDirtySailor, useDirtySailorBlocker } from './dirty';
 import BlockNavigationDialog from './blocknavigationdialog';
 import { isNew, catref, officerref } from './data_utils';
@@ -25,6 +27,7 @@ export default function Person() {
   const otherDataRecord = useRecord(sailorType, nameId, 'data_other');
   const dirty = useDirtySailor(sailorType, nameId);
   const blocker = useDirtySailorBlocker(dirty);
+  const [ locked, setLocked ] = useState(false);
 
   const allStatus = [
     personRecord.status,
@@ -61,24 +64,26 @@ export default function Person() {
    return (
       <LoadingContext value={allStatus.some((e) => e === 'pending')}>{/* Currently hidden by the spinner for allStatus pending above */ }
         <DirtySailorContext value={dirty}>
-          <BlockNavigationDialog blocker={blocker}/>
-          <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
-            <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={4}>
-              <PersonData record={personRecord}/>
-              <Stack alignItems='center' spacing={2} width='95vw'>
-                <Tabs value={dataType} onChange={(e,v) => {navigate('/person/' + sailorType + '/' + nameId + '/' + v);}}>
-                  {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
-                  <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
-                  <Tab value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
-                </Tabs>
-                <Card variant='outlined'>
-                  {dataType === 'main' &&          <ServiceReconciler record={serviceRecord}/>}
-                  {dataType === 'otherservices' && <OtherServices record={otherServiceRecord}/>}
-                  {dataType === 'otherdata' &&     <OtherData record={otherDataRecord}/>}
-                </Card>
+          <LockedContext value={[locked, setLocked]}>
+            <BlockNavigationDialog blocker={blocker}/>
+            <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
+              <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={4}>
+                <PersonData record={personRecord}/>
+                <Stack alignItems='center' spacing={2} width='95vw'>
+                  <Tabs value={dataType} onChange={(e,v) => {navigate('/person/' + sailorType + '/' + nameId + '/' + v);}}>
+                    {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
+                    <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
+                    <Tab value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
+                  </Tabs>
+                  <Card variant='outlined'>
+                    {dataType === 'main' &&          <ServiceReconciler record={serviceRecord}/>}
+                    {dataType === 'otherservices' && <OtherServices record={otherServiceRecord}/>}
+                    {dataType === 'otherdata' &&     <OtherData record={otherDataRecord}/>}
+                  </Card>
+                </Stack>
               </Stack>
             </Stack>
-          </Stack>
+          </LockedContext>
         </DirtySailorContext>
       </LoadingContext>
     );
