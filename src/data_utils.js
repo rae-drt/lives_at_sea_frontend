@@ -221,3 +221,7 @@ export function getSkippedStr(skipped, noun) {
   }
   return '';
 }
+
+export function isNew(id) {
+  return id === 0;
+}

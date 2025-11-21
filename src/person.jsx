@@ -16,12 +16,8 @@ import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
 import { DirtySailorContext, useDirtySailor, useDirtySailorBlocker } from './dirty';
 import BlockNavigationDialog from './blocknavigationdialog';
-import { catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
+import { isNew, catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
 import { useRecord, failedMutationDialog } from './queries';
-
-function isNew(id) {
-  return id === '0';
-}
 
 export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
