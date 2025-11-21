@@ -54,38 +54,42 @@ export default function Person() {
   ) {
     return (<Alert severity='error'>Bad location: {pathname}</Alert>);
   }
-  else if(allStatus.some((e) => e === 'error')) {
-    return (<Alert severity='error'>Error getting or posting data</Alert>);
-  }
-  else if(allStatus.some((e) => e === 'pending')) {
-    return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
-  }
-  else { //mutations are in idle (i.e. have never run) or success state. queries are in success state.
-   return (
-      <LoadingContext value={allStatus.some((e) => e === 'pending')}>{/* Currently hidden by the spinner for allStatus pending above */ }
-        <DirtySailorContext value={dirty}>
-          <LockedContext value={[locked, setLocked]}>
-            <BlockNavigationDialog blocker={blocker}/>
-            <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
-              <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={4}>
-                <PersonData record={personRecord}/>
-                <Stack alignItems='center' spacing={2} width='95vw'>
-                  <Tabs value={dataType} onChange={(e,v) => {navigate('/person/' + sailorType + '/' + nameId + '/' + v);}}>
-                    {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
-                    <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'}  sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
-                    <Tab value='otherdata' label='Data' sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
-                  </Tabs>
-                  <Card variant='outlined'>
-                    {dataType === 'main' &&          <ServiceReconciler record={serviceRecord}/>}
-                    {dataType === 'otherservices' && <OtherServices record={otherServiceRecord}/>}
-                    {dataType === 'otherdata' &&     <OtherData record={otherDataRecord}/>}
-                  </Card>
+  else {
+    if(allStatus.some((e) => e === 'error')) {
+      return (<Alert severity='error'>Error getting or posting data</Alert>);
+    }
+
+    const loading = allStatus.some((e) => e === 'pending');
+    if(loading) {
+      return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
+    }
+    else { //mutations are in idle (i.e. have never run) or success state. queries are in success state.
+     return (
+        <LoadingContext value={loading}>{/* Currently hidden by the spinner for allStatus pending above */ }
+          <DirtySailorContext value={dirty}>
+            <LockedContext value={[locked, setLocked]}>
+              <BlockNavigationDialog blocker={blocker}/>
+              <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
+                <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={4}>
+                  <PersonData record={personRecord}/>
+                  <Stack alignItems='center' spacing={2} width='95vw'>
+                    <Tabs value={dataType} onChange={(e,v) => {navigate('/person/' + sailorType + '/' + nameId + '/' + v);}}>
+                      {sailorType === 'rating' && <Tab value='main' label='Services' disabled={loading|locked} sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
+                      <Tab value='otherservices' label={sailorType === 'rating' ? 'Other Services' : 'Services'} disabled={loading|locked} sx={((dataType !== 'otherservices') && dirty.service_other) ? { fontWeight: 'bold' } : null }/>
+                      <Tab value='otherdata' label='Data' disabled={loading|locked} sx={((dataType !== 'otherdata') && dirty.data_other) ? { fontWeight: 'bold' } : null }/>
+                    </Tabs>
+                    <Card variant='outlined'>
+                      {dataType === 'main' &&          <ServiceReconciler record={serviceRecord}/>}
+                      {dataType === 'otherservices' && <OtherServices record={otherServiceRecord}/>}
+                      {dataType === 'otherdata' &&     <OtherData record={otherDataRecord}/>}
+                    </Card>
+                  </Stack>
                 </Stack>
               </Stack>
-            </Stack>
-          </LockedContext>
-        </DirtySailorContext>
-      </LoadingContext>
-    );
+            </LockedContext>
+          </DirtySailorContext>
+        </LoadingContext>
+      );
+    }
   }
 }
