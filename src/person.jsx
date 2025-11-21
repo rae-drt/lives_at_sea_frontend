@@ -5,47 +5,42 @@ import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useDialogs } from '@toolpad/core/useDialogs';
 import OtherData from './otherdata';
 import OtherServices from './otherservices';
-import PersonTable from './persontable';
+import PersonData from './persondata';
 import ServiceReconciler from './servicereconciler';
-import NewPersonControlPanel from './newpersoncontrolpanel';
-import ExistingPersonControlPanel from './existingpersoncontrolpanel';
-import PersonTableControlPanel from './persontablecontrolpanel';
 import { LoadingContext } from './loadingcontext';
 import { DirtySailorContext, useDirtySailor, useDirtySailorBlocker } from './dirty';
 import BlockNavigationDialog from './blocknavigationdialog';
-import { isNew, catref, officerref, RATING_LAYOUT, OFFICER_LAYOUT } from './data_utils';
-import { useRecord, failedMutationDialog } from './queries';
+import { isNew, catref, officerref } from './data_utils';
+import { useRecord } from './queries';
 
 export default function Person() {
   const { sailorType, nameId, dataType } = useParams();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { data: personTableData, setData: setPersonTableData, mutation: personTableDataMutation, status: mainPersonQueryStatus } = useRecord(sailorType, nameId, 'name');
+  const personRecord = useRecord(sailorType, nameId, 'name');
   const serviceRecord = useRecord(sailorType, nameId, 'service');
   const otherServiceRecord = useRecord(sailorType, nameId, 'service_other');
   const otherDataRecord = useRecord(sailorType, nameId, 'data_other');
   const dirty = useDirtySailor(sailorType, nameId);
   const blocker = useDirtySailorBlocker(dirty);
-  const dialogs = useDialogs();
 
   const allStatus = [
-    mainPersonQueryStatus,
+    personRecord.status,
     serviceRecord.status,
     otherServiceRecord.status,
     otherDataRecord.status,
-    personTableDataMutation.status,
+    personRecord.mutation.status,
     serviceRecord.mutation.status,
     otherServiceRecord.mutation.status,
     otherDataRecord.mutation.status,
   ];
 
   if(isNew(nameId)) document.title = 'New ' + sailorType;
-  else if(personTableData) {
-    if(sailorType === 'rating') document.title = catref(personTableData);
-    else if(sailorType === 'officer') document.title = 'Officer #' + officerref(personTableData);
+  else if(personRecord.data) {
+    if(sailorType === 'rating') document.title = catref(personRecord.data);
+    else if(sailorType === 'officer') document.title = 'Officer #' + officerref(personRecord.data);
     else throw new Error(); //this should never happen
   }
   else document.title = 'Fetching ' + sailorType + ' ' + nameId;
@@ -63,36 +58,13 @@ export default function Person() {
     return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
   else { //mutations are in idle (i.e. have never run) or success state. queries are in success state.
-    const controlPanel = isNew(nameId) ?
-      <NewPersonControlPanel data={personTableData} onChange={setPersonTableData}/>
-      :
-      <ExistingPersonControlPanel data={personTableData} onChange={setPersonTableData}/>;
-    return (
+   return (
       <LoadingContext value={allStatus.some((e) => e === 'pending')}>{/* Currently hidden by the spinner for allStatus pending above */ }
         <DirtySailorContext value={dirty}>
           <BlockNavigationDialog blocker={blocker}/>
           <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
             <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={4}>
-              <Stack direction='row' width={0.9} alignItems='flex-start'>
-                <Card variant='outlined'>
-                  <PersonTableControlPanel data={personTableData} onChange={(()=>{
-                    personTableDataMutation.mutate(personTableData, {
-                      onError: failedMutationDialog(dialogs, personTableDataMutation),
-                    });
-                  })}/>
-                  {
-                    <PersonTable data={personTableData} onChange={setPersonTableData} rowCells={8}
-                      rows={sailorType === 'officer' ?
-                        OFFICER_LAYOUT :
-                        isNew(nameId) ?
-                          [{labels: {'ADM': 2}, fields :{series: 1, piece: 1, nameid: 1}}, ...RATING_LAYOUT] :
-                          RATING_LAYOUT
-                      }
-                    />
-                  }
-                </Card>
-                {controlPanel}
-              </Stack>
+              <PersonData record={personRecord}/>
               <Stack alignItems='center' spacing={2} width='95vw'>
                 <Tabs value={dataType} onChange={(e,v) => {navigate('/person/' + sailorType + '/' + nameId + '/' + v);}}>
                   {sailorType === 'rating' && <Tab value='main' label='Services' sx={((dataType !== 'main') && dirty.service) ? { fontWeight: 'bold' } : null }/>}
