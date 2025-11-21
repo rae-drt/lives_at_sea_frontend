@@ -7,7 +7,6 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import ServiceTable from './servicetable';
-import CircularProgress from '@mui/material/CircularProgress';
 import { failedMutationDialog } from './queries';
 import { DirtySailorContext } from './dirty';
 import { useEmptyRowOK } from './datatable';
@@ -77,9 +76,6 @@ export default function ServiceReconciler({record}) {
 
   if(serviceRecordsQueryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
-  }
-  else if(serviceRecordsQueryStatus === 'pending' || serviceRecordsMutation.status === 'pending') {
-    return (<Stack height='100vh' width='100vw' alignItems='center' justifyContent='center'><CircularProgress size='50vh'/></Stack>);
   }
 
   /* Confirm that the passed data array is safe to use in the service table interfaces
