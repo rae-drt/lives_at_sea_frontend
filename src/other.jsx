@@ -4,6 +4,7 @@ import { failedMutationDialog } from './queries';
 import { Alert, Button, Stack } from '@mui/material';
 import { useDialogs } from '@toolpad/core/useDialogs';
 import { LoadingContext } from './loadingcontext';
+import { LockedContext } from './lockedcontext';
 import { useEmptyRowOK , DataTable } from './datatable';
 import { DirtySailorContext } from './dirty';
 
@@ -11,6 +12,8 @@ export default function Other({tag, columns, columnGroupingModel, record}) {
   const { sailorType, nameId } = useParams();
   const { data, setData, mutation, status: queryStatus } = record;
   const dirty = useContext(DirtySailorContext)[tag];
+  const loading = useContext(LoadingContext);
+  const [locked, setLocked] = useContext(LockedContext);
   const emptyOK = useEmptyRowOK([data], 'row');
   const dialogs = useDialogs();
 
@@ -22,10 +25,12 @@ export default function Other({tag, columns, columnGroupingModel, record}) {
       <LoadingContext value={queryStatus === 'pending' || mutation.status === 'pending'}>
         <Stack width='90vw' justifyContent='space-between' spacing={2} sx={{padding: 2}}>
           <Stack direction='row' justifyContent='flex-end'>
-            <Button variant='outlined' disabled={!dirty} onClick={
+            <Button variant='outlined' disabled={(!dirty) || loading || locked} onClick={
               async ()=>{
+                setLocked(true);
                 (await emptyOK()) && mutation.mutate(data, {
                   onError: failedMutationDialog(dialogs, mutation),
+                  onSettled: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
                 });
                 //It looks like it is possible for the user to mess about with entering extra data
                 //between the emptyOK operation and the mutate. More generally, it looks like it is possible

@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { useDialogs } from '@toolpad/core/useDialogs';
 import { LoadingContext } from './loadingcontext';
+import { LockedContext } from './lockedcontext';
 
 import { DataGrid, gridClasses, useGridApiRef } from '@mui/x-data-grid';
 import Stack from '@mui/material/Stack';
@@ -65,6 +66,7 @@ export function emptyRow(coldefs) {
 export function DataTable(props) {
   const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, controlCount, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
+  const [locked,] = useContext(LockedContext);
   const theme = useTheme();
   const apiRef = useGridApiRef();
   function addButton() {
@@ -202,7 +204,7 @@ export function DataTable(props) {
     <DataGrid
       apiRef={apiRef}
       onCellKeyDown={handleCellKeyDown}
-      loading={loading}
+      loading={loading || locked}
       density='compact'
       rows={rows}
       columns={[...columns, {
