@@ -26,20 +26,22 @@ export default function Other({tag, columns, columnGroupingModel, record}) {
         <Stack width='90vw' justifyContent='space-between' spacing={2} sx={{padding: 2}}>
           <Stack direction='row' justifyContent='flex-end'>
             <Button variant='outlined' disabled={(!dirty) || loading || locked} onClick={
-              async ()=>{
+              ()=>{
                 setLocked(true);
-                (await emptyOK()) && mutation.mutate(data, {
-                  onError: failedMutationDialog(dialogs, mutation),
-                  onSettled: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
+                setTimeout(async ()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
+                  (await emptyOK()) && mutation.mutate(data, {
+                    onError: failedMutationDialog(dialogs, mutation),
+                    onSettled: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
+                  });
+                  //It looks like it is possible for the user to mess about with entering extra data
+                  //between the emptyOK operation and the mutate. More generally, it looks like it is possible
+                  //for a user to enter data between click and mutate, given some delay between click and
+                  //mutate. HOWEVER observation shows that the event appears to occur within the context of
+                  //the state at the point that the event began: even if the user edits the data between click
+                  //and mutate, those edits are simply ignored. Which really is the behaviour that we want for
+                  //any sensible kind of atomicity. While not a great user experience it is in practice
+                  //nearly impossible for the user to do this anyway.
                 });
-                //It looks like it is possible for the user to mess about with entering extra data
-                //between the emptyOK operation and the mutate. More generally, it looks like it is possible
-                //for a user to enter data between click and mutate, given some delay between click and
-                //mutate. HOWEVER observation shows that the event appears to occur within the context of
-                //the state at the point that the event began: even if the user edits the data between click
-                //and mutate, those edits are simply ignored. Which really is the behaviour that we want for
-                //any sensible kind of atomicity. While not a great user experience it is in practice
-                //nearly impossible for the user to do this anyway.
               }
             }>Enter</Button>
           </Stack>

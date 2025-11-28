@@ -245,11 +245,13 @@ export default function ServiceReconciler({record}) {
          <Button variant='outlined'
                  disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty)) || locked || loading}
                  onClick={
-                   async ()=>{
+                   ()=>{
                      setLocked(true);
-                     (await emptyOK()) && serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
-                       onError: failedMutationDialog(dialogs, serviceRecordsMutation),
-                       onSettled: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
+                     setTimeout(async ()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
+                       (await emptyOK()) && serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
+                         onError: failedMutationDialog(dialogs, serviceRecordsMutation),
+                         onSettled: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
+                       });
                      });
                    }
                    //It looks like it is possible for the user to mess about with entering extra data
