@@ -129,20 +129,26 @@ export default function ServiceReconciler({record}) {
           <Tooltip title={'Overwrite row in ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
               <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+                setLocked(true);
+                setTimeout(()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
                   newTable.push({...structuredClone(row), [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
                   newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY])));
                   const clone = structuredClone(serviceRecords);
                   clone.services[thatTable].records = newTable;
                   setServiceRecords(clone);
-                }}>
-                  <OverwriteThatIcon sx={{transform: thisTable < thatTable ? 'rotate(0)' : 'rotate(180deg)'}}/>
+                  setLocked(false);
+                });
+              }}>
+                <OverwriteThatIcon sx={{transform: thisTable < thatTable ? 'rotate(0)' : 'rotate(180deg)'}}/>
               </IconButton>
             </span>
           </Tooltip>
           <Tooltip title={'Insert row into ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
               <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+                setLocked(true);
+                setTimeout(()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
                   newTable.push({...structuredClone(row), [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
                   newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY] - 1)));
@@ -150,8 +156,10 @@ export default function ServiceReconciler({record}) {
                   const clone = structuredClone(serviceRecords);
                   clone.services[thatTable].records = newTable;
                   setServiceRecords(clone);
-                }}>
-                  <InsertThatIcon sx={{transform: thisTable < thatTable ? 'rotate(180deg)' : 'rotate(0)'}}/>
+                  setLocked(false);
+                });
+              }}>
+                <InsertThatIcon sx={{transform: thisTable < thatTable ? 'rotate(180deg)' : 'rotate(0)'}}/>
               </IconButton>
             </span>
           </Tooltip>
@@ -170,9 +178,13 @@ export default function ServiceReconciler({record}) {
               <Button
                 disabled={(differenceMap === null) || loading || locked}
                 onClick={() => {
-                  const clone = structuredClone(serviceRecords);
-                  clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
-                  setServiceRecords(clone);
+                  setLocked(true);
+                  setTimeout(()=>{
+                    const clone = structuredClone(serviceRecords);
+                    clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
+                    setServiceRecords(clone);
+                    setLocked(false);
+                  });
                 }}
               >{ thisTable < thatTable ?
                    (thisTable + 1) + ' ' + String.fromCharCode(8658) + ' ' + (thatTable + 1):

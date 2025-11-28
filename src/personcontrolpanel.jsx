@@ -13,7 +13,7 @@ import WestIcon from '@mui/icons-material/ArrowBack'
 
 export default function PersonControlPanel({navigator, data, onChange}) {
   const loading = useContext(LoadingContext);
-  const [locked,] = useContext(LockedContext);
+  const [locked, setLocked] = useContext(LockedContext);
   const {sailorType} = useParams();
   const navigate = useNavigate();
   return(
@@ -24,10 +24,20 @@ export default function PersonControlPanel({navigator, data, onChange}) {
         alignItems: "flex-end",
       }}>
       {navigator}
-      <Stack direction='row' alignItems='center'><Typography>{sailorType === 'rating' ? 'Progress' : 'Officers'}</Typography><IconButton disabled={loading || locked} color='primary'><WestIcon color='inherit' onClick={()=>{
-        sailorType === 'rating' ?
-          navigate('/ratings/' + data.piece):
-          navigate('/officers/' + (data.surname ? data.surname.charAt(0) : 'null'))}}/></IconButton></Stack>
+      <Stack direction='row' alignItems='center'>
+        <Typography>{sailorType === 'rating' ? 'Progress' : 'Officers'}</Typography>
+        <IconButton disabled={loading || locked} color='primary'>
+          <WestIcon color='inherit' onClick={()=>{
+            setLocked(true);
+            setTimeout(()=>{
+              sailorType === 'rating' ?
+                navigate('/ratings/' + data.piece):
+                navigate('/officers/' + (data.surname ? data.surname.charAt(0) : 'null'));
+              setLocked(false);
+            });
+          }}/>
+        </IconButton>
+      </Stack>
       { sailorType === 'rating' &&
         <FormControlLabel control={<Checkbox disabled={loading || locked} checked={data.notww1} onChange={()=>{onChange({...data, notww1: !data.notww1})}}/>} label='Not WW1' labelPlacement='start'/>
       }

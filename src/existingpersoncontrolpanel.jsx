@@ -61,26 +61,42 @@ export function RecordNavigator({piece}) {
   }
   function RecordNavigatorBack() {
     const loading = useContext(LoadingContext) || (pieceStatus !== 'success');
-    const [locked,] = useContext(LockedContext);
+    const [locked, setLocked] = useContext(LockedContext);
     const nextUrl = loading ? null : next(-1);
     const lastItem = typeof(nextUrl) !== 'string';
     return(
       <Tooltip title={lastItem ? `No lower items in piece ${piece}. ${getSkippedStr(nextUrl, 'item')}` : ''}>
         <span>
-          <IconButton disabled={loading || locked || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><WestIcon color='inherit'/></IconButton>
+          <IconButton disabled={loading || locked || lastItem} color='primary' onClick={()=>{
+            setLocked(true);
+            setTimeout(()=>{
+              navigate(nextUrl);
+              setLocked(false);
+            });
+          }}>
+            <WestIcon color='inherit'/>
+          </IconButton>
         </span>
       </Tooltip>
     );
   }
   function RecordNavigatorForward() {
     const loading = useContext(LoadingContext) || (pieceStatus !== 'success');
-    const [locked,] = useContext(LockedContext);
+    const [locked, setLocked] = useContext(LockedContext);
     const nextUrl = loading ? null : next( 1);
     const lastItem = typeof(nextUrl) !== 'string';
     return(
       <Tooltip title={lastItem ? `No higher items in piece ${piece}. ${getSkippedStr(nextUrl, 'item')}` : ''}>
         <span>
-          <IconButton disabled={loading || locked || lastItem} onClick={()=>navigate(nextUrl)} color='primary'><EastIcon color='inherit'/></IconButton>
+          <IconButton disabled={loading || locked || lastItem} color='primary' onClick={()=>{
+            setLocked(true);
+            setTimeout(()=>{
+              navigate(nextUrl);
+              setLocked(false);
+            });
+          }}>
+            <EastIcon color='inherit'/>
+          </IconButton>
         </span>
       </Tooltip>
     );
@@ -89,7 +105,7 @@ export function RecordNavigator({piece}) {
   //re https://github.com/mui/material-ui/issues/5393, https://stackoverflow.com/questions/67578008/how-to-get-value-from-material-ui-textfield-after-pressing-enter
   function RecordNavigatorTeleport() {
     const loading = useContext(LoadingContext) || (pieceStatus !== 'success');
-    const [locked,] = useContext(LockedContext);
+    const [locked, setLocked] = useContext(LockedContext);
     const [valid, setValid] = useState(true);
     const [ref, setRef] = useState(false);
     const [popoverAnchor, setPopoverAnchor] = useState(false);
@@ -123,19 +139,23 @@ export function RecordNavigator({piece}) {
             }}
             onKeyPress={(e) => {
               if(e.key === 'Enter' && valid) {
-                const intendedSailor = e.target.value.trim();
-                if(intendedSailor.startsWith('rating/') || intendedSailor.startsWith('officer/')) {
-                  navigate('/person/' + intendedSailor);
-                }
-                else if(/^\d+$/.test(intendedSailor)) {
-                  navigate('/ratings/' + intendedSailor);
-                }
-                else {
-                  const bits = e.target.value.split('/');
+                setLocked(true);
+                setTimeout(()=>{
+                  const intendedSailor = e.target.value.trim();
+                  if(intendedSailor.startsWith('rating/') || intendedSailor.startsWith('officer/')) {
+                    navigate('/person/' + intendedSailor);
+                  }
+                  else if(/^\d+$/.test(intendedSailor)) {
+                    navigate('/ratings/' + intendedSailor);
+                  }
+                  else {
+                    const bits = e.target.value.split('/');
 console.log(bits[0].trim(), bits[1].trim());
-                  setRef({piece: bits[0].trim(), item: bits[1].trim()});
-                }
-                setPopoverAnchor(false);
+                    setRef({piece: bits[0].trim(), item: bits[1].trim()});
+                  }
+                  setPopoverAnchor(false);
+                  setLocked(false);
+                });
               }
             }}
             onKeyDown={(e)=>{e.key === 'Escape' && setPopoverAnchor(false);}}

@@ -66,14 +66,20 @@ export function emptyRow(coldefs) {
 export function DataTable(props) {
   const {rows, columns, onChange, primary, positionalPrimary, extraRowControls, controlCount, sx, ...otherProps} = props;
   const loading = useContext(LoadingContext);
-  const [locked,] = useContext(LockedContext);
+  const [locked, setLocked] = useContext(LockedContext);
   const theme = useTheme();
   const apiRef = useGridApiRef();
   function addButton() {
     return (
       <Stack alignItems='center'>
         <Typography variant='caption'>No rows</Typography>
-        <Button variant='outlined' onClick={()=>{onChange([{...emptyRow(columns), [primary]: 1}])}}>Add first row</Button>
+        <Button variant='outlined' onClick={()=>{
+          setLocked(true);
+          setTimeout(()=>{
+            onChange([{...emptyRow(columns), [primary]: 1}]);
+            setLocked(false);
+          });
+        }}>Add first row</Button>
       </Stack>
     );
   }
@@ -109,14 +115,26 @@ export function DataTable(props) {
         insertionButtons = (<>
           <Tooltip title='Insert row above' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{finalOnChange(insert(row[primary]))}}>
+              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+                setLocked(true);
+                setTimeout(()=>{
+                  finalOnChange(insert(row[primary]));
+                  setLocked(false);
+                });
+              }}>
                 <InsertAboveIcon/>
               </IconButton>
             </span>
           </Tooltip>
           <Tooltip title='Insert row below' placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{finalOnChange(insert(row[primary] + 1))}}>
+              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+                setLocked(true);
+                setTimeout(()=>{
+                  finalOnChange(insert(row[primary] + 1));
+                  setLocked(false);
+                });
+              }}>
                 <InsertBelowIcon/>
               </IconButton>
             </span>
@@ -129,14 +147,18 @@ export function DataTable(props) {
         <Tooltip title='Delete row' placement='top' followCursor arrow>
           <span>
             <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
-              const newRows = [];
-              for(const x of rows) {
-                if(x[primary] === row[primary]) continue;
-                const newRow = structuredClone(x);
-                if(positionalPrimary && (x[primary] > row[primary])) newRow[primary] -= 1;
-                newRows.push(newRow);
-              }
-              finalOnChange(newRows);
+              setLocked(true);
+              setTimeout(()=>{
+                const newRows = [];
+                for(const x of rows) {
+                  if(x[primary] === row[primary]) continue;
+                  const newRow = structuredClone(x);
+                  if(positionalPrimary && (x[primary] > row[primary])) newRow[primary] -= 1;
+                  newRows.push(newRow);
+                }
+                finalOnChange(newRows);
+                setLocked(false);
+              });
             }}>
               <DeleteIcon/>
             </IconButton>
