@@ -30,8 +30,11 @@ export default function Other({tag, columns, columnGroupingModel, record}) {
                 setLocked(true);
                 setTimeout(async ()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
                   (await emptyOK()) && mutation.mutate(data, {
-                    onError: failedMutationDialog(dialogs, mutation),
-                    onSettled: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
+                    onError: {
+                      failedMutationDialog(dialogs, mutation);
+                      setLocked(false);
+                    },
+                    onSuccess: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
                   });
                   //It looks like it is possible for the user to mess about with entering extra data
                   //between the emptyOK operation and the mutate. More generally, it looks like it is possible

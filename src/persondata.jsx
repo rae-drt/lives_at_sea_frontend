@@ -23,8 +23,11 @@ export default function PersonData({record}) {
           setLocked(true);
           setTimeout(()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
             mutation.mutate(data, {
-              onError: failedMutationDialog(dialogs, mutation),
-              onSettled: ()=>{setLocked(false);},
+              onError: {
+                failedMutationDialog(dialogs, mutation),
+                setLocked(false);
+              },
+              onSuccess: ()=>{setLocked(false);},
               /* There are some confusing issues around both unmount and multiple invocations in respect to these callbacks as passed to the mutate function itself.
                * Re: https://tanstack.com/query/v5/docs/framework/react/guides/mutations#mutation-side-effects (final para of section) and
                *     https://tanstack.com/query/v5/docs/framework/react/guides/mutations#consecutive-mutations (directly beneath on the same page)
