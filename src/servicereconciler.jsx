@@ -261,8 +261,8 @@ export default function ServiceReconciler({record}) {
                      setLocked(true);
                      setTimeout(async ()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
                        (await emptyOK()) && serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
-                         onError: {
-                           failedMutationDialog(dialogs, serviceRecordsMutation);
+                         onError: (error, variables) => {
+                           failedMutationDialog(dialogs, serviceRecordsMutation)(error, variables);
                            setLocked(false);
                          },
                          onSuccess: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks

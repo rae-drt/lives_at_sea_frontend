@@ -30,8 +30,8 @@ export default function Other({tag, columns, columnGroupingModel, record}) {
                 setLocked(true);
                 setTimeout(async ()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
                   (await emptyOK()) && mutation.mutate(data, {
-                    onError: {
-                      failedMutationDialog(dialogs, mutation);
+                    onError: (error, variables) => {
+                      failedMutationDialog(dialogs, mutation)(error, variables);
                       setLocked(false);
                     },
                     onSuccess: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks

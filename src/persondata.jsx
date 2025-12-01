@@ -23,8 +23,8 @@ export default function PersonData({record}) {
           setLocked(true);
           setTimeout(()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
             mutation.mutate(data, {
-              onError: {
-                failedMutationDialog(dialogs, mutation),
+              onError: (error, variables) => {
+                failedMutationDialog(dialogs, mutation)(error, variables),
                 setLocked(false);
               },
               onSuccess: ()=>{setLocked(false);},
