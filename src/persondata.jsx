@@ -19,7 +19,7 @@ export default function PersonData({record}) {
   return (
     <Stack direction='row' width={0.9} alignItems='flex-start'>
       <Card variant='outlined'>
-        <PersonTableControlPanel data={data} onChange={(()=>{
+        <PersonTableControlPanel data={data} onChange={()=>{
           setLocked(true);
           setTimeout(()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
             mutation.mutate(data, {
@@ -38,7 +38,7 @@ export default function PersonData({record}) {
                */
             });
           });
-        })}/>
+        }}/>
         {
           <PersonTable data={data} onChange={setData} rowCells={8}
             rows={sailorType === 'officer' ?
