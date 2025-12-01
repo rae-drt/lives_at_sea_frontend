@@ -59,7 +59,7 @@ function XCheck({ready, checked, onChange}) {
   return (
     <Stack direction='row' alignItems='center'>
       {ready ? <HappyIcon sx = {{color: 'green'}}/> : <SadIcon sx = {{color: 'red'}}/>}
-      <FormControlLabel control={<Checkbox disabled={locked || loading || (!ready)} checked={checked} onChange={onChange}/>} label='Xcheck' labelPlacement='start'/>
+      <FormControlLabel control={<Checkbox data-testid='xCheck' data-value={checked} disabled={locked || loading || (!ready)} checked={checked} onChange={onChange}/>} label='Xcheck' labelPlacement='start'/>
     </Stack>
   );
 }
@@ -128,7 +128,7 @@ export default function ServiceReconciler({record}) {
         <>
           <Tooltip title={'Overwrite row in ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+              <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='overwriteOtherButton' onClick={()=>{
                 setLocked(true);
                 setTimeout(()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
@@ -146,7 +146,7 @@ export default function ServiceReconciler({record}) {
           </Tooltip>
           <Tooltip title={'Insert row into ' + (thisTable < thatTable ? 'right' : 'left') + ' table'} placement='top' followCursor arrow>
             <span>
-              <IconButton sx={sx} fontSize='inherit' color='primary' onClick={()=>{
+              <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='insertOtherButton' onClick={()=>{
                 setLocked(true);
                 setTimeout(()=>{
                   const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
@@ -167,48 +167,51 @@ export default function ServiceReconciler({record}) {
       );
     };
     return (
-      <ServiceTable
-        transcriber={serviceRecords.services[thisTable].userid}
-        complete={serviceRecords.services[thisTable].complete}
-        reconciled={serviceRecords.reconciled}
-        primary={ROW_PRIMARY}
-        cloneButton={
-          <Tooltip title='Replace other table with this table'>
-            <span>
-              <Button
-                disabled={(differenceMap === null) || loading || locked}
-                onClick={() => {
-                  setLocked(true);
-                  setTimeout(()=>{
-                    const clone = structuredClone(serviceRecords);
-                    clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
-                    setServiceRecords(clone);
-                    setLocked(false);
-                  });
-                }}
-              >{ thisTable < thatTable ?
-                   (thisTable + 1) + ' ' + String.fromCharCode(8658) + ' ' + (thatTable + 1):
-                   (thatTable + 1) + ' ' + String.fromCharCode(8656) + ' ' + (thisTable + 1)
-               }
-              </Button>
-            </span>
-          </Tooltip>
-        }
-        flipComplete={()=>{
-          const clone = structuredClone(serviceRecords);
-          clone.services[thisTable].complete = !clone.services[thisTable].complete;
-          setServiceRecords(clone);
-        }}
-        data={serviceRecords.services[thisTable].records}
-        onChange={(d)=>{
-          const clone = structuredClone(serviceRecords);
-          clone.services[thisTable].records = structuredClone(d);
-          setServiceRecords(clone);
-        }}
-        difference={differenceMap}
-        extraRowControls={rowControls}
-        controlCount={5}
-      />
+      <div data-testid={'serviceTable' + thisTable}>
+        <ServiceTable
+          transcriber={serviceRecords.services[thisTable].userid}
+          complete={serviceRecords.services[thisTable].complete}
+          reconciled={serviceRecords.reconciled}
+          primary={ROW_PRIMARY}
+          cloneButton={
+            <Tooltip title='Replace other table with this table'>
+              <span>
+                <Button
+                  data-testid={'clone' + thisTable + 'to' + thatTable + 'Button'}
+                  disabled={(differenceMap === null) || loading || locked}
+                  onClick={() => {
+                    setLocked(true);
+                    setTimeout(()=>{
+                      const clone = structuredClone(serviceRecords);
+                      clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
+                      setServiceRecords(clone);
+                      setLocked(false);
+                    });
+                  }}
+                >{ thisTable < thatTable ?
+                     (thisTable + 1) + ' ' + String.fromCharCode(8658) + ' ' + (thatTable + 1):
+                     (thatTable + 1) + ' ' + String.fromCharCode(8656) + ' ' + (thisTable + 1)
+                 }
+                </Button>
+              </span>
+            </Tooltip>
+          }
+          flipComplete={()=>{
+            const clone = structuredClone(serviceRecords);
+            clone.services[thisTable].complete = !clone.services[thisTable].complete;
+            setServiceRecords(clone);
+          }}
+          data={serviceRecords.services[thisTable].records}
+          onChange={(d)=>{
+            const clone = structuredClone(serviceRecords);
+            clone.services[thisTable].records = structuredClone(d);
+            setServiceRecords(clone);
+          }}
+          difference={differenceMap}
+          extraRowControls={rowControls}
+          controlCount={5}
+        />
+      </div>
     );
   }
   function getSingleTable() {
@@ -254,7 +257,8 @@ export default function ServiceReconciler({record}) {
             clone.reconciled = !(serviceRecords.reconciled);
             setServiceRecords(clone);
           }}/>
-         <Button variant='outlined'
+         <Button data-testid='servicesCommitButton'
+                 variant='outlined'
                  disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty)) || locked || loading}
                  onClick={
                    ()=>{

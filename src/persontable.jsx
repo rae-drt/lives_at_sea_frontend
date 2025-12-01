@@ -43,6 +43,7 @@ function PersonTableField({data, onChange, field, error}) {
       fullWidth
       type={fieldType}
       value={fieldValue}
+      data-testid={field}
       onBlur={(e)=>{ //i.e. on loss of focus
         if(fieldType === 'number' && e.target.value.trim() === '') {
           const newData = structuredClone(data);
@@ -93,7 +94,7 @@ export default function PersonTable({data, onChange, rows, rowCells}) {
   }
 
   return (
-    <Grid container alignItems='flex-end' columns={7}>
+    <Grid container alignItems='flex-end' columns={7} data-testid='personTable'>
       <Card sx={data.error ? style.differentCell : null}>
         <CardContent>
           <Stack direction='row' spacing={2}>

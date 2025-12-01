@@ -39,7 +39,7 @@ export default function PersonControlPanel({navigator, data, onChange}) {
         </IconButton>
       </Stack>
       { sailorType === 'rating' &&
-        <FormControlLabel control={<Checkbox disabled={loading || locked} checked={data.notww1} onChange={()=>{onChange({...data, notww1: !data.notww1})}}/>} label='Not WW1' labelPlacement='start'/>
+        <FormControlLabel data-testid='notww1' data-value={data.notww1} control={<Checkbox disabled={loading || locked} checked={data.notww1} onChange={()=>{onChange({...data, notww1: !data.notww1})}}/>} label='Not WW1' labelPlacement='start'/>
       }
     </Stack>
   );

@@ -23,8 +23,8 @@ export default function PersonTableControlPanel({data, onChange}) {
         <Stack direction='row' justifyContent='space-between' spacing={2}>
           <Typography variant='h6'>{sailorType === 'officer' ? 'Officer #' + officerref(data) : catref(data)}</Typography>
           <Stack direction='row' spacing={2}>
-            <FormControlLabel control={<Checkbox checked={data?.error} disabled={true}/>} label='Error?' labelPlacement='start'/>
-            <Button disabled={(!dirty) || loading || locked} variant='outlined' onClick={onChange}>Enter</Button>
+            <FormControlLabel control={<Checkbox data-testid='error' data-value={data.error} checked={data?.error} disabled={true}/>} label='Error?' labelPlacement='start'/>
+            <Button data-testid='personCommitButton' disabled={(!dirty) || loading || locked} variant='outlined' onClick={onChange}>Enter</Button>
             {/* It looks like it is possible for a user to enter data between click and mutate, given
               * some delay between click and mutate. HOWEVER observation shows that the event appears
               * to occur within the context of the state at the point that the event began: even if the
