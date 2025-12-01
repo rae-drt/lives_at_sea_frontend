@@ -651,7 +651,7 @@ export function failedMutationDialog(dialogs, mutation) {
                     title: 'Failed save',
                     cancelText: 'Details',
                   }).then((ok)=>{
-                    mutation.reset(); //feels dirty to do this while it is handling the error but should be fine
+                    //mutation.reset(); //feels dirty to do this while it is handling the error but should be fine
                                       //so long as this is the last thing that we do with this mutation
                                       //operation -- which it very much should be
                     if(!ok) {
