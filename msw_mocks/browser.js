@@ -6,6 +6,7 @@ const TRACE = import.meta.env.VITE_MOCK_TRACE;
 const DUMP  = import.meta.env.VITE_MOCK_DUMP;
 const GET_DELAY  = Number(import.meta.env.VITE_GET_DELAY);
 const POST_DELAY = Number(import.meta.env.VITE_POST_DELAY);
+const POST_ERROR = Number(import.meta.env.VITE_POST_ERROR);
 const PERSON_MAP = new Map();
 const PIECE_MAP = new Map();
 
@@ -99,6 +100,7 @@ export const handlers = [
   http.post(import.meta.env.VITE_API_ROOT + 'person', async ({request}) => {
     if(TRACE) console.log('POST /person');
     if(POST_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, POST_DELAY * 1000)); console.log('        ...end delay'); }
+    if(POST_ERROR) return new HttpResponse(null, { status: POST_ERROR });
     const data = await request.json();
 
     PERSON_MAP.set(data.person.person_id, data);
@@ -131,6 +133,7 @@ export const handlers = [
     const pid = getNumericParam(request.url, 'piece_number');
     if(TRACE) console.log('POST /status/piece_summary/last_piecesummary', pid);
     if(POST_DELAY) { console.log('delaying...'); await new Promise(r => setTimeout(r, POST_DELAY * 1000)); console.log('        ...end delay'); }
+    //if(POST_ERROR) return new HttpResponse(null, { status: POST_ERROR });
     const data = await request.json();
     PIECE_MAP.set(pid, data);
     if(DUMP) console.log(`Mock wrote to bucket Piece ${pid}: `, data);
