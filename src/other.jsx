@@ -26,10 +26,10 @@ export default function Other({tag, columns, columnGroupingModel, record}) {
         <Stack width='90vw' justifyContent='space-between' spacing={2} sx={{padding: 2}}>
           <Stack direction='row' justifyContent='flex-end'>
             <Button variant='outlined' disabled={(!dirty) || loading || locked} onClick={
-              ()=>{
-                setLocked(true);
-                setTimeout(async ()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
-                  (await emptyOK()) && mutation.mutate(data, {
+              async ()=>{
+                if(await emptyOK()) {
+                  setLocked(true);
+                  mutation.mutate(data, {
                     onError: (error, variables) => {
                       failedMutationDialog(dialogs, mutation)(error, variables);
                       setLocked(false);
@@ -44,7 +44,7 @@ export default function Other({tag, columns, columnGroupingModel, record}) {
                   //and mutate, those edits are simply ignored. Which really is the behaviour that we want for
                   //any sensible kind of atomicity. While not a great user experience it is in practice
                   //nearly impossible for the user to do this anyway.
-                });
+                }
               }
             }>Enter</Button>
           </Stack>

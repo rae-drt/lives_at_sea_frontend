@@ -69,10 +69,8 @@ export function RecordNavigator({piece}) {
         <span>
           <IconButton disabled={loading || locked || lastItem} color='primary' onClick={()=>{
             setLocked(true);
-            setTimeout(()=>{
-              navigate(nextUrl);
-              setLocked(false);
-            });
+            navigate(nextUrl);
+            setLocked(false);
           }}>
             <WestIcon color='inherit'/>
           </IconButton>
@@ -90,10 +88,8 @@ export function RecordNavigator({piece}) {
         <span>
           <IconButton disabled={loading || locked || lastItem} color='primary' onClick={()=>{
             setLocked(true);
-            setTimeout(()=>{
-              navigate(nextUrl);
-              setLocked(false);
-            });
+            navigate(nextUrl);
+            setLocked(false);
           }}>
             <EastIcon color='inherit'/>
           </IconButton>
@@ -140,22 +136,20 @@ export function RecordNavigator({piece}) {
             onKeyPress={(e) => {
               if(e.key === 'Enter' && valid) {
                 setLocked(true);
-                setTimeout(()=>{
-                  const intendedSailor = e.target.value.trim();
-                  if(intendedSailor.startsWith('rating/') || intendedSailor.startsWith('officer/')) {
-                    navigate('/person/' + intendedSailor);
-                  }
-                  else if(/^\d+$/.test(intendedSailor)) {
-                    navigate('/ratings/' + intendedSailor);
-                  }
-                  else {
-                    const bits = e.target.value.split('/');
+                const intendedSailor = e.target.value.trim();
+                if(intendedSailor.startsWith('rating/') || intendedSailor.startsWith('officer/')) {
+                  navigate('/person/' + intendedSailor);
+                }
+                else if(/^\d+$/.test(intendedSailor)) {
+                  navigate('/ratings/' + intendedSailor);
+                }
+                else {
+                  const bits = e.target.value.split('/');
 console.log(bits[0].trim(), bits[1].trim());
-                    setRef({piece: bits[0].trim(), item: bits[1].trim()});
-                  }
-                  setPopoverAnchor(false);
-                  setLocked(false);
-                });
+                  setRef({piece: bits[0].trim(), item: bits[1].trim()});
+                }
+                setPopoverAnchor(false);
+                setLocked(false);
               }
             }}
             onKeyDown={(e)=>{e.key === 'Escape' && setPopoverAnchor(false);}}

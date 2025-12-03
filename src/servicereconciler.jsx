@@ -130,15 +130,13 @@ export default function ServiceReconciler({record}) {
             <span>
               <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='overwriteOtherButton' onClick={()=>{
                 setLocked(true);
-                setTimeout(()=>{
-                  const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
-                  newTable.push({...structuredClone(row), [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
-                  newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY])));
-                  const clone = structuredClone(serviceRecords);
-                  clone.services[thatTable].records = newTable;
-                  setServiceRecords(clone);
-                  setLocked(false);
-                });
+                const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
+                newTable.push({...structuredClone(row), [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
+                newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY])));
+                const clone = structuredClone(serviceRecords);
+                clone.services[thatTable].records = newTable;
+                setServiceRecords(clone);
+                setLocked(false);
               }}>
                 <OverwriteThatIcon sx={{transform: thisTable < thatTable ? 'rotate(0)' : 'rotate(180deg)'}}/>
               </IconButton>
@@ -148,16 +146,14 @@ export default function ServiceReconciler({record}) {
             <span>
               <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='insertOtherButton' onClick={()=>{
                 setLocked(true);
-                setTimeout(()=>{
-                  const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
-                  newTable.push({...structuredClone(row), [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
-                  newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY] - 1)));
-                  for(const x of newTable.slice(row[ROW_PRIMARY])) x[ROW_PRIMARY] += 1;
-                  const clone = structuredClone(serviceRecords);
-                  clone.services[thatTable].records = newTable;
-                  setServiceRecords(clone);
-                  setLocked(false);
-                });
+                const newTable = structuredClone(serviceRecords.services[thatTable].records.slice(0, row[ROW_PRIMARY] - 1));
+                newTable.push({...structuredClone(row), [ROW_PRIMARY]: newTable.length + 1}); //do it like this in case we are pushing a row towards the end of a longer table (otherwise the row would be too high)
+                newTable.push(...structuredClone(serviceRecords.services[thatTable].records.slice(row[ROW_PRIMARY] - 1)));
+                for(const x of newTable.slice(row[ROW_PRIMARY])) x[ROW_PRIMARY] += 1;
+                const clone = structuredClone(serviceRecords);
+                clone.services[thatTable].records = newTable;
+                setServiceRecords(clone);
+                setLocked(false);
               }}>
                 <InsertThatIcon sx={{transform: thisTable < thatTable ? 'rotate(180deg)' : 'rotate(0)'}}/>
               </IconButton>
@@ -181,12 +177,10 @@ export default function ServiceReconciler({record}) {
                   disabled={(differenceMap === null) || loading || locked}
                   onClick={() => {
                     setLocked(true);
-                    setTimeout(()=>{
-                      const clone = structuredClone(serviceRecords);
-                      clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
-                      setServiceRecords(clone);
-                      setLocked(false);
-                    });
+                    const clone = structuredClone(serviceRecords);
+                    clone.services[thatTable].records = structuredClone(serviceRecords.services[thisTable].records);
+                    setServiceRecords(clone);
+                    setLocked(false);
                   }}
                 >{ thisTable < thatTable ?
                      (thisTable + 1) + ' ' + String.fromCharCode(8658) + ' ' + (thatTable + 1):
@@ -261,17 +255,17 @@ export default function ServiceReconciler({record}) {
                  variant='outlined'
                  disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty)) || locked || loading}
                  onClick={
-                   ()=>{
-                     setLocked(true);
-                     setTimeout(async ()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
-                       (await emptyOK()) && serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
+                   async ()=>{
+                     if(await emptyOK()) {
+                       setLocked(true);
+                       serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
                          onError: (error, variables) => {
                            failedMutationDialog(dialogs, serviceRecordsMutation)(error, variables);
                            setLocked(false);
                          },
                          onSuccess: ()=>{setLocked(false)}, //see similar code in persondata.jsx for concerns around use of these callbacks
                        });
-                     });
+                     }
                    }
                    //It looks like it is possible for the user to mess about with entering extra data
                    //between the emptyOK operation and the mutate. More generally, it looks like it is possible

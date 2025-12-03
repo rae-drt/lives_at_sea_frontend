@@ -21,22 +21,20 @@ export default function PersonData({record}) {
       <Card variant='outlined'>
         <PersonTableControlPanel data={data} onChange={()=>{
           setLocked(true);
-          setTimeout(()=>{// No actual timeout -- this pushes onto a queue, allowing event handler to end and the display to update immediately with locked set to true
-            mutation.mutate(data, {
-              onError: (error, variables) => {
-                failedMutationDialog(dialogs, mutation)(error, variables),
-                setLocked(false);
-              },
-              onSuccess: ()=>{setLocked(false);},
-              /* There are some confusing issues around both unmount and multiple invocations in respect to these callbacks as passed to the mutate function itself.
-               * Re: https://tanstack.com/query/v5/docs/framework/react/guides/mutations#mutation-side-effects (final para of section) and
-               *     https://tanstack.com/query/v5/docs/framework/react/guides/mutations#consecutive-mutations (directly beneath on the same page)
-               * For unlocking, the worst case is that we fail to unlock, which is acceptable as it is the safe option.
-               * For error handling, it may have to be robust to the possibiltiy that we do not report to user??
-               *   Though I would hope that we can expect the component to remain mounted
-               *   And I also hope that the consecutive thing does not apply here as we have only one call to 'mutate'.
-               */
-            });
+          mutation.mutate(data, {
+            onError: (error, variables) => {
+              failedMutationDialog(dialogs, mutation)(error, variables),
+              setLocked(false);
+            },
+            onSuccess: ()=>{setLocked(false);},
+            /* There are some confusing issues around both unmount and multiple invocations in respect to these callbacks as passed to the mutate function itself.
+             * Re: https://tanstack.com/query/v5/docs/framework/react/guides/mutations#mutation-side-effects (final para of section) and
+             *     https://tanstack.com/query/v5/docs/framework/react/guides/mutations#consecutive-mutations (directly beneath on the same page)
+             * For unlocking, the worst case is that we fail to unlock, which is acceptable as it is the safe option.
+             * For error handling, it may have to be robust to the possibiltiy that we do not report to user??
+             *   Though I would hope that we can expect the component to remain mounted
+             *   And I also hope that the consecutive thing does not apply here as we have only one call to 'mutate'.
+             */
           });
         }}/>
         {

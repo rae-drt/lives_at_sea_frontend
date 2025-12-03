@@ -75,10 +75,8 @@ export function DataTable(props) {
         <Typography variant='caption'>No rows</Typography>
         <Button data-testid='firstRowButton' variant='outlined' onClick={()=>{
           setLocked(true);
-          setTimeout(()=>{
-            onChange([{...emptyRow(columns), [primary]: 1}]);
-            setLocked(false);
-          });
+          onChange([{...emptyRow(columns), [primary]: 1}]);
+          setLocked(false);
         }}>Add first row</Button>
       </Stack>
     );
@@ -117,10 +115,8 @@ export function DataTable(props) {
             <span>
               <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='newRowAboveButton' onClick={()=>{
                 setLocked(true);
-                setTimeout(()=>{
-                  finalOnChange(insert(row[primary]));
-                  setLocked(false);
-                });
+                finalOnChange(insert(row[primary]));
+                setLocked(false);
               }}>
                 <InsertAboveIcon/>
               </IconButton>
@@ -130,10 +126,8 @@ export function DataTable(props) {
             <span>
               <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='newRowBelowButton' onClick={()=>{
                 setLocked(true);
-                setTimeout(()=>{
-                  finalOnChange(insert(row[primary] + 1));
-                  setLocked(false);
-                });
+                finalOnChange(insert(row[primary] + 1));
+                setLocked(false);
               }}>
                 <InsertBelowIcon/>
               </IconButton>
@@ -148,17 +142,15 @@ export function DataTable(props) {
           <span>
             <IconButton sx={sx} fontSize='inherit' color='primary' data-testid='deleteRowButton' onClick={()=>{
               setLocked(true);
-              setTimeout(()=>{
-                const newRows = [];
-                for(const x of rows) {
-                  if(x[primary] === row[primary]) continue;
-                  const newRow = structuredClone(x);
-                  if(positionalPrimary && (x[primary] > row[primary])) newRow[primary] -= 1;
-                  newRows.push(newRow);
-                }
-                finalOnChange(newRows);
-                setLocked(false);
-              });
+              const newRows = [];
+              for(const x of rows) {
+                if(x[primary] === row[primary]) continue;
+                const newRow = structuredClone(x);
+                if(positionalPrimary && (x[primary] > row[primary])) newRow[primary] -= 1;
+                newRows.push(newRow);
+              }
+              finalOnChange(newRows);
+              setLocked(false);
             }}>
               <DeleteIcon/>
             </IconButton>

@@ -29,12 +29,10 @@ export default function PersonControlPanel({navigator, data, onChange}) {
         <IconButton disabled={loading || locked} color='primary'>
           <WestIcon color='inherit' onClick={()=>{
             setLocked(true);
-            setTimeout(()=>{
-              sailorType === 'rating' ?
-                navigate('/ratings/' + data.piece):
-                navigate('/officers/' + (data.surname ? data.surname.charAt(0) : 'null'));
-              setLocked(false);
-            });
+            sailorType === 'rating' ?
+              navigate('/ratings/' + data.piece):
+              navigate('/officers/' + (data.surname ? data.surname.charAt(0) : 'null'));
+            setLocked(false);
           }}/>
         </IconButton>
       </Stack>
