@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import { useDialogs } from '@toolpad/core/useDialogs';
 
@@ -73,6 +73,20 @@ export default function ServiceReconciler({record}) {
   const [locked, setLocked] = useContext(LockedContext);
   const emptyOK = useEmptyRowOK(serviceRecords.services.map((x)=>x.records), ROW_PRIMARY);
   const dialogs = useDialogs();
+
+  const sameServices = (serviceRecords.services.length === 0 || serviceRecords.services.length === 1) ? true : isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records);
+  const xCheckReady = serviceRecords.services.every((x)=>x.userid > 0) &&
+                      serviceRecords.services.every((x)=>x.complete > 0) &&
+                      sameServices;
+
+  useEffect(()=>{
+    if((!xCheckReady) && serviceRecords.reconciled) {
+      const clone = structuredClone(serviceRecords);
+      clone.reconciled = false;
+      setServiceRecords(clone);
+    }
+  }, [xCheckReady, serviceRecords, serviceRecords.reconciled, setServiceRecords]);
+
 
   if(serviceRecordsQueryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
@@ -238,11 +252,6 @@ export default function ServiceReconciler({record}) {
     null : //null if the services are identical. If there is any difference, the array will be the same length as the shorter services table (potentially empty, making _all_ rows in the longer table "different").
            //TODO it may well be that if one table is empty, the API just doesn't return anything at all for it -- if so, I can make that work for me by passing an empty array in place of the missing entry
     getDifferenceMap(serviceRecords.services[0].records, serviceRecords.services[1].records);
-  const sameServices = (serviceRecords.services.length === 0 || serviceRecords.services.length === 1) ? true : isEqual(serviceRecords.services[0].records, serviceRecords.services[1].records);
-  const xCheckReady = serviceRecords.services.every((x)=>x.userid > 0) &&
-                      serviceRecords.services.every((x)=>x.complete > 0) &&
-                      sameServices;
-  if(!xCheckReady) serviceRecords.reconciled = false; //if the checkbox is, or becomes, unready then the reconciled state should be cleared
   return (
     <Stack sx={{padding: 2}}>
       <Stack direction='row' justifyContent='flex-end' spacing={4} sx={{paddingBottom: 2}}>
