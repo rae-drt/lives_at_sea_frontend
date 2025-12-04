@@ -9,18 +9,16 @@ export default function SimpleEditor({table, primary}) {
   const [rows, setRows] = useState([]);
   const [fields, setFields] = useState([]);
   const { data: queryData, status: queryStatus } = useQuery(simpleTableQuery(table));
-  useEffect(() => {
-    if(queryStatus === 'success') {
-      if(queryData && queryData.length) {
-        setRows(queryData);
-        setFields(Object.keys(queryData[0]));
-      }
-      else {
-        setRows([]);
-        setFields([]);
-      }
+  if(queryStatus === 'success') {
+    if(queryData && queryData.length) {
+      setRows(queryData);
+      setFields(Object.keys(queryData[0]));
     }
-  }, [queryData, queryStatus]);
+    else {
+      setRows([]);
+      setFields([]);
+    }
+  }
 
   if(fields.length) {
     const columns = fields.map((e) => ({
