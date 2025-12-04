@@ -1,5 +1,5 @@
-import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router';
-import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, CircularProgress, Stack, Snackbar, Typography, Tooltip, TextField, Autocomplete, IconButton } from '@mui/material';
 import { ArrowForwardIos } from '@mui/icons-material';
@@ -10,13 +10,8 @@ import { getSkippedStr } from './data_utils';
 export default function RatingsIndexNavigator() {
   const { piece } = useParams();
   const { data: pieces, status: queryStatus } = useQuery(piecesQuery);
-  const [searchParams,] = useSearchParams();
-  const [checkSkipped, setCheckSkipped] = useState(true);
-  const loc = useLocation();
+  const [skipped, setSkipped] = useState([]);
   const navigate = useNavigate();
-  useEffect(() => {
-    setCheckSkipped(true);
-  }, [loc]);
 
   if(queryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);
@@ -32,16 +27,15 @@ export default function RatingsIndexNavigator() {
   function next(increment) {
     if(pieces.filter((e) => e === Number(piece)).length != 1) throw new Error(`There is not exactly one piece with number ${piece}`); //should never happen
     const newPieceIdx = pieces.indexOf(Number(piece)) + increment;
-    const skipped = range(Math.min(Number(piece) + increment, pieces[newPieceIdx]), Math.max(Number(piece) + increment, pieces[newPieceIdx]));
-    if(skipped.length === 0) return '/ratings/' + pieces[newPieceIdx];
-    else                     return '/ratings/' + pieces[newPieceIdx] + '?skipped=' + skipped.join();
+    setSkipped(range(Math.min(Number(piece) + increment, pieces[newPieceIdx]), Math.max(Number(piece) + increment, pieces[newPieceIdx])));
+    return '/ratings/' + pieces[newPieceIdx];
   }
 
 
   return (
     <Stack direction='row' alignItems='center' justifyContent='space-between'>
-      <Snackbar open={checkSkipped && searchParams.get('skipped')} onClose={()=>{setCheckSkipped(false)}} autoHideDuration={5000} anchorOrigin={{vertical: 'top', horizontal: 'center'}}>
-        <Alert severity='warning'>{getSkippedStr(searchParams.get('skipped')?.split(','), 'piece')}</Alert>
+      <Snackbar open={skipped.length} onClose={()=>{setSkipped([])}} autoHideDuration={5000} anchorOrigin={{vertical: 'top', horizontal: 'center'}}>
+        <Alert severity='warning'>{getSkippedStr(skipped, 'piece')}</Alert>
       </Snackbar>
       {/* catref control */}
       <Stack direction='row' spacing={2} alignItems='center' width={1}>
