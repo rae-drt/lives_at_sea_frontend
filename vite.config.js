@@ -38,6 +38,7 @@ export default defineConfig(({command, mode}) => {
                                          production_link_index);
           },
         },
+        eslint()
       ],
     }
   }
