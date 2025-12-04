@@ -32,7 +32,9 @@ export default function OfficerIndex() {
     }
     fetchData();
   }, [letter]);
-  document.title = 'Officers';
+  useEffect(()=> { /* initial render only */
+    document.title = 'Officers';
+  }, []);
 
   const list = [];
   if(data !== null) {

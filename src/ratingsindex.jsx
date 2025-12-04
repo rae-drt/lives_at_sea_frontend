@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { DataGrid } from '@mui/x-data-grid';
@@ -265,7 +266,9 @@ export default function RatingsIndex() {
     }),
   })});
 
-  document.title = 'Ratings Progress: ADM 188/' + piece;
+  useEffect(()=>{
+    document.title = 'Ratings Progress: ADM 188/' + piece;
+  }, [piece]);
 
   if(queryStatus === 'error') {
     return(<Alert severity='error'>Error fetching data</Alert>);

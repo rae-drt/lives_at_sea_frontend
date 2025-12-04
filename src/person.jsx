@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router';
 import Card from '@mui/material/Card';
 import Tab from '@mui/material/Tab';
@@ -40,13 +40,15 @@ export default function Person() {
     otherDataRecord.mutation.status,
   ];
 
-  if(isNew(nameId)) document.title = 'New ' + sailorType;
-  else if(personRecord.data) {
-    if(sailorType === 'rating') document.title = catref(personRecord.data);
-    else if(sailorType === 'officer') document.title = 'Officer #' + officerref(personRecord.data);
-    else throw new Error(); //this should never happen
-  }
-  else document.title = 'Fetching ' + sailorType + ' ' + nameId;
+  useEffect(()=>{
+    if(isNew(nameId)) document.title = 'New ' + sailorType;
+    else if(personRecord.data) {
+      if(sailorType === 'rating') document.title = catref(personRecord.data);
+      else if(sailorType === 'officer') document.title = 'Officer #' + officerref(personRecord.data);
+      else throw new Error(); //this should never happen
+    }
+    else document.title = 'Fetching ' + sailorType + ' ' + nameId;
+  }, [nameId, personRecord.data, sailorType]);
 
   if(
     (sailorType !== 'rating' && sailorType !== 'officer') ||

@@ -108,7 +108,7 @@ export function RecordNavigator({piece}) {
     const { data: nameId, status: queryStatus } = useQuery({...refToPersonIdQuery(ref.piece, ref.item), enabled: () => ref !== false});
     useEffect(() => {
       queryStatus === 'success' && navigate('/person/rating/' + nameId);
-    }, [queryStatus]);
+    }, [queryStatus, nameId]);
 
     if(queryStatus === 'pending' && ref !== false) {
       return (<CircularProgress/>);
