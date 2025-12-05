@@ -60,7 +60,7 @@ export function useDirtySailorBlocker(dirty) {
       ], loc);
 
       //no matches
-      if(matches === null || matches.length === 0) return new Error(); //Should not be able to happen
+      if(matches === null || matches.length === 0) return null;
 
       //react-router documentation is awful. This function returns an array, I presume in case we match more than one of the given routes.
       if(matches.length > 1) throw new Error('Too many matches'); //Just blow up if the return is surprising
@@ -80,6 +80,7 @@ export function useDirtySailorBlocker(dirty) {
     const current = getMatchParams(currentLocation); //is from current location, so should always match for current contexts
     const next = getMatchParams(nextLocation); //may be null if we are navigating away
 
+    if(current === null) throw new Error('current did not match expected route type');
     if(next !== null) {
       if(current.sailorType === next.sailorType &&
          current.nameId === next.nameId) {
