@@ -56,7 +56,7 @@ export function useDirtySailorBlocker(dirty) {
   function block({currentLocation, nextLocation}) {
     function getMatchParams(loc) {
       const matches = matchRoutes([
-        {path: ':sailorType/:nameId'},
+        {path: 'person/:sailorType/:nameId/:dataType'},
       ], loc);
 
       //no matches
@@ -69,9 +69,10 @@ export function useDirtySailorBlocker(dirty) {
       //throw an error if my assumptions break
       //(breakage here is on me, not on the bad react-router documentation)
       const keys = Object.keys(params);
-      if(!(keys.length === 2 &&
+      if(!(keys.length === 3 &&
            keys.includes('sailorType') &&
-           keys.includes('nameId'))) {
+           keys.includes('nameId') &&
+           keys.includes('dataType'))) {
         throw new Error('Bad params: ' + JSON.stringify(params));
       }
       return params;
