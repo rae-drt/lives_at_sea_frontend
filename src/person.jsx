@@ -5,6 +5,7 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import OtherData from './otherdata';
 import OtherServices from './otherservices';
@@ -71,6 +72,14 @@ export default function Person() {
           <DirtySailorContext value={dirty}>
             <LockedContext value={[locked, setLocked]}>
               <BlockNavigationDialog blocker={blocker}/>
+              <Stack spacing={2} width={0.95}>
+                <Card style={{backgroundColor: dirty.any() ? '#ff9999' : '#99ff99'}}>
+                  <Typography style={{fontWeight: 'bold'}}>{
+                    dirty.any() ? "Record has unsaved change(s)"
+                                : "Record has no unsaved changes"
+                  }</Typography>
+                </Card>
+              </Stack>
               <Stack direction='row' spacing={2} alignItems='center' justifyContent='space-around' width={0.95}>
                 <Stack sx={{alignItems: 'center', justifyContent: 'space-evenly'}} spacing={4}>
                   <PersonData record={personRecord}/>
