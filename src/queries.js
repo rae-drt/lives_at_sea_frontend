@@ -498,7 +498,6 @@ function serviceRecordsMutate(queryClient, sailorType, nameId, data) {
   const key = mainPersonQuery(sailorType, nameId).queryKey;
   const newClientData = structuredClone(queryClient.getQueryData(key));
   newClientData.services = structuredClone(data);
-  newClientData.services.services = [newClientData.services.services[0]] //if we are able to write the services then they must be the same, so we only write the first table
   for(const table of newClientData.services.services) {
     for(const row of table.records) {
       normalize(row, SERVICE_FIELD_TYPES);
@@ -632,8 +631,6 @@ export function useRecord(sailorType, nameId, selection) {
     scope: { id: 'ATOMIC' }, //mutations in the same scope run in series. this ensures that updates are completed before data is gathered for the next mutation.
     //onMutate: () => {console.log('   About to mutate', selection); }, //Perhaps worth noting that this callback fires before mutations get scope-paused -- but this is pure observation, I do not know whether this is a defined behaviour
     onSuccess: () => {
-      //must be in this order -- clear Zustand state first so that it then refreshes with the reloaded data -- just deleting the record seems not to be detected on React side
-      RECORDS.delete(sailorType, nameId, selection); //TODO: update hazards relating to this partial synchronous state update?
       return queryClient.invalidateQueries({queryKey: key});
       //lengthy study of the not-quite-good-enough useQuery docs, combined with experimentation,
       //indicates that invalidateQueries returns a promise that resolves when the refetch consequent
@@ -641,9 +638,6 @@ export function useRecord(sailorType, nameId, selection) {
       //from this callback resolves. therefore, at the point that this mutation resolves (and therefore
       //another mutation in the same scope can begin), the cache is up to date. This is sufficiently
       //correct for the next mutation.
-      //Note that it is not necessarily guaranteed that the sync state has updated with the query
-      //result, but this is not required for mutation purposes.
-      //(And the interface is hidden behind a spinner until the sync state *does* update)
     }
   });
 

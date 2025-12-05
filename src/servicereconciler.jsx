@@ -258,6 +258,13 @@ export default function ServiceReconciler({record}) {
         <XCheck ready={xCheckReady} checked={serviceRecords.reconciled} onChange={() => {
             const clone = structuredClone(serviceRecords);
             clone.reconciled = !(serviceRecords.reconciled);
+            if(clone.reconciled) {
+              for(const table of clone.services) table.step = 'RECONCILE';
+            }
+            else {
+              let i = 1;
+              for(const table of clone.services) table.step = `TRANSCRIBE${i++}`;
+            }
             setServiceRecords(clone);
           }}/>
          <Button data-testid='servicesCommitButton'
@@ -267,7 +274,10 @@ export default function ServiceReconciler({record}) {
                    async ()=>{
                      if(await emptyOK()) {
                        setLocked(true);
-                       serviceRecordsMutation.mutate(structuredClone(serviceRecords), {
+                       const clone = structuredClone(serviceRecords);
+                       clone.services = [clone.services[0]]; //if enter button enabled then must be the same, just write first table
+                       setServiceRecords(clone);
+                       serviceRecordsMutation.mutate(clone, {
                          onError: (error, variables) => {
                            failedMutationDialog(dialogs, serviceRecordsMutation)(error, variables);
                            setLocked(false);
