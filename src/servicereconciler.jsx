@@ -270,10 +270,10 @@ export default function ServiceReconciler({record}) {
          <Button data-testid='servicesCommitButton'
                  variant='outlined'
                  disabled={(!searchParams.get('devMode')) && ((!xCheckReady) || (!dirty)) || locked || loading}
-                 onClick={
-                   async ()=>{
+                 onClick={() => {
+                   setLocked(true); //synchronous locking
+                   const actualChange = async ()=>{
                      if(await emptyOK()) {
-                       setLocked(true);
                        const clone = structuredClone(serviceRecords);
                        clone.services = [clone.services[0]]; //if enter button enabled then must be the same, just write first table
                        setServiceRecords(clone);
@@ -286,6 +286,7 @@ export default function ServiceReconciler({record}) {
                        });
                      }
                    }
+                   actualChange();
                    //It looks like it is possible for the user to mess about with entering extra data
                    //between the emptyOK operation and the mutate. More generally, it looks like it is possible
                    //for a user to enter data between click and mutate, given some delay between click and
@@ -294,7 +295,7 @@ export default function ServiceReconciler({record}) {
                    //and mutate, those edits are simply ignored. Which really is the behaviour that we want for
                    //any sensible kind of atomicity. While not a great user experience it is in practice
                    //nearly impossible for the user to do this anyway.
-                 }
+                }}
          >Enter</Button>
       </Stack>
       <Stack direction='row' sx={{justifyContent: 'space-between', alignItems: 'space-between'}} spacing={2}>
